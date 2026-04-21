@@ -3,6 +3,7 @@
 const events = require("../events.js");
 const views = require("../util/views.js");
 const TagCategory = require("../models/tag_category.js");
+const misc = require("../util/misc.js");
 
 const template = views.getTemplate("tag-categories");
 const rowTemplate = views.getTemplate("tag-category-row");
@@ -154,6 +155,18 @@ class TagCategoriesView extends events.EventTarget {
     _evtColorChange(e, rowNode) {
         e.target.value = e.target.value.toLowerCase();
         rowNode._tagCategory.color = e.target.value;
+
+        const darkColor = misc.mixinCssColorForDarkTheme(e.target.value);
+        const textDark = rowNode.querySelector('.preview-dark.text-preview');
+        if (textDark) {
+            textDark.style.color = darkColor;
+            textDark.style.borderColor = darkColor;
+        }
+        const bgDark = rowNode.querySelector('.preview-dark-bg');
+        if (bgDark) {
+            bgDark.style.backgroundColor = darkColor;
+            bgDark.style.borderColor = darkColor;
+        }
     }
 
     _evtOrderChange(e, rowNode) {

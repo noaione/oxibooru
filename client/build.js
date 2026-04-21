@@ -21,6 +21,7 @@ const webapp_splash_screens = [
 ];
 
 const external_js = [
+    'culori/bundled/culori.cjs',
     'dompurify',
     'js-cookie',
     'marked',
@@ -90,8 +91,11 @@ function bundleHtml() {
         }).trim();
     }
 
+    const curTime = Math.floor(Math.round(new Date().getTime() / 1000));
+
     const baseHtml = readTextFile('./html/index.htm')
-        .replace('<!-- Base HTML Placeholder -->', `<base href="${baseUrl()}"/>`);
+        .replace('<!-- Base HTML Placeholder -->', `<base href="${baseUrl()}"/>`)
+        .replace(/\{\{buildTimestamp\}\}/g, curTime);
     fs.writeFileSync('./public/index.htm', minifyHtml(baseHtml));
 
     let compiledTemplateJs = [

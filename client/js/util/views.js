@@ -148,22 +148,36 @@ function makeColorInput(options) {
         required: options.required,
         class: "color",
     });
-    const backgroundPreviewNode = makeElement("div", {
-        class: "preview background-preview",
-        style: `border-color: ${options.value};
-                background-color: ${options.value}`,
+    const lightColor = misc.formatOklch(misc.intoOklch(options.value));
+    const darkColor = misc.mixinCssColorForDarkTheme(options.value);
+    const backgroundPreviewLightMode = makeElement("div", {
+        class: "preview preview-light-bg background-preview",
+        style: `border-color: ${lightColor};
+                background-color: ${lightColor}`,
     });
-    const textPreviewNode = makeElement("div", {
-        class: "preview text-preview",
-        style: `border-color: ${options.value};
-                color: ${options.value}`,
+    const textPreviewLightMode = makeElement("div", {
+        class: "preview preview-light text-preview",
+        style: `border-color: ${lightColor};
+                color: ${lightColor}`,
+    });
+    const backgroundPreviewDarkMode = makeElement("div", {
+        class: "preview preview-dark-bg background-preview",
+        style: `border-color: ${darkColor};
+                background-color: ${darkColor}`,
+    });
+    const textPreviewDarkMode = makeElement("div", {
+        class: "preview preview-dark text-preview",
+        style: `border-color: ${darkColor};
+                color: ${darkColor}`,
     });
     return makeElement(
         "label",
         { class: "color" },
         textInput,
-        backgroundPreviewNode,
-        textPreviewNode
+        backgroundPreviewLightMode,
+        textPreviewLightMode,
+        backgroundPreviewDarkMode,
+        textPreviewDarkMode
     );
 }
 
@@ -560,12 +574,20 @@ function monitorNodeRemoval(monitoredNode, callback) {
 
 document.addEventListener("input", (e) => {
     if (e.target.classList.contains("color")) {
-        let bkNode = e.target.parentNode.querySelector(".background-preview");
-        let textNode = e.target.parentNode.querySelector(".text-preview");
+        let bkNode = e.target.parentNode.querySelector(".preview-light-bg.background-preview");
+        let textNode = e.target.parentNode.querySelector(".preview-light.text-preview");
         bkNode.style.backgroundColor = e.target.value;
         bkNode.style.borderColor = e.target.value;
         textNode.style.color = e.target.value;
         textNode.style.borderColor = e.target.value;
+
+        const darkColor = misc.mixinCssColorForDarkTheme(e.target.value);
+        let bkNodeDark = e.target.parentNode.querySelector(".preview-dark-bg.background-preview");
+        let textNodeDark = e.target.parentNode.querySelector(".preview-dark.text-preview");
+        bkNodeDark.style.backgroundColor = darkColor;
+        bkNodeDark.style.borderColor = darkColor;
+        textNodeDark.style.color = darkColor;
+        textNodeDark.style.borderColor = darkColor;
     }
 });
 
@@ -573,6 +595,11 @@ document.addEventListener("input", (e) => {
 document.addEventListener("click", (e) => {
     if (e.target.getAttribute("href") === "" && e.which === 2) {
         e.preventDefault();
+    }
+
+    if (e.target.closest('[data-name="color-scheme"]')) {
+        e.preventDefault();
+        document.body.classList.toggle("darktheme");
     }
 });
 document.addEventListener("auxclick", (e) => {

@@ -94,6 +94,10 @@ function _makeTopNavigation() {
         "settings",
         new TopNavigationItem(null, "<i class='fa fa-cog'></i>", "settings")
     );
+    ret.add(
+        "color-scheme",
+        new TopNavigationItem(null, "<i class='fa fa-palette'></i>", '#')
+    );
     return ret;
 }
 
