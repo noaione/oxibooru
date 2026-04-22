@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gray-50: oklch(98.8% 0.003 106.5);
+  --color-gray-100: oklch(96.6% 0.005 106.5);
+  --color-gray-200: oklch(93% 0.007 106.5);
+  --color-gray-300: oklch(93% 0.007 106.5);
+  --color-gray-400: oklch(73.7% 0.021 106.9);
+  --color-gray-500: oklch(58% 0.031 107.3);
+  --color-gray-600: oklch(46.6% 0.025 107.3);
+  --color-gray-700: oklch(39.4% 0.023 107.4);
+  --color-gray-800: oklch(28.6% 0.016 107.4);
+  --color-gray-900: oklch(22.8% 0.013 107.4);
+  --color-gray-950: oklch(15.3% 0.006 107.1);
+}
+
+@custom-variant dark (&:where(.darktheme, .darktheme *));
+
+body {
+  @apply bg-gray-100 text-gray-900;
+}
+body.darktheme {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.overlay-color {
+  @apply bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200;
+}
