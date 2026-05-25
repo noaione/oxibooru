@@ -1,6 +1,8 @@
-use crate::config::OidcProviderConfig;
+use std::str::FromStr;
+
 use crate::oidc::OidcError;
 use crate::oidc::discovery::ResolvedProvider;
+use crate::{config::OidcProviderConfig, model::enums::UserRank};
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
@@ -104,6 +106,7 @@ pub struct OidcUserInfo {
     pub sub: String,
     pub email: Option<String>,
     pub username: Option<String>,
+    pub rank: Option<UserRank>,
 }
 
 pub async fn fetch_userinfo(
@@ -134,11 +137,22 @@ pub async fn fetch_userinfo(
         None => None,
     };
 
+    // use oxi_rank for specified rank claims
+    let rank = body["oxi_rank"]
+        .as_str()
+        .map(String::from)
+        .and_then(|claim| UserRank::from_str(&claim).ok());
+
     let username = provider
         .username_attribute
         .as_deref()
         .and_then(|attr| body[attr].as_str())
         .map(String::from);
 
-    Ok(OidcUserInfo { sub, email, username })
+    Ok(OidcUserInfo {
+        sub,
+        email,
+        username,
+        rank,
+    })
 }

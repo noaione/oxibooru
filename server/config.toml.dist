@@ -79,7 +79,7 @@ download_connect_timeout_seconds = 10       # Timeout for connecting to download
 # client_secret = "YOUR_CLIENT_SECRET"
 # scope         = "openid email profile"
 # issuer_uri    = "https://accounts.google.com"
-# icon_provider = "google"       # optional; Simple Icons slug, defaults to name
+# icon_provider = "google"       # optional; Simple Icons slug (defaults to name) or full https:// URL
 # username_attribute = "preferred_username"  # optional; OIDC claim to use as the account username (requires profile scope)
 # allow_unverified_email = false             # optional; if true, accept emails even when email_verified is false
 

@@ -66,17 +66,7 @@ async fn request_reset(State(state): State<AppState>, Path(identifier): Path<Sma
     let user_email = user_email.ok_or(ApiError::NoEmail)?;
     let user_mailbox = Mailbox::new(None, Address::from_str(&user_email)?);
 
-    let domain = if let Some(domain) = state.config.domain.as_deref() {
-        domain
-    } else if let Some(domain) = state.env.http_origin.as_deref() {
-        domain
-    } else if let Some(domain) = state.env.http_referer.as_deref() {
-        domain
-    } else if let Some(port) = state.env.domain_port {
-        &format!("http://localhost:{port}")
-    } else {
-        ""
-    };
+    let domain = state.config.domain_url(&state.env);
     let domain = domain.trim_end_matches('/');
 
     let site_name = &state.config.public_info.name;

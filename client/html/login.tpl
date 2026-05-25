@@ -39,7 +39,7 @@
         <% for (let p of ctx.oidcProviders) { %>
         <button type='button' class='oidc-login-btn' data-provider='<%- p.name %>'>
             <img
-                src='https://cdn.simpleicons.org/<%- p.iconProvider %>'
+                src='<%- p.iconProvider.startsWith("https://") ? p.iconProvider : "https://cdn.simpleicons.org/" + p.iconProvider %>'
                 alt=''
                 class='oidc-provider-icon'
                 width='16'
