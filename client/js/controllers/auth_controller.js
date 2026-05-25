@@ -16,6 +16,23 @@ class LoginController {
 
         this._loginView = new LoginView();
         this._loginView.addEventListener("submit", (e) => this._evtLogin(e));
+        this._loginView.addEventListener("oidc-login", (e) => this._evtOidcLogin(e));
+    }
+
+    _evtOidcLogin(e) {
+        const provider = e.detail.provider;
+        this._loginView.disableForm();
+        api.requestOidcAuthorize(provider).then(
+            (response) => {
+                sessionStorage.setItem("oidc_state", response.state);
+                sessionStorage.setItem("oidc_provider", provider);
+                window.location.href = response.authorizeUrl;
+            },
+            (error) => {
+                this._loginView.showError(error.message);
+                this._loginView.enableForm();
+            }
+        );
     }
 
     _evtLogin(e) {

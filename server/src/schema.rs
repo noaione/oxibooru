@@ -300,6 +300,31 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    oidc_auth_state (id) {
+        id -> Uuid,
+        #[max_length = 64]
+        provider_name -> Varchar,
+        #[max_length = 256]
+        csrf_state -> Varchar,
+        #[max_length = 256]
+        pkce_verifier -> Nullable<Varchar>,
+        expiration_time -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    user_oidc_account (id) {
+        id -> Int8,
+        user_id -> Int8,
+        #[max_length = 64]
+        provider_name -> Varchar,
+        #[max_length = 512]
+        subject -> Varchar,
+        creation_time -> Timestamptz,
+    }
+}
+
 diesel::joinable!(comment -> post (post_id));
 diesel::joinable!(comment -> user (user_id));
 diesel::joinable!(comment_score -> comment (comment_id));
@@ -328,6 +353,7 @@ diesel::joinable!(tag -> tag_category (category_id));
 diesel::joinable!(tag_category_statistics -> tag_category (category_id));
 diesel::joinable!(tag_name -> tag (tag_id));
 diesel::joinable!(tag_statistics -> tag (tag_id));
+diesel::joinable!(user_oidc_account -> user (user_id));
 diesel::joinable!(user_statistics -> user (user_id));
 diesel::joinable!(user_token -> user (user_id));
 
@@ -360,6 +386,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     tag_statistics,
     tag_suggestion,
     user,
+    user_oidc_account,
     user_statistics,
     user_token,
 );

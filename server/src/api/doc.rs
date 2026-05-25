@@ -2,6 +2,7 @@ use crate::error::ErrorName;
 use utoipa::OpenApi;
 
 pub const COMMENT_TAG: &str = "Comment";
+pub const OIDC_TAG: &str = "OIDC";
 pub const INFO_TAG: &str = "Info";
 pub const PASSWORD_RESET_TAG: &str = "Password-Reset";
 pub const POOL_TAG: &str = "Pool";
@@ -29,6 +30,7 @@ pub const USER_TOKEN_TAG: &str = "User-Token";
         (name = TAG_CATEGORY_TAG, description = "Tag category API endpoints"),
         (name = UPLOAD_TAG, description = "Upload API endpoints"),
         (name = USER_TAG, description = "User API endpoints"),
+        (name = OIDC_TAG, description = "OIDC/OAuth2 login endpoints"),
         (name = USER_TOKEN_TAG, description = "User token API endpoints"),
         (name = "Authentication", description = AUTHENTICATION_DESCRIPTION),
         (name = "User-Token-Authentication", description = USER_TOKEN_AUTHENTICATION_DESCRIPTION),

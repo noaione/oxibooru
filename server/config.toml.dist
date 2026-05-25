@@ -66,6 +66,43 @@ max_download_redirects           = 5        # Maximum number of times downloader
 download_timeout_minutes         = 10       # Timeout for downloading files
 download_connect_timeout_seconds = 10       # Timeout for connecting to download URL
 
+# OIDC/OAuth2 login providers
+# auto_create_account = false means unknown users are rejected (403); set to true to create accounts automatically
+# [oidc]
+# auto_create_account = false
+
+# Google (OIDC with auto-discovery)
+# [[oidc.providers]]
+# name          = "google"
+# display_name  = "Google"
+# provider_type = "oidc"         # "oidc" or "github"
+# client_id     = "YOUR_CLIENT_ID"
+# client_secret = "YOUR_CLIENT_SECRET"
+# scope         = "openid email"
+# issuer_uri    = "https://accounts.google.com"
+# icon_provider = "google"       # optional; Simple Icons slug, defaults to name
+
+# GitHub (OAuth2, no OIDC discovery)
+# [[oidc.providers]]
+# name          = "github"
+# display_name  = "GitHub"
+# provider_type = "github"
+# client_id     = "YOUR_CLIENT_ID"
+# client_secret = "YOUR_CLIENT_SECRET"
+# scope         = "user:email"
+
+# Keycloak or other provider with manual endpoint URIs (use instead of issuer_uri)
+# [[oidc.providers]]
+# name          = "keycloak"
+# display_name  = "Keycloak"
+# provider_type = "oidc"
+# client_id     = "YOUR_CLIENT_ID"
+# client_secret = "YOUR_CLIENT_SECRET"
+# scope         = "openid email"
+# authorization_uri = "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/auth"
+# token_uri         = "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/token"
+# userinfo_uri      = "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/userinfo"
+
 # Preferences that are automatically applied to anonymous users. You can also apply server-wide preferences to other
 # user rank levels by making similar config tables, up to and including moderators. Preferences accumulate down the rank
 # hierarchy, so any tags/categories blacklisted for moderators are also blacklisted for power users, regular users, etc.

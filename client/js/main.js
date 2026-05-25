@@ -97,6 +97,10 @@ Promise.resolve()
                 require("./controllers/user_registration_controller.js")
             );
 
+            controllers.push(
+                require("./controllers/oidc_callback_controller.js")
+            );
+
             // 404 controller needs to be registered last
             controllers.push(require("./controllers/not_found_controller.js"));
 
