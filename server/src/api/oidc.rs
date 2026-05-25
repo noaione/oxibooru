@@ -194,7 +194,9 @@ async fn callback(
         fetch_userinfo(&userinfo_uri, &token_resp.access_token, &provider, &state.http_client).await?;
 
     let auto_create = state.config.oidc.auto_create_account;
-    let default_rank = state.config.public_info.default_user_rank;
+    let prefer_rank = user_info
+        .rank
+        .unwrap_or_else(|| state.config.public_info.default_user_rank);
     let config = state.config.clone();
 
     // Resolve user account
@@ -230,12 +232,12 @@ async fn callback(
                     .execute(conn)?;
                     id
                 } else if auto_create {
-                    create_oidc_user(conn, &config, &user_info, &provider_name, default_rank)?
+                    create_oidc_user(conn, &config, &user_info, &provider_name, prefer_rank)?
                 } else {
                     return Err(ApiError::OidcAutoCreateDisabled);
                 }
             } else if auto_create {
-                create_oidc_user(conn, &config, &user_info, &provider_name, default_rank)?
+                create_oidc_user(conn, &config, &user_info, &provider_name, prefer_rank)?
             } else {
                 return Err(ApiError::OidcAutoCreateDisabled);
             };
@@ -342,17 +344,7 @@ fn create_oidc_user(
 }
 
 fn build_redirect_uri(state: &AppState, provider_name: &str) -> String {
-    let domain = if let Some(domain) = state.config.domain.as_deref() {
-        domain.to_string()
-    } else if let Ok(domain) = std::env::var("HTTP_ORIGIN") {
-        domain
-    } else if let Ok(domain) = std::env::var("HTTP_REFERER") {
-        domain
-    } else if let Ok(port) = std::env::var("SERVER_PORT") {
-        format!("http://localhost:{port}")
-    } else {
-        String::from("http://localhost:6666")
-    };
+    let domain = state.config.domain_url(&state.env);
     let domain = domain.trim_end_matches('/');
     format!("{domain}/oidc/{provider_name}/callback")
 }

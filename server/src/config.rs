@@ -398,6 +398,21 @@ impl Config {
         let filename = format!("{encoded_username}.png");
         self.path(Directory::Avatars).join(filename)
     }
+
+    /// Return URL for a domain
+    pub fn domain_url(&self, env: &Env) -> String {
+        if let Some(domain) = self.domain.as_deref() {
+            domain.to_string()
+        } else if let Some(domain) = &env.http_origin {
+            domain.clone()
+        } else if let Some(domain) = &env.http_referer {
+            domain.clone()
+        } else if let Some(port) = env.domain_port {
+            format!("http://localhost:{port}")
+        } else {
+            String::new()
+        }
+    }
 }
 
 /// Reads commandline args.
