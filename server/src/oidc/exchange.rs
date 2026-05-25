@@ -103,11 +103,13 @@ pub async fn exchange_code(
 pub struct OidcUserInfo {
     pub sub: String,
     pub email: Option<String>,
+    pub username: Option<String>,
 }
 
 pub async fn fetch_userinfo(
     userinfo_uri: &url::Url,
     access_token: &str,
+    provider: &OidcProviderConfig,
     http: &reqwest::Client,
 ) -> Result<OidcUserInfo, OidcError> {
     let body: serde_json::Value = http
@@ -122,7 +124,21 @@ pub async fn fetch_userinfo(
 
     let sub = body["sub"].as_str().ok_or(OidcError::MissingField("sub"))?.to_string();
 
-    let email = body["email"].as_str().map(String::from);
+    let email = match body["email"].as_str().filter(|s| !s.is_empty()) {
+        Some(addr) => {
+            if !provider.allow_unverified_email && !body["email_verified"].as_bool().unwrap_or(false) {
+                return Err(OidcError::EmailNotVerified);
+            }
+            Some(addr.to_string())
+        }
+        None => None,
+    };
 
-    Ok(OidcUserInfo { sub, email })
+    let username = provider
+        .username_attribute
+        .as_deref()
+        .and_then(|attr| body[attr].as_str())
+        .map(String::from);
+
+    Ok(OidcUserInfo { sub, email, username })
 }
