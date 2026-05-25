@@ -253,6 +253,9 @@ pub struct OidcProviderConfig {
     #[serde(default = "default_oidc_scope")]
     pub scope: String,
     pub icon_provider: Option<String>,
+    pub username_attribute: Option<String>,
+    #[serde(default)]
+    pub allow_unverified_email: bool,
     pub issuer_uri: Option<Url>,
     pub authorization_uri: Option<Url>,
     pub token_uri: Option<Url>,

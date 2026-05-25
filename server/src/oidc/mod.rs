@@ -17,4 +17,6 @@ pub enum OidcError {
     UserInfoRequest(reqwest::Error),
     #[error("OIDC response missing required field: {0}")]
     MissingField(&'static str),
+    #[error("OIDC provider returned an unverified email address")]
+    EmailNotVerified,
 }

@@ -90,7 +90,9 @@ pub enum ApiError {
     #[error("OIDC account creation is disabled and no matching account was found")]
     OidcAutoCreateDisabled,
     #[error("OIDC provider discovery failed: {0}")]
-    OidcDiscoveryFailed(#[from] crate::oidc::OidcError),
+    OidcDiscoveryFailed(crate::oidc::OidcError),
+    #[error("OIDC provider returned an unverified email address")]
+    OidcEmailNotVerified,
     #[error("OIDC response is missing required field: {0}")]
     OidcMissingField(&'static str),
     Password(#[from] argon2::password_hash::Error),
@@ -110,6 +112,15 @@ pub enum ApiError {
     UnsupportedContentType(Cow<'static, str>),
     UnsupportedExtension(#[from] crate::model::enums::ParseExtensionError),
     UrlValidation(#[from] crate::content::download::UrlValidationError),
+}
+
+impl From<crate::oidc::OidcError> for ApiError {
+    fn from(err: crate::oidc::OidcError) -> Self {
+        match err {
+            crate::oidc::OidcError::EmailNotVerified => Self::OidcEmailNotVerified,
+            other => Self::OidcDiscoveryFailed(other),
+        }
+    }
 }
 
 impl ApiError {
@@ -133,7 +144,10 @@ impl ApiError {
             Self::NotLoggedIn | Self::Password(_) | Self::UnauthorizedPasswordReset | Self::OidcInvalidState => {
                 StatusCode::UNAUTHORIZED
             }
-            Self::Hidden(_) | Self::InsufficientPrivileges | Self::OidcAutoCreateDisabled => StatusCode::FORBIDDEN,
+            Self::Hidden(_)
+            | Self::InsufficientPrivileges
+            | Self::OidcAutoCreateDisabled
+            | Self::OidcEmailNotVerified => StatusCode::FORBIDDEN,
             Self::NotFound(_) | Self::OidcProviderNotFound(_) => StatusCode::NOT_FOUND,
             Self::AlreadyExists(_) | Self::ResourceModified => StatusCode::CONFLICT,
             Self::ContentTooLarge => StatusCode::PAYLOAD_TOO_LARGE,
@@ -227,6 +241,7 @@ impl ApiError {
             Self::OidcInvalidState => "OIDC Invalid State",
             Self::OidcAutoCreateDisabled => "OIDC Auto Create Disabled",
             Self::OidcDiscoveryFailed(_) => "OIDC Discovery Failed",
+            Self::OidcEmailNotVerified => "OIDC Email Not Verified",
             Self::OidcMissingField(_) => "OIDC Missing Field",
             Self::Password(_) => "Password Error",
             Self::PathRejection(_) => "Path Rejection",

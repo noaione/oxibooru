@@ -186,10 +186,12 @@ async fn callback(
         &state.http_client,
     )
     .await?;
+
     let userinfo_uri = endpoints
         .userinfo
         .ok_or(ApiError::OidcMissingField("userinfo_endpoint"))?;
-    let user_info: OidcUserInfo = fetch_userinfo(&userinfo_uri, &token_resp.access_token, &state.http_client).await?;
+    let user_info: OidcUserInfo =
+        fetch_userinfo(&userinfo_uri, &token_resp.access_token, &provider, &state.http_client).await?;
 
     let auto_create = state.config.oidc.auto_create_account;
     let default_rank = state.config.public_info.default_user_rank;
@@ -278,9 +280,9 @@ fn create_oidc_user(
     rank: UserRank,
 ) -> Result<i64, ApiError> {
     let base_name = user_info
-        .email
+        .username
         .as_deref()
-        .and_then(|e| e.split('@').next())
+        .or_else(|| user_info.email.as_deref().and_then(|e| e.split('@').next()))
         .unwrap_or("user")
         .to_string();
 
