@@ -316,6 +316,30 @@ class Api extends events.EventTarget {
         return userToken.token === this.token;
     }
 
+    getOidcProviders() {
+        return (remoteConfig && remoteConfig.oidcProviders) ? remoteConfig.oidcProviders : [];
+    }
+
+    requestOidcAuthorize(providerName) {
+        return this._wrappedRequest(
+            uri.formatApiLink("oidc", providerName, "authorize"),
+            request.get,
+            {},
+            {},
+            {}
+        );
+    }
+
+    submitOidcCallback(providerName, code, state) {
+        return this._wrappedRequest(
+            uri.formatApiLink("oidc", providerName, "callback"),
+            request.post,
+            { code, state },
+            {},
+            {}
+        );
+    }
+
     _getFullUrl(url) {
         const fullUrl = ("api/" + url).replace(/([^:])\/+/g, "$1/");
         const matches = fullUrl.match(/^([^?]*)\??(.*)$/);

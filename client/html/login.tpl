@@ -33,4 +33,21 @@
             <a class='append' href='<%- ctx.formatClientLink('password-reset') %>'>Forgot the password?</a>
         </div>
     </form>
+    <% if (ctx.oidcProviders && ctx.oidcProviders.length > 0) { %>
+    <div class='oidc-providers'>
+        <p class='oidc-separator'>or sign in with</p>
+        <% for (let p of ctx.oidcProviders) { %>
+        <button type='button' class='oidc-login-btn' data-provider='<%- p.name %>'>
+            <img
+                src='https://cdn.simpleicons.org/<%- p.iconProvider %>'
+                alt=''
+                class='oidc-provider-icon'
+                width='16'
+                height='16'
+            />
+            <%- p.displayName %>
+        </button>
+        <% } %>
+    </div>
+    <% } %>
 </div>

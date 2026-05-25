@@ -17,6 +17,7 @@ class LoginView extends events.EventTarget {
                 userNamePattern: api.getUserNameRegex(),
                 passwordPattern: api.getPasswordRegex(),
                 canSendMails: api.canSendMails(),
+                oidcProviders: api.getOidcProviders(),
             })
         );
         views.syncScrollPosition();
@@ -41,6 +42,16 @@ class LoginView extends events.EventTarget {
                     },
                 })
             );
+        });
+
+        this._hostNode.querySelectorAll(".oidc-login-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                this.dispatchEvent(
+                    new CustomEvent("oidc-login", {
+                        detail: { provider: btn.dataset.provider },
+                    })
+                );
+            });
         });
     }
 

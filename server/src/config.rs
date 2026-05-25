@@ -244,6 +244,41 @@ impl PartialSchema for PrivilegeConfig {
 
 impl ToSchema for PrivilegeConfig {}
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct OidcProviderConfig {
+    pub name: String,
+    pub display_name: String,
+    pub client_id: String,
+    pub client_secret: String,
+    #[serde(default = "default_oidc_scope")]
+    pub scope: String,
+    pub icon_provider: Option<String>,
+    pub issuer_uri: Option<Url>,
+    pub authorization_uri: Option<Url>,
+    pub token_uri: Option<Url>,
+    pub userinfo_uri: Option<Url>,
+}
+
+fn default_oidc_scope() -> String {
+    String::from("openid email profile")
+}
+
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct OidcConfig {
+    #[serde(default)]
+    pub auto_create_account: bool,
+    #[serde(default)]
+    pub providers: Vec<OidcProviderConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PublicOidcProvider {
+    pub name: String,
+    pub display_name: String,
+    pub icon_provider: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[schema(rename_all = "camelCase")] // ToSchema doesn't detect serde(rename_all(serialize = ...))
 #[serde(deny_unknown_fields, rename_all(serialize = "camelCase"))]
@@ -267,6 +302,8 @@ pub struct PublicConfig {
     #[serde(with = "serde_regex")]
     pub tag_category_name_regex: Regex,
     pub privileges: PrivilegeConfig,
+    #[serde(default, skip_deserializing)]
+    pub oidc_providers: Vec<PublicOidcProvider>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -305,6 +342,8 @@ pub struct Config {
     #[serde(skip)] // Administrators have no server-wide preferences/blacklists
     pub administrator_preferences: Preferences,
     pub public_info: PublicConfig,
+    #[serde(default)]
+    pub oidc: OidcConfig,
 }
 
 impl Config {
@@ -505,6 +544,18 @@ fn create_config(args: Args) -> Config {
     config.public_info.can_send_mails = config.smtp.is_some();
     // Default user rank can't be anonymous
     config.public_info.default_user_rank = std::cmp::max(config.public_info.default_user_rank, UserRank::Restricted);
+
+    // OIDC login providers
+    config.public_info.oidc_providers = config
+        .oidc
+        .providers
+        .iter()
+        .map(|p| PublicOidcProvider {
+            name: p.name.clone(),
+            display_name: p.display_name.clone(),
+            icon_provider: p.icon_provider.clone().unwrap_or_else(|| p.name.clone()),
+        })
+        .collect();
 
     // Accumulate preferences from higher user ranks
     config.power_preferences.merge(&config.moderator_preferences);

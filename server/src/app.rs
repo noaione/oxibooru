@@ -6,6 +6,7 @@ use crate::content::cache::RingCache;
 use crate::db::AsyncConnectionPool;
 use crate::extract::Ctx;
 use crate::model::enums::UserRank;
+use crate::oidc::OidcProviderCache;
 use crate::search::preferences::Preferences;
 use crate::{admin, api, db, filesystem};
 use axum::Router;
@@ -32,6 +33,8 @@ pub struct AppState {
     pub downloader: HttpClient,
     pub connection_pool: AsyncConnectionPool,
     pub content_cache: Arc<Mutex<RingCache>>,
+    pub oidc_cache: Arc<OidcProviderCache>,
+    pub http_client: reqwest::Client,
 }
 
 impl AppState {
@@ -49,6 +52,8 @@ impl AppState {
             downloader,
             connection_pool,
             content_cache: Arc::new(Mutex::new(RingCache::new(CONTENT_CACHE_SIZE))),
+            oidc_cache: Arc::new(OidcProviderCache::new()),
+            http_client: reqwest::Client::new(),
         }
     }
 
