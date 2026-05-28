@@ -1,4 +1,10 @@
-import type { InfoResponse, PagedResponseUserInfo } from '@/types/oxibooru.gen';
+import type {
+  InfoResponse,
+  PagedResponseUserInfo,
+  UserTokenCreateBody,
+  UserTokenInfo,
+  UserInfo,
+} from '@/types/oxibooru.gen';
 import { defineStore } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import z from 'zod';
@@ -50,13 +56,10 @@ async function doFetch<T>(urlPath: string, options?: RequestInit): Promise<ApiRe
   const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
   const newUrl = new URL(urlPath, baseUrl);
 
-  const response = await fetch(newUrl, {
-    ...options,
-  });
+  const response = await fetch(newUrl, { ...options });
 
   if (!response.ok) {
     const errorJson = await response.json().catch(() => null);
-
     return {
       success: false,
       code: errorJson?.name || 'UnknownError',
@@ -67,15 +70,28 @@ async function doFetch<T>(urlPath: string, options?: RequestInit): Promise<ApiRe
   }
 
   const data = await response.json();
-  return {
-    success: true,
-    data,
-  };
+  return { success: true, data };
+}
+
+function encodeBasicAuth(user: string, password: string) {
+  const data = textEnc.encode(`${user}:${password}`);
+  return `Basic ${btoa(String.fromCharCode(...data))}`;
+}
+
+function setCookieAuth(user: string, token: string) {
+  const value = encodeURIComponent(JSON.stringify({ user, token }));
+  const expires = new Date();
+  expires.setFullYear(expires.getFullYear() + 1);
+  document.cookie = `auth=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+}
+
+function clearCookieAuth() {
+  document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 }
 
 export const useTokenStore = defineStore('api', () => {
   const userToken = ref<UserTokenData | null>(null);
-  const user = ref<PagedResponseUserInfo['results'][0]>();
+  const user = ref<PagedResponseUserInfo['results'][0] | null>(null);
   const config = ref<InfoResponse>();
   const ready = ref(false);
 
@@ -89,37 +105,29 @@ export const useTokenStore = defineStore('api', () => {
 
   // On app start, check if the user is already logged in
   onMounted(async () => {
-    // check "user" cookie (JSON) and set user state if it exists
     const userCookie = document.cookie.split('; ').find((row) => row.startsWith('auth='));
-
     if (userCookie) {
       const splitCookie = userCookie.split('=');
-      if (splitCookie.length !== 2) {
-        console.error('Invalid user cookie format');
-        ready.value = true;
-        return;
-      }
-      const cookieValue = splitCookie[1]!;
-      try {
-        const userData = JSON.parse(decodeURIComponent(cookieValue));
-        const parsedData = userTokenData.parse(userData);
-        userToken.value = parsedData;
-      } catch (e) {
-        console.error('Failed to parse user cookie:', e);
+      if (splitCookie.length >= 2) {
+        try {
+          const cookieValue = splitCookie.slice(1).join('=');
+          const userData = JSON.parse(decodeURIComponent(cookieValue));
+          const parsedData = userTokenData.parse(userData);
+          userToken.value = parsedData;
+        } catch (e) {
+          console.error('Failed to parse user cookie:', e);
+        }
       }
     }
 
     await refreshInfo();
 
     if (userToken.value) {
-      // Fetch user data to verify token is valid and get user rank
-      const userResp = await doFetch<PagedResponseUserInfo['results'][0]>(
+      const userResp = await doFetch<UserInfo>(
         `/api/user/${userToken.value.user}?bump-login=true`,
         {
-          method: 'POST',
-          headers: {
-            Authorization: authToken.value!, // should be safe to assert non-null since we checked userToken.value above
-          },
+          method: 'GET',
+          headers: { Authorization: authToken.value! },
         },
       );
 
@@ -127,8 +135,8 @@ export const useTokenStore = defineStore('api', () => {
         user.value = userResp.data;
       } else {
         console.error('Failed to fetch user data:', userResp);
-        // If fetching user data fails, clear the token since it's likely invalid
         userToken.value = null;
+        clearCookieAuth();
       }
     }
 
@@ -143,24 +151,110 @@ export const useTokenStore = defineStore('api', () => {
   };
 
   const hasPrivilege = (privilege: string) => {
-    let minViable = null;
+    let minViable: number | null = null;
     for (const [priv, minRank] of Object.entries(config.value?.config.privileges || {})) {
-      if (!priv.startsWith(privilege)) {
-        continue;
-      }
-
+      if (!priv.startsWith(privilege)) continue;
       const rankIndex = allRanks.indexOf(minRank);
       if (minViable === null || rankIndex < minViable) {
         minViable = rankIndex;
       }
     }
-
-    if (minViable === null) {
-      return false; // Privilege not found, deny by default
-    }
-
+    if (minViable === null) return false;
     const myRank = user.value?.rank ? allRanks.indexOf(user.value.rank) : 0;
     return myRank >= minViable;
+  };
+
+  // ── Auth actions ───────────────────────────────────────────────────
+
+  const login = async (
+    username: string,
+    password: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const body: UserTokenCreateBody = { note: 'Login from browser', enabled: true };
+    const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(username)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: encodeBasicAuth(username, password),
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.success) {
+      return { success: false, description: resp.description || resp.title };
+    }
+
+    const token = resp.data.token;
+    if (!token) return { success: false, description: 'Server returned no token.' };
+
+    userToken.value = { user: username, token };
+    setCookieAuth(username, token);
+
+    const userResp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(username)}`, {
+      headers: { Authorization: authToken.value! },
+    });
+    if (userResp.success) user.value = userResp.data;
+
+    await refreshInfo();
+    return { success: true };
+  };
+
+  const logout = async () => {
+    if (!userToken.value || !authToken.value) {
+      user.value = null;
+      userToken.value = null;
+      clearCookieAuth();
+      return;
+    }
+    await doFetch(
+      `/api/user-token/${encodeURIComponent(userToken.value.user)}/${encodeURIComponent(userToken.value.token)}`,
+      { method: 'DELETE', headers: { Authorization: authToken.value } },
+    );
+    user.value = null;
+    userToken.value = null;
+    clearCookieAuth();
+    await refreshInfo();
+  };
+
+  const register = async (
+    username: string,
+    password: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch<UserInfo>('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: username, password }),
+    });
+    if (!resp.success) {
+      return { success: false, description: resp.description || resp.title };
+    }
+    return login(username, password);
+  };
+
+  const requestPasswordReset = async (
+    identifier: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/password-reset/${encodeURIComponent(identifier)}`);
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const confirmPasswordReset = async (
+    identifier: string,
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/password-reset/${encodeURIComponent(identifier)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password: newPassword }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
   };
 
   return {
@@ -172,5 +266,13 @@ export const useTokenStore = defineStore('api', () => {
     refreshInfo,
     hasPrivilege,
     doFetch,
+    login,
+    logout,
+    register,
+    requestPasswordReset,
+    confirmPasswordReset,
   };
 });
+
+// Re-export the error response type for consumers
+export type { ErrorResponse };
