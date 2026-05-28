@@ -6,7 +6,7 @@
     <div class="flex flex-row items-center mt-8">
       <AutoCompleteTag target="posts" placeholder="enter some tags" />
       <span class="text-gray-500 mx-5">or</span>
-      <RouterLink to="/posts" class="text-cyan-500"> browse all posts </RouterLink>
+      <RouterLink to="/posts" class="text-cyan-500 hover:brightness-120"> browse all posts </RouterLink>
     </div>
 
     <!-- Featured post -->
@@ -24,17 +24,17 @@
           class="text-cyan-500 hover:underline"
         >@{{ app.config.featuredPost.id }}</RouterLink>
         <span v-else>@{{ app.config.featuredPost.id }}</span>
+        <template v-if="app.config.featuringTime">
+          <span>, posted <RelativeTime :time="app.config.featuringTime" /></span>
+        </template>
         <template v-if="app.config.featuringUser">
-          <span>, posted by </span>
+          <span> by </span>
           <RouterLink
             v-if="canViewUser"
             :to="`/user/${app.config.featuringUser}`"
             class="text-cyan-500 hover:underline"
           >{{ app.config.featuringUser }}</RouterLink>
           <span v-else>{{ app.config.featuringUser }}</span>
-        </template>
-        <template v-if="app.config.featuringTime">
-          <span> around {{ formatRelativeTime(app.config.featuringTime) }}</span>
         </template>
       </p>
     </div>
@@ -50,7 +50,7 @@
       <span class="mx-1"> &middot; </span>
       <span>build latest from XXX</span>
       <span class="mx-1"> &middot; </span>
-      <RouterLink to="/history" class="text-cyan-500">history</RouterLink>
+      <RouterLink to="/history" class="text-cyan-500 hover:underline">history</RouterLink>
     </footer>
   </div>
 </template>
@@ -61,6 +61,7 @@ import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
 import { computed } from 'vue';
 import { resolveApiUrl } from '@/utils/url';
+import RelativeTime from '@/components/RelativeTime.vue';
 
 const app = useTokenStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
@@ -71,7 +72,7 @@ const canViewUser = computed(() => app.hasPrivilege('user_view'));
 const formattedDiskUsage = computed(() => {
   if (!app.config?.diskUsage) return '0 B';
 
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
   let size = app.config.diskUsage;
   let unitIndex = 0;
   while (size >= 1024 && unitIndex < units.length - 1) {
@@ -80,23 +81,6 @@ const formattedDiskUsage = computed(() => {
   }
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 });
-
-function formatRelativeTime(iso: string): string {
-  try {
-    const diff = Date.now() - new Date(iso).getTime();
-    const minutes = Math.floor(diff / 60_000);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days}d ago`;
-    const months = Math.floor(days / 30);
-    if (months < 12) return `${months}mo ago`;
-    return `${Math.floor(months / 12)}y ago`;
-  } catch {
-    return '';
-  }
-}
 
 useHeadSafe(() => ({
   title: serverName.value + ' - Home',

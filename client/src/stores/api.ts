@@ -1,9 +1,14 @@
 import type {
+  CommentCreateBody,
+  CommentInfo,
+  CommentUpdateBody,
   InfoResponse,
   MergeBodySmallString,
   MergeBodyI64,
+  PagedResponseCommentInfo,
   PagedResponsePoolInfo,
   PagedResponsePostInfo,
+  PagedResponseSnapshotInfo,
   PagedResponseTagInfo,
   PagedResponseUserInfo,
   PoolCategoryCreateBody,
@@ -950,6 +955,99 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data };
   };
 
+  // ── Comment actions ────────────────────────────────────────────
+
+  const listComments = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponseCommentInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponseCommentInfo>(`/api/comments?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const createComment = async (
+    body: CommentCreateBody,
+  ): Promise<{ success: true; data: CommentInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<CommentInfo>('/api/comments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updateComment = async (
+    id: number,
+    body: CommentUpdateBody,
+  ): Promise<{ success: true; data: CommentInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<CommentInfo>(`/api/comment/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deleteComment = async (
+    id: number,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/comment/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const rateComment = async (
+    id: number,
+    score: -1 | 0 | 1,
+  ): Promise<{ success: true; data: CommentInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<CommentInfo>(`/api/comment/${id}/score`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ score } as RatingBody),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  // ── Snapshot actions ───────────────────────────────────────────
+
+  const listSnapshots = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponseSnapshotInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponseSnapshotInfo>(`/api/snapshots?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
   return {
     userToken,
     authToken,
@@ -1009,6 +1107,12 @@ export const useTokenStore = defineStore('api', () => {
     updateTagCategory,
     deleteTagCategory,
     setDefaultTagCategory,
+    listComments,
+    createComment,
+    updateComment,
+    deleteComment,
+    rateComment,
+    listSnapshots,
   };
 });
 

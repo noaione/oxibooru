@@ -388,8 +388,17 @@ const deleteLoading = ref(false);
 async function loadUser() {
   loader.start();
   loadError.value = '';
-  const result = await api.getUser(userName.value);
-  loader.done();
+  let result: Awaited<ReturnType<typeof api.getUser>>;
+  try {
+    result = await api.getUser(userName.value);
+  } catch (e) {
+    result = {
+      success: false,
+      description: `Failed to load user data: ${e}`,
+    };
+  } finally {
+    loader.done();
+  }
   if (!result.success) {
     loadError.value = result.description;
     return;

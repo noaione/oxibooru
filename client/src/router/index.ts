@@ -162,6 +162,27 @@ const router = createRouter({
       name: 'pool',
       component: () => import('@/pages/PoolView.vue'),
     },
+    // ── Stage 8: Comments, Snapshots, Help ───────────────────────
+    {
+      path: '/comments',
+      name: 'comments',
+      component: () => import('@/pages/CommentsView.vue'),
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('@/pages/SnapshotsView.vue'),
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: () => import('@/pages/HelpView.vue'),
+    },
+    {
+      path: '/help/:section',
+      name: 'help-section',
+      component: () => import('@/pages/HelpView.vue'),
+    },
     // ── Catch-all 404 ─────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',

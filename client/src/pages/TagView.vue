@@ -421,21 +421,25 @@ async function loadTag() {
   loader.start();
   loadError.value = '';
 
-  const [tagResult, siblingsResult] = await Promise.all([
-    api.getTag(tagName.value),
-    api.getTagSiblings(tagName.value),
-  ]);
+  try {
+    const [tagResult, siblingsResult] = await Promise.all([
+      api.getTag(tagName.value),
+      api.getTagSiblings(tagName.value),
+    ]);
 
-  loader.done();
+    if (!tagResult.success) {
+      loadError.value = tagResult.description;
+      return;
+    }
 
-  if (!tagResult.success) {
-    loadError.value = tagResult.description;
-    return;
+    tag.value = tagResult.data;
+    siblings.value = siblingsResult.success ? (siblingsResult.data.results ?? []) : [];
+    syncEditFields();
+  } catch (e) {
+    loadError.value = `Failed to load tag: ${e}`;
+  } finally {
+    loader.done();
   }
-
-  tag.value = tagResult.data;
-  siblings.value = siblingsResult.success ? (siblingsResult.data.results ?? []) : [];
-  syncEditFields();
 }
 
 async function saveTag() {

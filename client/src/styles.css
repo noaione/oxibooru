@@ -74,8 +74,7 @@ body.darktheme .card {
 
 /* ── Links ──────────────────────────────────────────────────────*/
 a {
-  text-decoration: none;
-  transition: color 0.1s linear;
+  @apply transition duration-150 decoration-dashed;
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────────*/
