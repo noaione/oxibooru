@@ -18,8 +18,8 @@ export const useCategoriesStore = defineStore('categories', () => {
       api.listPoolCategories(),
     ]);
 
-    tags.value = promises[0].data;
-    pools.value = promises[1].data;
+    tags.value = promises[0].success ? promises[0].data : [];
+    pools.value = promises[1].success ? promises[1].data : [];
 
     return {
       tags: tags.value,

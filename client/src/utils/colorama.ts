@@ -1,7 +1,7 @@
 import { oklch, type Oklch } from 'culori';
 
 
-function formatOkLchValue(value: string) {
+function formatOkLchValue(value: number) {
   const formatted = value.toFixed(2).replace(/\.00$/, '');
   return Object.is(formatted, '-0') ? '0' : formatted;
 }
@@ -19,8 +19,8 @@ export function formatOklch(oklchColor: Oklch) {
     throw new TypeError("Expected oklch color data with mode 'oklch'");
   }
 
-  const alpha = oklchColor.alpha || 1;
-  const alphaPart = oklchColor.alpha < 1 ? ` / ${formatOkLchValue(alpha)}` : "";
+  const alpha = oklchColor.alpha ?? 1;
+  const alphaPart = alpha < 1 ? ` / ${formatOkLchValue(alpha)}` : "";
 
   return `oklch(${formatOkLchValue(oklchColor.l || 0)} ${formatOkLchValue(oklchColor.c || 0)} ${formatOkLchValue(oklchColor.h || 0)}${alphaPart})`;
 }

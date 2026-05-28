@@ -13,7 +13,7 @@
   <!-- Post view -->
   <div v-else-if="post" class="flex flex-col lg:flex-row gap-4 w-full">
     <!-- ── Sidebar ────────────────────────────────────────────────── -->
-    <aside class="w-full lg:w-56 shrink-0 flex flex-col gap-4">
+    <aside class="w-full lg:w-74 shrink-0 flex flex-col gap-4 order-2 lg:order-1">
       <!-- Navigation: prev / next / edit -->
       <nav class="card p-3 flex flex-col gap-2">
         <div class="flex justify-between items-center">
@@ -281,9 +281,11 @@
     </aside>
 
     <!-- ── Main content ───────────────────────────────────────────── -->
-    <main class="flex-1 min-w-0 flex flex-col gap-4">
+    <main class="flex-1 min-w-0 flex flex-col gap-4 order-1 lg:order-2">
       <!-- Content viewer -->
-      <div class="flex items-start w-full overflow-y-hidden overflow-x-auto">
+      <div class="flex items-start w-full" :class="{
+        'overflow-hidden': settings.fitMode !== 'fit-original',
+      }">
         <!-- Image / Animation -->
         <img
           v-if="post.type === 'image' || post.type === 'animation'"
@@ -409,16 +411,18 @@ function displayTagName(name: string | undefined): string {
 }
 
 const fitModes = [
-  { value: 'fit-both' as const, label: 'Fit' },
+  { value: 'fit-both' as const, label: 'Fit both' },
+  { value: 'fit-width' as const, label: 'Fit width' },
+  { value: 'fit-height' as const, label: 'Fit height' },
   { value: 'fit-original' as const, label: 'Original' },
-  { value: 'fit-height' as const, label: 'Height' },
 ];
 
 const fitClass = computed(() => {
   switch (settings.fitMode) {
-    case 'fit-original': return 'max-w-none';
+    case 'fit-original': return 'max-w-none max-h-none pr-4';
     case 'fit-height': return 'max-h-screen w-auto object-contain';
-    default: return 'max-w-full max-h-screen object-contain';
+    case 'fit-width': return 'w-full h-auto object-contain';
+    default: return 'max-w-full max-h-screen object-contain'; // fit-both
   }
 });
 
