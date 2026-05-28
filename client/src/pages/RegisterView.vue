@@ -139,10 +139,13 @@ import {
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
-useHeadSafe({ title: 'Register' });
-
 const api = useTokenStore();
 const router = useRouter();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Register',
+}));
 
 const username = ref('');
 const password = ref('');
