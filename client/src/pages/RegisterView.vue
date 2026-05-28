@@ -1,74 +1,127 @@
 <template>
   <div class="flex items-start justify-center pt-8">
-    <div class="w-full max-w-sm">
-      <!-- Registration disabled -->
-      <template v-if="!canRegister">
+    <!-- Registration disabled -->
+    <template v-if="!canRegister">
+      <div class="w-full max-w-sm">
         <h1 class="text-2xl font-semibold mb-4 text-center">Registration Disabled</h1>
         <p class="text-sm text-center text-gray-500">
           New account registration is not available on this server.
         </p>
-      </template>
+      </div>
+    </template>
 
-      <!-- Registration form -->
-      <template v-else>
-        <h1 class="text-2xl font-semibold mb-6 text-center">Create Account</h1>
+    <!-- Registration form + info panel -->
+    <template v-else>
+      <div class="flex flex-col md:flex-row gap-8 w-full max-w-2xl">
+        <!-- Form -->
+        <div class="w-full md:w-80 shrink-0">
+          <h1 class="text-2xl font-semibold mb-6">Registration</h1>
 
-        <form class="flex flex-col gap-4" @submit.prevent="submit">
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium" for="reg-username">Username</label>
-            <input
-              id="reg-username"
-              v-model="username"
-              type="text"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
-              autocomplete="username"
-              required
-            />
+          <form class="flex flex-col gap-4" autocomplete="off" @submit.prevent="submit">
+            <!-- honeypots -->
+            <input class="hidden" type="text" name="fakeuser" tabindex="-1" />
+            <input class="hidden" type="password" name="fakepass" tabindex="-1" />
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium" for="reg-username">
+                Username
+                <span class="text-gray-400 font-normal ml-1 text-xs">letters, digits, _, -</span>
+              </label>
+              <FormInput
+                id="reg-username"
+                v-model="username"
+                class="w-full"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium" for="reg-password">
+                Password
+                <span class="text-gray-400 font-normal ml-1 text-xs">5+ characters</span>
+              </label>
+              <FormInput
+                id="reg-password"
+                v-model="password"
+                type="password"
+                class="w-full"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium" for="reg-confirm">Confirm Password</label>
+              <FormInput
+                id="reg-confirm"
+                v-model="passwordConfirm"
+                type="password"
+                class="w-full"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium" for="reg-email">
+                Email
+                <span class="text-gray-400 font-normal ml-1 text-xs">optional</span>
+              </label>
+              <FormInput
+                id="reg-email"
+                v-model="email"
+                type="email"
+                class="w-full"
+                autocomplete="off"
+                placeholder="used for password reset & Gravatar"
+              />
+            </div>
+
+            <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
+
+            <button
+              type="submit"
+              class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default flex items-center justify-center gap-2"
+              :disabled="loading"
+            >
+              <LoadingSpinner v-if="loading" size="sm" />
+              Create an account
+            </button>
+          </form>
+
+          <div class="mt-4 text-sm text-center">
+            <RouterLink to="/login" class="text-cyan-500 hover:underline">
+              Already have an account?
+            </RouterLink>
           </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium" for="reg-password">Password</label>
-            <input
-              id="reg-password"
-              v-model="password"
-              type="password"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
-              autocomplete="new-password"
-              required
-            />
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium" for="reg-confirm">Confirm Password</label>
-            <input
-              id="reg-confirm"
-              v-model="passwordConfirm"
-              type="password"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
-              autocomplete="new-password"
-              required
-            />
-          </div>
-
-          <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
-
-          <button
-            type="submit"
-            class="w-full py-2 rounded bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default flex items-center justify-center gap-2"
-            :disabled="loading"
-          >
-            <LoadingSpinner v-if="loading" size="sm" />
-            Register
-          </button>
-        </form>
-
-        <div class="mt-4 text-sm text-center">
-          <RouterLink to="/login" class="text-cyan-500 hover:underline">
-            Already have an account?
-          </RouterLink>
         </div>
-      </template>
-    </div>
+
+        <!-- Info panel -->
+        <div class="text-sm leading-relaxed">
+          <p class="font-medium mb-2">Registered users can:</p>
+          <ul class="flex flex-col gap-1.5 mb-4">
+            <li class="flex items-center gap-2">
+              <UploadIcon :size="14" class="shrink-0 text-cyan-500" /> Upload new posts
+            </li>
+            <li class="flex items-center gap-2">
+              <HeartIcon :size="14" class="shrink-0 text-cyan-500" /> Mark them as favorite
+            </li>
+            <li class="flex items-center gap-2">
+              <MessageCircleIcon :size="14" class="shrink-0 text-cyan-500" /> Add comments
+            </li>
+            <li class="flex items-center gap-2">
+              <StarIcon :size="14" class="shrink-0 text-cyan-500" /> Vote on posts and comments
+            </li>
+          </ul>
+          <hr class="border-gray-300 dark:border-gray-600 mb-4" />
+          <p class="text-gray-500 dark:text-gray-400">
+            By creating an account you agree to the
+            <RouterLink to="/help/tos" class="text-cyan-500 hover:underline">Terms of Service</RouterLink>.
+          </p>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -77,6 +130,13 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
+import {
+  Upload as UploadIcon,
+  Heart as HeartIcon,
+  MessageCircle as MessageCircleIcon,
+  Star as StarIcon,
+} from '@lucide/vue';
+import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 useHeadSafe({ title: 'Register' });
@@ -87,10 +147,10 @@ const router = useRouter();
 const username = ref('');
 const password = ref('');
 const passwordConfirm = ref('');
+const email = ref('');
 const errorMsg = ref('');
 const loading = ref(false);
 
-// Public registration uses user_create_self; admins use user_create_any
 const canRegister = computed(
   () => api.hasPrivilege('user_create_self') || api.hasPrivilege('user_create_any'),
 );
@@ -112,7 +172,7 @@ async function submit() {
   }
 
   loading.value = true;
-  const result = await api.register(username.value.trim(), password.value);
+  const result = await api.register(username.value.trim(), password.value, email.value);
   loading.value = false;
 
   if (!result.success) {

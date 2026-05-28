@@ -78,11 +78,15 @@ function encodeBasicAuth(user: string, password: string) {
   return `Basic ${btoa(String.fromCharCode(...data))}`;
 }
 
-function setCookieAuth(user: string, token: string) {
+function setCookieAuth(user: string, token: string, remember = true) {
   const value = encodeURIComponent(JSON.stringify({ user, token }));
-  const expires = new Date();
-  expires.setFullYear(expires.getFullYear() + 1);
-  document.cookie = `auth=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+  const parts = [`auth=${value}`, 'path=/', 'SameSite=Lax'];
+  if (remember) {
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    parts.push(`expires=${expires.toUTCString()}`);
+  }
+  document.cookie = parts.join('; ');
 }
 
 function clearCookieAuth() {
@@ -169,6 +173,7 @@ export const useTokenStore = defineStore('api', () => {
   const login = async (
     username: string,
     password: string,
+    remember = true,
   ): Promise<{ success: true } | { success: false; description: string }> => {
     const body: UserTokenCreateBody = { note: 'Login from browser', enabled: true };
     const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(username)}`, {
@@ -188,7 +193,7 @@ export const useTokenStore = defineStore('api', () => {
     if (!token) return { success: false, description: 'Server returned no token.' };
 
     userToken.value = { user: username, token };
-    setCookieAuth(username, token);
+    setCookieAuth(username, token, remember);
 
     const userResp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(username)}`, {
       headers: { Authorization: authToken.value! },
@@ -219,11 +224,14 @@ export const useTokenStore = defineStore('api', () => {
   const register = async (
     username: string,
     password: string,
+    email?: string,
   ): Promise<{ success: true } | { success: false; description: string }> => {
+    const body: Record<string, string> = { name: username, password };
+    if (email?.trim()) body.email = email.trim();
     const resp = await doFetch<UserInfo>('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: username, password }),
+      body: JSON.stringify(body),
     });
     if (!resp.success) {
       return { success: false, description: resp.description || resp.title };

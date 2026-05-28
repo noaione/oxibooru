@@ -12,11 +12,10 @@
         <form v-if="!requestSent" class="flex flex-col gap-4" @submit.prevent="submitRequest">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-identifier">Username or Email</label>
-            <input
+            <FormInput
               id="pr-identifier"
               v-model="identifier"
-              type="text"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
+              class="w-full"
               required
             />
           </div>
@@ -25,7 +24,7 @@
 
           <button
             type="submit"
-            class="w-full py-2 rounded bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
             :disabled="loading"
           >
             <LoadingSpinner v-if="loading" size="sm" />
@@ -45,11 +44,10 @@
         <form v-if="!resetDone" class="flex flex-col gap-4" @submit.prevent="submitConfirm">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-identifier2">Username</label>
-            <input
+            <FormInput
               id="pr-identifier2"
               v-model="identifier"
-              type="text"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
+              class="w-full"
               autocomplete="username"
               required
             />
@@ -57,11 +55,11 @@
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-new-password">New Password</label>
-            <input
+            <FormInput
               id="pr-new-password"
               v-model="newPassword"
               type="password"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
+              class="w-full"
               autocomplete="new-password"
               required
             />
@@ -69,11 +67,11 @@
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-confirm-password">Confirm Password</label>
-            <input
+            <FormInput
               id="pr-confirm-password"
               v-model="confirmPassword"
               type="password"
-              class="px-3 py-2 rounded overlay-color border-2 border-gray-300 dark:border-gray-600 outline-0 focus:border-cyan-500 transition-colors"
+              class="w-full"
               autocomplete="new-password"
               required
             />
@@ -83,7 +81,7 @@
 
           <button
             type="submit"
-            class="w-full py-2 rounded bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
             :disabled="loading"
           >
             <LoadingSpinner v-if="loading" size="sm" />
@@ -105,6 +103,7 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
+import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 useHeadSafe({ title: 'Password Reset' });
