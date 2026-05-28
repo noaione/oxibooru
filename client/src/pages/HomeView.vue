@@ -19,15 +19,19 @@
       <p class="text-gray-500 dark:text-gray-400 text-center mt-4">
         <span>Featured post: </span>
         <RouterLink
+          v-if="canViewFeatured"
           :to="`/post/${app.config.featuredPost.id}`"
           class="text-cyan-500 hover:underline"
         >@{{ app.config.featuredPost.id }}</RouterLink>
+        <span v-else>@{{ app.config.featuredPost.id }}</span>
         <template v-if="app.config.featuringUser">
           <span>, posted by </span>
           <RouterLink
+            v-if="canViewUser"
             :to="`/user/${app.config.featuringUser}`"
             class="text-cyan-500 hover:underline"
           >{{ app.config.featuringUser }}</RouterLink>
+          <span v-else>{{ app.config.featuringUser }}</span>
         </template>
         <template v-if="app.config.featuringTime">
           <span> around {{ formatRelativeTime(app.config.featuringTime) }}</span>
@@ -60,6 +64,9 @@ import { resolveApiUrl } from '@/utils/url';
 
 const app = useTokenStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
+
+const canViewFeatured = computed(() => app.hasPrivilege('post_view_featured'));
+const canViewUser = computed(() => app.hasPrivilege('user_view'));
 
 const formattedDiskUsage = computed(() => {
   if (!app.config?.diskUsage) return '0 B';

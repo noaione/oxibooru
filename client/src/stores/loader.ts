@@ -1,15 +1,16 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export const useLoaderStore = defineStore('loader', () => {
-  const loading = ref(false);
+  const activeCount = ref(0);
+  const loading = computed(() => activeCount.value > 0);
 
   function start() {
-    loading.value = true;
+    activeCount.value++;
   }
 
   function done() {
-    loading.value = false;
+    if (activeCount.value > 0) activeCount.value--;
   }
 
   return { loading, start, done };

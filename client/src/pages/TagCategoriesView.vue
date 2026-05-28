@@ -13,11 +13,7 @@
     </div>
 
     <template v-else>
-      <div v-if="loading" class="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
-
-      <div v-else-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else>
         <!-- Category rows -->
@@ -168,16 +164,17 @@
 import { ref, computed, onMounted } from 'vue';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useCategoriesStore } from '@/stores/categories';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { TagCategoryInfo } from '@/types/oxibooru.gen';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import FlatButton from '@/components/FlatButton.vue';
 import ColorSwatches from '@/components/ColorSwatches.vue';
 import FlatInput from '@/components/FlatInput.vue';
 
 const api = useTokenStore();
+const loader = useLoaderStore();
 const categories = useCategoriesStore();
 const confirm = useConfirm();
 const toast = useToast();
@@ -198,7 +195,6 @@ interface LocalCategory extends TagCategoryInfo {
 }
 
 const localCategories = ref<LocalCategory[]>([]);
-const loading = ref(false);
 const loadError = ref('');
 
 const newName = ref('');
@@ -230,11 +226,11 @@ function toLocalCategory(cat: TagCategoryInfo, isDefault: boolean): LocalCategor
 }
 
 async function loadCategories() {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
 
   const result = await api.listTagCategories();
-  loading.value = false;
+  loader.done();
 
   if (!result.success) {
     loadError.value = result.description;

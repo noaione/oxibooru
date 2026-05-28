@@ -122,13 +122,8 @@
     <!-- Error -->
     <p v-if="loadError" class="text-sm text-red-500">{{ loadError }}</p>
 
-    <!-- Loading (initial) -->
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <LoadingSpinner size="lg" />
-    </div>
-
     <!-- No results -->
-    <p v-else-if="!loading && posts.length === 0 && !loadError" class="text-sm text-gray-500">
+    <p v-if="!loader.loading && posts.length === 0 && !loadError" class="text-sm text-gray-500">
       No posts found.
     </p>
 
@@ -186,12 +181,12 @@
 
         <!-- Mass tag state indicator -->
         <div
-          v-if="massActiveState === 'tag' && lockedMassTag"
+          v-if="massActiveState === 'tag' && lockedMassTags.length > 0"
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
-          :class="postHasTag(post, lockedMassTag) ? 'bg-green-500/40' : 'bg-red-500/30'"
+          :class="postHasAllTags(post, lockedMassTags) ? 'bg-green-500/40' : 'bg-red-500/30'"
         >
           <span class="text-white font-bold text-2xl select-none drop-shadow">
-            {{ postHasTag(post, lockedMassTag) ? '−' : '+' }}
+            {{ postHasAllTags(post, lockedMassTags) ? '−' : '+' }}
           </span>
         </div>
 
@@ -234,10 +229,6 @@
       </template>
     </div>
 
-    <!-- Load more spinner (endless scroll) -->
-    <div v-if="loadingMore" class="flex items-center justify-center py-4">
-      <LoadingSpinner size="sm" />
-    </div>
 
     <!-- Endless scroll sentinel — always rendered so the observer can track it -->
     <div v-if="settingsReady && settings.endlessScroll" ref="sentinelRef" class="h-4 w-full" aria-hidden="true" />
@@ -261,11 +252,11 @@ import { useHeadSafe } from '@unhead/vue';
 import { useKeyModifier } from '@vueuse/core';
 import { Check as CheckIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import FlatButton from '@/components/FlatButton.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import PostBadges from '@/components/PostBadges.vue';
 import { resolveApiUrl } from '@/utils/url';
@@ -275,6 +266,7 @@ type PostItem = PagedResponsePostInfo['results'][0];
 const route = useRoute();
 const router = useRouter();
 const app = useTokenStore();
+const loader = useLoaderStore();
 const { settings, ready: settingsReady } = useSettingsStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
 
@@ -286,11 +278,10 @@ const pageSize = computed(() => settings.postsPerPage ?? 42);
 
 const posts = ref<PostItem[]>([]);
 const totalCount = ref(0);
-const loading = ref(false);
 const loadingMore = ref(false);
 const loadError = ref('');
 const massActiveState = ref<'tag' | 'safety' | 'delete' | 'none'>('none');
-const lockedMassTag = ref('');
+const lockedMassTags = ref<string[]>([]);
 const deletionCandidates = ref<Set<number>>(new Set());
 const lastClickedIdx = ref(-1);
 const lastClickedAction = ref<'add' | 'remove'>('add');
@@ -337,8 +328,9 @@ const thumbnailSizeClass = computed(() =>
   settings.postFlow ? 'w-full h-full' : 'w-full aspect-square'
 );
 
-function postHasTag(post: PostItem, tag: string): boolean {
-  return (post.tags ?? []).some((t) => t.names[0] === tag);
+function postHasAllTags(post: PostItem, tags: string[]): boolean {
+  const postTagNames = (post.tags ?? []).map((t) => t.names[0] ?? '');
+  return tags.every((t) => postTagNames.includes(t));
 }
 
 function postUrl(id: number) {
@@ -349,11 +341,11 @@ function postUrl(id: number) {
 }
 
 async function fetchPosts(offset: number) {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
   lastClickedIdx.value = -1;
   const result = await app.listPosts(fullQuery.value, offset, pageSize.value);
-  loading.value = false;
+  loader.done();
   if (!result.success) {
     loadError.value = result.description;
     return;
@@ -363,7 +355,7 @@ async function fetchPosts(offset: number) {
 }
 
 async function loadMorePosts() {
-  if (loadingMore.value || loading.value) return;
+  if (loadingMore.value || loader.loading) return;
   if (totalCount.value > 0 && posts.value.length >= totalCount.value) return;
   loadingMore.value = true;
   const result = await app.listPosts(fullQuery.value, posts.value.length, pageSize.value);
@@ -415,11 +407,12 @@ async function onPostClick(post: PostItem) {
       deletionCandidates.value = next;
     }
     lastClickedIdx.value = idx;
-  } else if (massActiveState.value === 'tag' && lockedMassTag.value && post.id && post.version) {
+  } else if (massActiveState.value === 'tag' && lockedMassTags.value.length > 0 && post.id && post.version) {
     const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
-    const tagIdx = currentTags.indexOf(lockedMassTag.value);
-    const newTags =
-      tagIdx >= 0 ? currentTags.filter((_, i) => i !== tagIdx) : [...currentTags, lockedMassTag.value];
+    const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
+    const newTags = allPresent
+      ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
+      : [...new Set([...currentTags, ...lockedMassTags.value])];
     const result = await app.updatePost(post.id, { version: post.version, tags: newTags });
     if (result.success) {
       post.tags = result.data.tags;
@@ -435,15 +428,16 @@ function cancelMassDelete() {
   lastClickedAction.value = 'add';
 }
 
-function startMassTagging(tag: string) {
-  if (!tag.trim()) return;
-  lockedMassTag.value = tag.trim();
-  router.replace({ query: { ...route.query, massTag: tag.trim() } });
+function startMassTagging(query: string) {
+  const tags = query.trim().split(/\s+/).filter(Boolean);
+  if (!tags.length) return;
+  lockedMassTags.value = tags;
+  router.replace({ query: { ...route.query, massTag: tags.join(' ') } });
 }
 
 function stopMassTagging() {
   massActiveState.value = 'none';
-  lockedMassTag.value = '';
+  lockedMassTags.value = [];
   router.replace({ query: { ...route.query, massTag: undefined } });
 }
 
@@ -477,7 +471,7 @@ watchEffect((onCleanup) => {
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (!entry?.isIntersecting) return;
-      if (!settings.endlessScroll || loading.value || loadingMore.value) return;
+      if (!settings.endlessScroll || loader.loading || loadingMore.value) return;
       loadMorePosts();
     },
     { threshold: 0 }
@@ -492,7 +486,7 @@ onMounted(() => {
   const urlMassTag = route.query.massTag as string | undefined;
   if (urlMassTag) {
     massActiveState.value = 'tag';
-    lockedMassTag.value = urlMassTag;
+    lockedMassTags.value = urlMassTag.split(/\s+/).filter(Boolean);
   }
 });
 
@@ -513,7 +507,7 @@ watch(
   (tag) => {
     if (tag) {
       massActiveState.value = 'tag';
-      lockedMassTag.value = tag;
+      lockedMassTags.value = tag.split(/\s+/).filter(Boolean);
     }
   },
 );
