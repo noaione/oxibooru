@@ -39,11 +39,13 @@
     <span
       v-for="tag in modelValue"
       :key="tag"
-      class="flex items-center gap-1 px-2 py-0.5 text-xs rounded bg-cyan-700 text-white"
+      class="flex items-center gap-1 px-2 py-0.5 text-xs rounded border"
+      :class="chipCategory(tag) ? '' : 'border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400'"
+      :style="chipCategory(tag) ? { color: `var(--tag-cat-${chipCategory(tag)})`, borderColor: `var(--tag-cat-${chipCategory(tag)})` } : {}"
     >
       {{ displayTag(tag) }}
       <button
-        class="leading-none hover:text-cyan-200 transition-colors cursor-pointer"
+        class="leading-none opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
         type="button"
         @click.stop="removeTag(tag)"
       >
@@ -90,6 +92,9 @@ interface Suggestion {
   usages: number;
 }
 
+// tag name → category name, used to color chips
+const localCategoryMap = ref<Map<string, string>>(new Map());
+
 const props = withDefaults(
   defineProps<{
     mode?: 'search' | 'input';
@@ -101,6 +106,8 @@ const props = withDefaults(
     inputClass?: string;
     /** when true, emit 'submit' but skip router navigation */
     overrideSubmit?: boolean;
+    /** input mode: initial tag name → category name map for coloring chips */
+    tagCategories?: Record<string, string>;
   }>(),
   {
     mode: 'search',
@@ -153,11 +160,17 @@ async function fetchSuggestions(query: string) {
     }
   );
   if (!res.success) return;
-  suggestions.value = (res.data.results ?? []).map((t) => ({
-    name: t.names?.[0] ?? '',
-    category: t.category ?? 'default',
-    usages: t.usages ?? 0,
-  }));
+  suggestions.value = (res.data.results ?? [])
+    .map((t) => ({
+      name: t.names?.[0] ?? '',
+      category: t.category ?? 'default',
+      usages: t.usages ?? 0,
+    }))
+    .filter((s) => s.name && !props.modelValue.includes(s.name));
+  // cache category for every result so chips can be colored later
+  for (const s of suggestions.value) {
+    if (s.name) localCategoryMap.value.set(s.name, s.category);
+  }
   showDropdown.value = suggestions.value.length > 0;
 }
 
@@ -191,10 +204,16 @@ function selectSuggestion(suggestion: Suggestion) {
     inputText.value = suggestion.name;
     closeDropdown();
   } else {
+    localCategoryMap.value.set(suggestion.name, suggestion.category);
     addTag(suggestion.name);
     inputText.value = '';
     closeDropdown();
   }
+}
+
+function chipCategory(tag: string): string | null {
+  const cat = localCategoryMap.value.get(tag);
+  return cat && cat !== 'default' ? cat : null;
 }
 
 function commitInputText() {
@@ -241,6 +260,18 @@ function closeDropdown() {
     activeIndex.value = -1;
   }, 100);
 }
+
+// seed category map from prop whenever it changes
+watch(
+  () => props.tagCategories,
+  (cats) => {
+    if (!cats) return;
+    for (const [name, category] of Object.entries(cats)) {
+      if (name && category) localCategoryMap.value.set(name, category);
+    }
+  },
+  { immediate: true },
+);
 
 // keep input in sync when search mode value changes externally
 watch(
