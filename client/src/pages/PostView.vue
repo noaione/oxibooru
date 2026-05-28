@@ -485,15 +485,22 @@
           v-if="post.type === 'image' || post.type === 'animation'"
           class="relative"
           :class="mediaWrapperClass"
+          :style="{
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+          }"
         >
           <img
             ref="imgRef"
+            :key="`image-${post.id}`"
             :src="resolveApiUrl(post.contentUrl)"
             :alt="`Post #${post.id}`"
             :width="post.canvasWidth || undefined"
             :height="post.canvasHeight || undefined"
             class="block"
             :class="fitClass"
+            :style="{
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+            }"
             draggable="false"
           />
           <PostNotesOverlay v-if="post.notes?.length" :notes="post.notes" :img-el="imgRef" />
@@ -504,12 +511,19 @@
           v-else-if="post.type === 'video'"
           class="relative"
           :class="mediaWrapperClass"
+          :style="{
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+          }"
         >
           <video
             ref="videoRef"
+            :key="`video-${post.id}`"
             :width="post.canvasWidth || undefined"
             :height="post.canvasHeight || undefined"
             :class="fitClass"
+            :style="{
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+            }"
             controls
             playsinline
             :loop="post.flags?.includes('loop')"
@@ -524,6 +538,7 @@
         <!-- Flash (unsupported) -->
         <div
           v-else-if="post.type === 'flash'"
+          :key="`flash-${post.id}`"
           class="flex items-center justify-center w-full h-64 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
         >
           Flash content is not supported in modern browsers.
@@ -639,10 +654,13 @@ const neighbors = ref<PostNeighbors>({});
 const loadError = ref('');
 
 // ── Local interactive state ────────────────────────────────────
+const localLoaded = ref(-1);
 const localScore = ref(0);
 const localOwnScore = ref(0);
 const localOwnFavorite = ref(false);
 const localFavoriteCount = ref(0);
+const localCachedPages = ref<Record<string, PostInfo>>({});
+const localCachedNeighbors = ref<Record<string, PostNeighbors>>({});
 
 // ── Edit state ────────────────────────────────────────────────
 const editTags = ref<string[]>([]);
@@ -666,7 +684,6 @@ const editTagCategories = computed(() => {
     const name = tag.names[0];
     if (name) map[name] = tag.category;
   }
-  console.log(map);
   return map;
 });
 
@@ -754,7 +771,7 @@ const fitModes = [
 const fitClass = computed(() => {
   switch (settings.fitMode) {
     case 'fit-original': return 'max-w-none max-h-none pr-4';
-    case 'fit-height': return 'max-h-screen w-auto object-contain';
+    case 'fit-height': return 'max-h-screen h-screen max-w-fit object-contain';
     case 'fit-width': return 'w-full h-auto object-contain';
     default: return 'max-w-full max-h-screen object-contain'; // fit-both
   }
@@ -976,11 +993,80 @@ async function submitComment() {
 }
 
 // ── Data loading ──────────────────────────────────────────────
-async function loadPost(id: number) {
-  loader.start();
-  loadError.value = '';
-  post.value = null;
+async function refreshNeighborsOnly(id: number, force = false) {
+  const result = await api.getPostNeighbors(id, contextQuery.value || undefined);
+  if (result.success) {
+    // neighbors.value = result.data;
+    localCachedNeighbors.value[id] = result.data;
+    if (force) {
+      neighbors.value = result.data;
+    }
 
+    if (result.data.next?.id) {
+      localCachedPages.value[result.data.next.id] = result.data.next;
+    }
+    if (result.data.prev?.id) {
+      localCachedPages.value[result.data.prev.id] = result.data.prev;
+    }
+  }
+}
+
+async function lazyloadNeighbors(id: number) {
+  const prevId = id + 1;
+  const nextId = id - 1;
+  if (localCachedNeighbors.value[id]) {
+    neighbors.value = localCachedNeighbors.value[id];
+    return;
+  }
+  if (localCachedPages.value[prevId] && localCachedPages.value[nextId]) {
+    // make it
+    localCachedNeighbors.value[id] = {
+      prev: localCachedPages.value[prevId],
+      next: localCachedPages.value[nextId],
+    };
+    neighbors.value = localCachedNeighbors.value[id];
+    return;
+  }
+  await refreshNeighborsOnly(id, true);
+}
+
+async function loadPost(id: number) {
+  loadError.value = '';
+  localLoaded.value = id;
+
+  if (localCachedPages.value[id]) {
+    post.value = localCachedPages.value[id];
+    localScore.value = post.value.score ?? 0;
+    localOwnScore.value = post.value.ownScore ?? 0;
+    localOwnFavorite.value = post.value.ownFavorite ?? false;
+    localFavoriteCount.value = post.value.favoriteCount ?? 0;
+    localComments.value = post.value.comments ?? [];
+    await lazyloadNeighbors(id);
+    return;
+  }
+
+  // find in neighbors
+  if (neighbors.value && neighbors.value.prev?.id === id) {
+    post.value = neighbors.value.prev;
+    localScore.value = neighbors.value.prev.score ?? 0;
+    localOwnScore.value = neighbors.value.prev.ownScore ?? 0;
+    localOwnFavorite.value = neighbors.value.prev.ownFavorite ?? false;
+    localFavoriteCount.value = neighbors.value.prev.favoriteCount ?? 0;
+    localComments.value = neighbors.value.prev.comments ?? [];
+    await lazyloadNeighbors(neighbors.value.prev.id);
+    return;
+  } else if (neighbors.value && neighbors.value.next?.id === id) {
+    post.value = neighbors.value.next;
+    localScore.value = neighbors.value.next.score ?? 0;
+    localOwnScore.value = neighbors.value.next.ownScore ?? 0;
+    localOwnFavorite.value = neighbors.value.next.ownFavorite ?? false;
+    localFavoriteCount.value = neighbors.value.next.favoriteCount ?? 0;
+    localComments.value = neighbors.value.next.comments ?? [];
+    await lazyloadNeighbors(neighbors.value.next.id);
+    return;
+  }
+
+  loader.start();
   let postResult: Awaited<ReturnType<typeof api.getPost>>;
   let neighborsResult: Awaited<ReturnType<typeof api.getPostNeighbors>>;
   try {
@@ -1000,6 +1086,7 @@ async function loadPost(id: number) {
     return;
   }
 
+  localCachedPages.value[id] = postResult.data; // store
   post.value = postResult.data;
   localScore.value = postResult.data.score ?? 0;
   localOwnScore.value = postResult.data.ownScore ?? 0;
@@ -1009,6 +1096,16 @@ async function loadPost(id: number) {
 
   if (neighborsResult.success) {
     neighbors.value = neighborsResult.data;
+    localCachedNeighbors.value[id] = neighborsResult.data;
+
+    if (neighborsResult.data.next?.id) {
+      localCachedPages.value[neighborsResult.data.next.id] = neighborsResult.data.next;
+      await refreshNeighborsOnly(neighborsResult.data.next.id);
+    }
+    if (neighborsResult.data.prev?.id) {
+      localCachedPages.value[neighborsResult.data.prev.id] = neighborsResult.data.prev;
+      await refreshNeighborsOnly(neighborsResult.data.prev.id);
+    }
   }
 }
 
