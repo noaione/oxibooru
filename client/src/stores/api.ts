@@ -1034,11 +1034,10 @@ export const useTokenStore = defineStore('api', () => {
   // ── Snapshot actions ───────────────────────────────────────────
 
   const listSnapshots = async (
-    query: string,
     offset: number,
     limit: number,
   ): Promise<{ success: true; data: PagedResponseSnapshotInfo } | { success: false; description: string }> => {
-    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseSnapshotInfo>(`/api/snapshots?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });

@@ -154,6 +154,29 @@ Global 401 handling: intercept in `useTokenStore().doFetch` — if response is 4
 - ARIA roles on modal dialogs
 - Screen reader announcements for dynamic content changes (live regions)
 
+### 15. Better Markdown
+
+The following this are what markup the legacy frontend support:
+- `@426` - links to post number 426
+- `#Dragon_Ball` - links to tag “Dragon_Ball”
+- `+Pirate` - links to user “Pirate”
+- `$12` - links to pool number 12
+- `~~new~~` - adds strike-through
+- `[spoiler]Lelouch survives[/spoiler]` - marks text as spoiler and hides it
+- `[sjis](´･ω･`)[/sjis]` - adds SJIS art
+- `[icon]https://youtube.com[/icon]` - adds the site icon next to the link
+
+We can also specify custom width/height of an embedded image like this:
+- `![alt](href =WIDTHx "title")`
+- `![alt](href =xHEIGHT "title")`
+- `![alt](href =WIDTHxHEIGHT "title")`
+
+Either we just copy and paste the old legacy code, or we rework it to use a more modern approach.
+
+Some alternatives to consider:
+- markdown-it with custom plugins for each syntax
+- A full blown custom parser with remark, unified, and rehype
+
 ## Acceptance Criteria
 
 - [ ] Keyboard shortcuts work and can be toggled in settings

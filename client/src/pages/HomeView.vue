@@ -27,14 +27,9 @@
         <template v-if="app.config.featuringTime">
           <span>, posted <RelativeTime :time="app.config.featuringTime" /></span>
         </template>
-        <template v-if="app.config.featuringUser">
+        <template v-if="app.config.featuredPost.user?.name">
           <span> by </span>
-          <RouterLink
-            v-if="canViewUser"
-            :to="`/user/${app.config.featuringUser}`"
-            class="text-cyan-500 hover:underline"
-          >{{ app.config.featuringUser }}</RouterLink>
-          <span v-else>{{ app.config.featuringUser }}</span>
+          <AvatarLink :simple="!canViewUser" :name="app.config.featuredPost.user?.name" :avatar-url="app.config.featuredPost.user.avatarUrl" />
         </template>
       </p>
     </div>
@@ -62,6 +57,7 @@ import { useHeadSafe } from '@unhead/vue';
 import { computed } from 'vue';
 import { resolveApiUrl } from '@/utils/url';
 import RelativeTime from '@/components/RelativeTime.vue';
+import AvatarLink from '@/components/AvatarLink.vue';
 
 const app = useTokenStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
