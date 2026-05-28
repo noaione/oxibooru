@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 interface Settings {
   keyboardShortcuts: boolean;

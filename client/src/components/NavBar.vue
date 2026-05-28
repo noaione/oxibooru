@@ -1,5 +1,5 @@
 <template>
-  <nav class="overlay-color w-dvw max-w-dvw">
+  <nav class="overlay-color w-full max-w-dvw">
     <div v-if="!apiController.ready" class="mx-auto flex items-center justify-between h-9" />
     <div v-else class="mx-auto flex items-center justify-between">
       <!-- Left: main navigation -->

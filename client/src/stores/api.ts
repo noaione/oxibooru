@@ -8,6 +8,7 @@ import type {
   RatingBody,
   TagCategoryInfo,
   UnpagedResponseTagCategoryInfo,
+  UnpagedResponsePoolCategoryInfo,
   UserTokenCreateBody,
   UserTokenUpdateBody,
   UserTokenInfo,
@@ -15,9 +16,10 @@ import type {
   UserInfo,
   UserUpdateBody,
   UserRank,
+  PoolCategoryInfo,
 } from '@/types/oxibooru.gen';
 import { defineStore } from 'pinia';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import z from 'zod';
 
 const userTokenData = z.object({
@@ -63,7 +65,7 @@ interface ErrorResponse {
 
 type ApiResponse<T> = OkResponse<T> | ErrorResponse;
 
-async function doFetch<T>(urlPath: string, options?: RequestInit): Promise<ApiResponse<T>> {
+export async function doFetch<T>(urlPath: string, options?: RequestInit): Promise<ApiResponse<T>> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
   const newUrl = new URL(urlPath, baseUrl);
 
@@ -119,7 +121,7 @@ export const useTokenStore = defineStore('api', () => {
   });
 
   // On app start, check if the user is already logged in
-  onMounted(async () => {
+  async function init() {
     const userCookie = document.cookie.split('; ').find((row) => row.startsWith('auth='));
     if (userCookie) {
       const splitCookie = userCookie.split('=');
@@ -156,7 +158,7 @@ export const useTokenStore = defineStore('api', () => {
     }
 
     ready.value = true;
-  });
+  }
 
   const refreshInfo = async () => {
     const infoResp = await doFetch<InfoResponse>('/api/info');
@@ -525,7 +527,19 @@ export const useTokenStore = defineStore('api', () => {
   };
 
   const listTagCategories = async (): Promise<{ success: true; data: TagCategoryInfo[] } | { success: false; description: string }> => {
-    const resp = await doFetch<UnpagedResponseTagCategoryInfo>('/api/tag-categories');
+    const resp = await doFetch<UnpagedResponseTagCategoryInfo>('/api/tag-categories', {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data.results };
+  };
+
+  const listPoolCategories = async (): Promise<{ success: true; data: PoolCategoryInfo[] } | { success: false; description: string }> => {
+    const resp = await doFetch<UnpagedResponsePoolCategoryInfo>('/api/pool-categories', {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
     if (!resp.success) {
       return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
     }
@@ -538,6 +552,7 @@ export const useTokenStore = defineStore('api', () => {
     user,
     config,
     ready,
+    init,
     refreshInfo,
     hasPrivilege,
     doFetch,
@@ -563,6 +578,7 @@ export const useTokenStore = defineStore('api', () => {
     favoritePost,
     unfavoritePost,
     listTagCategories,
+    listPoolCategories,
   };
 });
 
