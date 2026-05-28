@@ -72,7 +72,7 @@
             {{ formatFileSize(post.fileSize) }}
             {{ mimeLabel(post.mimeType) }}
           </a>
-          <span v-if="post.canvasWidth && post.canvasHeight" class="text-gray-500 text-xs">
+          <span v-if="post.canvasWidth && post.canvasHeight" class="text-gray-500 dark:text-gray-400 text-xs">
             {{ post.canvasWidth }}×{{ post.canvasHeight }}
             <span v-if="post.flags?.includes('loop')" title="Loops"><RepeatIcon :size="11" class="inline" /></span>
             <span v-if="post.flags?.includes('sound')" title="Has audio"><Volume2Icon :size="11" class="inline" /></span>
@@ -80,7 +80,7 @@
         </section>
 
         <!-- Upload info -->
-        <section class="text-gray-500 text-xs">
+        <section class="text-gray-500 dark:text-gray-400 text-xs">
           <span>
             Uploaded by
             <RouterLink
@@ -108,7 +108,7 @@
             v-for="mode in fitModes"
             :key="mode.value"
             class="cursor-pointer hover:text-cyan-500 transition-colors"
-            :class="settings.fitMode === mode.value ? 'text-cyan-500 font-medium' : 'text-gray-500'"
+            :class="settings.fitMode === mode.value ? 'text-cyan-500 font-medium' : 'text-gray-500 dark:text-gray-400'"
             @click="settings.fitMode = mode.value"
           >
             {{ mode.label }}
@@ -117,7 +117,7 @@
 
         <!-- Source -->
         <section v-if="post.source" class="flex flex-col gap-0.5">
-          <span class="text-gray-500 text-xs">Source:</span>
+          <span class="text-gray-500 dark:text-gray-400 text-xs">Source:</span>
           <div class="flex flex-wrap gap-1 text-xs">
             <template v-for="(src, i) in sourceParts" :key="i">
               <span v-if="i > 0" class="text-gray-400">·</span>
@@ -135,7 +135,7 @@
         </section>
 
         <!-- External search -->
-        <section class="flex flex-wrap gap-1 text-xs text-gray-500">
+        <section class="flex flex-wrap gap-1 text-xs text-gray-500 dark:text-gray-400">
           <span>Search on:</span>
           <a
             :href="`http://iqdb.org/?url=${encodeURIComponent(fullContentUrl)}`"
@@ -201,7 +201,7 @@
 
       <!-- Relations -->
       <div v-if="post.relations?.length" class="card p-3 flex flex-col gap-2">
-        <h2 class="text-xs font-semibold uppercase text-gray-500 tracking-wide">
+        <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
           Relations ({{ post.relations.length }})
         </h2>
         <div class="flex flex-wrap gap-1">
@@ -223,7 +223,7 @@
 
       <!-- Tags -->
       <div class="card p-3 flex flex-col gap-2">
-        <h2 class="text-xs font-semibold uppercase text-gray-500 tracking-wide">
+        <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
           Tags ({{ post.tags?.length ?? 0 }})
         </h2>
         <ul v-if="post.tags?.length" class="flex flex-col gap-1">
@@ -254,7 +254,7 @@
             <span class="text-gray-400 text-xs ml-auto tabular-nums">{{ tag.usages }}</span>
           </li>
         </ul>
-        <p v-else class="text-xs text-gray-500">
+        <p v-else class="text-xs text-gray-500 dark:text-gray-400">
           No tags yet.
           <RouterLink v-if="canEditPost" :to="`/post/${post.id}/edit`" class="text-cyan-500 hover:underline">
             Add some.
@@ -264,7 +264,7 @@
 
       <!-- Pools -->
       <div v-if="post.pools?.length" class="card p-3 flex flex-col gap-2">
-        <h2 class="text-xs font-semibold uppercase text-gray-500 tracking-wide">
+        <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
           Pools ({{ post.pools.length }})
         </h2>
         <ul class="flex flex-col gap-1 text-sm">
@@ -318,7 +318,7 @@
         <!-- Flash (unsupported) -->
         <div
           v-else-if="post.type === 'flash'"
-          class="flex items-center justify-center w-full h-64 bg-gray-200 dark:bg-gray-700 text-gray-500"
+          class="flex items-center justify-center w-full h-64 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
         >
           Flash content is not supported in modern browsers.
         </div>
