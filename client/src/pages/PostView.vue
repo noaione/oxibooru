@@ -486,11 +486,17 @@
         'overflow-hidden': settings.fitMode !== 'fit-original',
       }">
         <!-- Image / Animation -->
-        <div v-if="post.type === 'image' || post.type === 'animation'" class="relative self-start">
+        <div
+          v-if="post.type === 'image' || post.type === 'animation'"
+          class="relative"
+          :class="mediaWrapperClass"
+        >
           <img
             ref="imgRef"
             :src="resolveApiUrl(post.contentUrl)"
             :alt="`Post #${post.id}`"
+            :width="post.canvasWidth || undefined"
+            :height="post.canvasHeight || undefined"
             class="block"
             :class="fitClass"
             draggable="false"
@@ -499,9 +505,15 @@
         </div>
 
         <!-- Video -->
-        <div v-else-if="post.type === 'video'" class="relative self-start">
+        <div
+          v-else-if="post.type === 'video'"
+          class="relative"
+          :class="mediaWrapperClass"
+        >
           <video
             ref="videoRef"
+            :width="post.canvasWidth || undefined"
+            :height="post.canvasHeight || undefined"
             :class="fitClass"
             controls
             playsinline
@@ -530,6 +542,48 @@
           <p class="whitespace-pre-wrap text-gray-700 dark:text-gray-300" v-html="renderedDescription" />
         </details>
       </div>
+
+      <!-- Comments (view mode only) -->
+      <section v-if="!isEditMode" class="flex flex-col gap-3">
+        <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          Comments ({{ localComments.length }})
+        </h2>
+
+        <div v-if="localComments.length > 0" class="flex flex-col gap-4">
+          <CommentItem
+            v-for="comment in localComments"
+            :key="comment.id"
+            :comment="comment"
+            @update="(c) => updateComment(c)"
+            @delete="(id) => removeComment(id)"
+          />
+        </div>
+        <p v-else class="text-sm text-gray-500 dark:text-gray-400">No comments yet.</p>
+
+        <!-- Create comment -->
+        <div v-if="canCreateComment" class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700">
+          <FlatTextarea
+            v-model="newCommentText"
+            rows="3"
+            placeholder="Write a comment… (Markdown supported)"
+            class="w-full text-sm"
+          />
+          <div class="flex items-center gap-2">
+            <FlatButton
+              type="button"
+              class="w-fit"
+              :disabled="!newCommentText.trim() || submittingComment"
+              @click="submitComment"
+            >
+              {{ submittingComment ? 'Posting…' : 'Post comment' }}
+            </FlatButton>
+            <span v-if="commentError" class="text-xs text-red-500">{{ commentError }}</span>
+          </div>
+        </div>
+        <p v-else-if="!api.userToken" class="text-sm text-gray-500 dark:text-gray-400">
+          <RouterLink to="/login" class="text-cyan-500 hover:underline">Log in</RouterLink> to comment.
+        </p>
+      </section>
     </main>
   </div>
 </template>
@@ -557,8 +611,9 @@ import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
-import type { PostInfo, PostNeighbors, PostSafety, PostFlag, PostUpdateBody } from '@/types/oxibooru.gen';
+import type { CommentInfo, PostInfo, PostNeighbors, PostSafety, PostFlag, PostUpdateBody } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
+import CommentItem from '@/components/CommentItem.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
@@ -704,6 +759,15 @@ const fitClass = computed(() => {
     case 'fit-height': return 'max-h-screen w-auto object-contain';
     case 'fit-width': return 'w-full h-auto object-contain';
     default: return 'max-w-full max-h-screen object-contain'; // fit-both
+  }
+});
+
+const mediaWrapperClass = computed(() => {
+  switch (settings.fitMode) {
+    case 'fit-original': return 'self-start';
+    case 'fit-height': return 'self-start';
+    case 'fit-width': return 'w-full';
+    default: return 'w-full'; // fit-both: fill width, let aspect-ratio constrain height
   }
 });
 
@@ -886,18 +950,65 @@ function goToMerge() {
   router.push(`/post/merge/${post.value.id}/${otherId}`);
 }
 
+// ── Comments ───────────────────────────────────────────────────
+const localComments = ref<CommentInfo[]>([]);
+const newCommentText = ref('');
+const submittingComment = ref(false);
+const commentError = ref('');
+
+const canCreateComment = computed(() =>
+  !!api.userToken && api.hasPrivilege('comment_create'),
+);
+
+function updateComment(updated: CommentInfo) {
+  const idx = localComments.value.findIndex((c) => c.id === updated.id);
+  if (idx !== -1) localComments.value[idx] = updated;
+}
+
+function removeComment(id: number) {
+  localComments.value = localComments.value.filter((c) => c.id !== id);
+}
+
+async function submitComment() {
+  if (!post.value?.id || !newCommentText.value.trim()) return;
+  submittingComment.value = true;
+  commentError.value = '';
+
+  const result = await api.createComment({
+    postId: post.value.id,
+    text: newCommentText.value.trim(),
+  });
+
+  submittingComment.value = false;
+
+  if (!result.success) {
+    commentError.value = result.description;
+    return;
+  }
+
+  localComments.value.push(result.data);
+  newCommentText.value = '';
+}
+
 // ── Data loading ──────────────────────────────────────────────
 async function loadPost(id: number) {
   loader.start();
   loadError.value = '';
   post.value = null;
 
-  const [postResult, neighborsResult] = await Promise.all([
-    api.getPost(id),
-    api.getPostNeighbors(id, contextQuery.value || undefined),
-  ]);
-
-  loader.done();
+  let postResult: Awaited<ReturnType<typeof api.getPost>>;
+  let neighborsResult: Awaited<ReturnType<typeof api.getPostNeighbors>>;
+  try {
+    [postResult, neighborsResult] = await Promise.all([
+      api.getPost(id),
+      api.getPostNeighbors(id, contextQuery.value || undefined),
+    ]);
+  } catch (e) {
+    postResult = { success: false, description: String(e) };
+    neighborsResult = { success: false, description: String(e) };
+  } finally {
+    loader.done();
+  }
 
   if (!postResult.success) {
     loadError.value = postResult.description;
@@ -909,6 +1020,7 @@ async function loadPost(id: number) {
   localOwnScore.value = postResult.data.ownScore ?? 0;
   localOwnFavorite.value = postResult.data.ownFavorite ?? false;
   localFavoriteCount.value = postResult.data.favoriteCount ?? 0;
+  localComments.value = postResult.data.comments ?? [];
 
   if (neighborsResult.success) {
     neighbors.value = neighborsResult.data;

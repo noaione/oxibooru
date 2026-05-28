@@ -168,12 +168,19 @@ async function loadTags() {
   loader.start();
   loadError.value = '';
 
-  const [r1, r2] = await Promise.all([
-    api.getTag(sourceName.value),
-    api.getTag(otherName.value),
-  ]);
-
-  loader.done();
+  let r1: Awaited<ReturnType<typeof api.getTag>>;
+  let r2: Awaited<ReturnType<typeof api.getTag>>;
+  try {
+    [r1, r2] = await Promise.all([
+      api.getTag(sourceName.value),
+      api.getTag(otherName.value),
+    ]);
+  } catch (e) {
+    loadError.value = `Failed to load tags: ${e}`;
+    return;
+  } finally {
+    loader.done();
+  }
 
   if (!r1.success) {
     loadError.value = `Tag "${sourceName.value}": ${r1.description}`;

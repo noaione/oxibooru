@@ -127,8 +127,17 @@ const currentPage = computed(() => {
 async function fetchUsers(query: string, offset: number) {
   loader.start();
   loadError.value = '';
-  const result = await api.listUsers(query, offset, PAGE_SIZE);
-  loader.done();
+  let result: Awaited<ReturnType<typeof api.listUsers>>;
+  try {
+    result = await api.listUsers(query, offset, PAGE_SIZE);
+  } catch (e) {
+    result = {
+      success: false,
+      description: `Failed to load users: ${e}`,
+    };
+  } finally {
+    loader.done();
+  }
   if (!result.success) {
     loadError.value = result.description;
     return;

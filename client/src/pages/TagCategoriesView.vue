@@ -229,8 +229,17 @@ async function loadCategories() {
   loader.start();
   loadError.value = '';
 
-  const result = await api.listTagCategories();
-  loader.done();
+  let result: Awaited<ReturnType<typeof api.listTagCategories>>;
+  try {
+    result = await api.listTagCategories();
+  } catch (e) {
+    result = {
+      success: false,
+      description: `Failed to load tag categories: ${e}`,
+    };
+  } finally {
+    loader.done();
+  }
 
   if (!result.success) {
     loadError.value = result.description;

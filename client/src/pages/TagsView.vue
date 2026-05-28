@@ -177,9 +177,17 @@ async function fetchTags() {
     .join(' ');
 
   const offset = (currentPage.value - 1) * PAGE_SIZE;
-  const result = await api.listTags(query, offset, PAGE_SIZE);
-
-  loader.done();
+  let result: Awaited<ReturnType<typeof api.listTags>>;
+  try {
+    result = await api.listTags(query, offset, PAGE_SIZE);
+  } catch (e) {
+    result = {
+      success: false,
+      description: `Failed to load tags: ${e}`,
+    };
+  } finally {
+    loader.done();
+  }
 
   if (!result.success) {
     error.value = result.description;

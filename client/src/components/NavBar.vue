@@ -77,6 +77,7 @@ type Navigation = {
   name: string;
   href: string;
   matcher?: RegExp;
+  excludeMatcher?: string | RegExp;
   pos?: 'left' | 'right';
   highlight?: boolean;
   iconImage?: string;
@@ -112,12 +113,13 @@ const navigations = computed<Navigation[]>(() => {
     baseNavs.push({ name: 'Pools', href: '/pools', matcher: /^\/pools?(\/.*)?/ });
   }
   if (apiController.hasPrivilege('user_list')) {
-    baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/ });
+    const excludeMatcher = apiController.user?.name ? `/user/${apiController.user.name}` : undefined;
+    baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/, excludeMatcher });
   }
 
   if (apiController.user?.name) {
     baseNavs.push({
-      name: apiController.user.name,
+      name: 'Account',
       href: `/user/${apiController.user.name}`,
       pos: 'right',
       iconImage: resolveApiUrl(apiController.user.avatarUrl),
@@ -150,7 +152,15 @@ const leftNavigations = computed(() => navigations.value.filter((nav) => nav.pos
 const rightNavigations = computed(() => navigations.value.filter((nav) => nav.pos === 'right'));
 
 const isMatch = (nav: Navigation) => {
-  if (nav.matcher) return nav.matcher.test(router.currentRoute.value.path);
+  if (nav.excludeMatcher instanceof RegExp) {
+    return !nav.excludeMatcher.test(router.currentRoute.value.path);
+  } else if (typeof nav.excludeMatcher === 'string') {
+    return router.currentRoute.value.path !== nav.excludeMatcher;
+  }
+
+  if (nav.matcher) {
+    return nav.matcher.test(router.currentRoute.value.path);
+  }
   return router.currentRoute.value.path === nav.href;
 };
 </script>

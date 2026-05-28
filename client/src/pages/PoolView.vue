@@ -107,7 +107,7 @@
         <FlatTextarea
           v-model="editNames"
           rows="3"
-          class="w-full text-sm bg-gray-50! dark:bg-gray-800!"
+          class="w-full text-sm"
           placeholder="pool_name&#10;alias_one"
         />
       </div>
@@ -115,7 +115,7 @@
       <!-- Category -->
       <div v-if="canEditCategory" class="flex flex-col gap-1">
         <label class="text-sm font-medium">Category</label>
-        <FlatSelect v-model="editCategory" class="w-full max-w-xs bg-gray-50! dark:bg-gray-800!">
+        <FlatSelect v-model="editCategory" class="w-full max-w-xs">
           <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{ cat.name }}</option>
         </FlatSelect>
       </div>
@@ -126,7 +126,7 @@
         <FlatTextarea
           v-model="editDescription"
           rows="5"
-          class="w-full text-sm bg-gray-50! dark:bg-gray-800!"
+          class="w-full text-sm"
           placeholder="Optional description…"
         />
       </div>
