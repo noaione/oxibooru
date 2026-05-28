@@ -1,6 +1,13 @@
 import type {
   InfoResponse,
+  PagedResponsePostInfo,
   PagedResponseUserInfo,
+  PostInfo,
+  PostNeighbors,
+  PostUpdateBody,
+  RatingBody,
+  TagCategoryInfo,
+  UnpagedResponseTagCategoryInfo,
   UserTokenCreateBody,
   UserTokenUpdateBody,
   UserTokenInfo,
@@ -403,6 +410,128 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data };
   };
 
+  // ── Post actions ───────────────────────────────────────────────
+
+  const listPosts = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponsePostInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponsePostInfo>(`/api/posts?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const getPost = async (
+    id: number,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const getPostNeighbors = async (
+    id: number,
+    query?: string,
+  ): Promise<{ success: true; data: PostNeighbors } | { success: false; description: string }> => {
+    const params = query ? `?query=${encodeURIComponent(query)}` : '';
+    const resp = await doFetch<PostNeighbors>(`/api/post/${id}/around${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updatePost = async (
+    id: number,
+    body: PostUpdateBody,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deletePost = async (
+    id: number,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/post/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const ratePost = async (
+    id: number,
+    score: RatingBody['score'],
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}/score`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ score } satisfies RatingBody),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const favoritePost = async (
+    id: number,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}/favorite`, {
+      method: 'POST',
+      headers: { Authorization: authToken.value! },
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const unfavoritePost = async (
+    id: number,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}/favorite`, {
+      method: 'DELETE',
+      headers: { Authorization: authToken.value! },
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const listTagCategories = async (): Promise<{ success: true; data: TagCategoryInfo[] } | { success: false; description: string }> => {
+    const resp = await doFetch<UnpagedResponseTagCategoryInfo>('/api/tag-categories');
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data.results };
+  };
+
   return {
     userToken,
     authToken,
@@ -425,6 +554,15 @@ export const useTokenStore = defineStore('api', () => {
     deleteUserToken,
     updateUserToken,
     listUsers,
+    listPosts,
+    getPost,
+    getPostNeighbors,
+    updatePost,
+    deletePost,
+    ratePost,
+    favoritePost,
+    unfavoritePost,
+    listTagCategories,
   };
 });
 

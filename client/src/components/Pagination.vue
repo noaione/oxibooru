@@ -40,6 +40,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+defineOptions({ name: 'PaginationControl' });
+
 const props = defineProps<{
   currentPage: number;
   totalCount: number;

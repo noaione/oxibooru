@@ -302,7 +302,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore, allRanks, rankNames } from '@/stores/api';
-import type { UserInfo, AvatarStyle, UserRank } from '@/types/oxibooru.gen';
+import type { UserInfo, AvatarStyle, UserRank, UserTokenInfo } from '@/types/oxibooru.gen';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
@@ -320,7 +320,7 @@ const section = computed(() => {
   return 'summary';
 });
 
-useHeadSafe({ title: computed(() => `${serverName.value} - User ${userName.value}`) });
+useHeadSafe(() => ({ title: `${serverName.value} - User ${userName.value}` }));
 
 // ── Data ──────────────────────────────────────────────────────────
 const apiReady = computed(() => api.ready);
@@ -372,8 +372,7 @@ function onAvatarFile(e: Event) {
 }
 
 // ── Token section state ──────────────────────────────────────────
-type TokenItem = NonNullable<typeof tokens.value>[0];
-const tokens = ref<TokenItem[]>([]);
+const tokens = ref<UserTokenInfo[]>([]);
 const tokenError = ref('');
 const tokenSuccess = ref('');
 const tokenDeleteLoading = ref<number>(-1);
@@ -483,13 +482,15 @@ async function submitEdit() {
 }
 
 // ── Token actions ────────────────────────────────────────────────
-function startEditNote(idx: number) {
-  editingNoteIdx.value = idx;
-  editingNoteValue.value = tokens.value[idx]?.note ?? '';
+function startEditNote(idx: number | string) {
+  const i = Number(idx);
+  editingNoteIdx.value = i;
+  editingNoteValue.value = tokens.value[i]?.note ?? '';
 }
 
-async function saveNote(idx: number) {
-  const tok = tokens.value[idx];
+async function saveNote(idx: number | string) {
+  const i = Number(idx);
+  const tok = tokens.value[i];
   if (!tok?.token || !tok.version) return;
   const result = await api.updateUserToken(userName.value, tok.token, {
     version: tok.version,
@@ -499,16 +500,17 @@ async function saveNote(idx: number) {
     tokenError.value = result.description;
     return;
   }
-  tokens.value[idx] = { ...tok, note: editingNoteValue.value || null, version: result.data.version };
+  tokens.value[i] = { ...tok, note: editingNoteValue.value || undefined, version: result.data.version };
   editingNoteIdx.value = -1;
   tokenSuccess.value = 'Token updated.';
 }
 
-async function deleteToken(idx: number) {
-  const tok = tokens.value[idx];
+async function deleteToken(idx: number | string) {
+  const i = Number(idx);
+  const tok = tokens.value[i];
   if (!tok?.token) return;
   const isCurrentToken = tok.token === api.userToken?.token;
-  tokenDeleteLoading.value = idx;
+  tokenDeleteLoading.value = i;
   const result = await api.deleteUserToken(userName.value, tok.token);
   tokenDeleteLoading.value = -1;
   if (!result.success) {
@@ -520,7 +522,7 @@ async function deleteToken(idx: number) {
     router.push('/');
     return;
   }
-  tokens.value.splice(idx, 1);
+  tokens.value.splice(i, 1);
   tokenSuccess.value = `Token deleted.`;
 }
 

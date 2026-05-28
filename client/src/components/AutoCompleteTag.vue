@@ -99,18 +99,21 @@ const props = withDefaults(
     placeholder?: string;
     class?: string;
     inputClass?: string;
+    /** when true, emit 'submit' but skip router navigation */
+    overrideSubmit?: boolean;
   }>(),
   {
     mode: 'search',
     target: 'posts',
     modelValue: () => [],
     placeholder: 'Search tags…',
+    overrideSubmit: false,
   },
 );
 
 const emit = defineEmits<{
   'update:modelValue': [tags: string[]];
-  submit: [];
+  submit: [query: string];
 }>();
 
 const router = useRouter();
@@ -146,7 +149,7 @@ async function fetchSuggestions(query: string) {
   const res = await apiStore.doFetch<PagedResponseTagInfo>(
     `/api/tags?query=${encodeURIComponent(wrappedQuery)}&limit=15`,
     {
-      headers: { Authorization: apiStore.authToken },
+      headers: apiStore.authToken ? { Authorization: apiStore.authToken } : {},
     }
   );
   if (!res.success) return;
@@ -225,8 +228,10 @@ function removeTag(tag: string) {
 function submitSearch() {
   closeDropdown();
   const query = inputText.value.trim();
-  emit('submit');
-  router.push({ name: props.target, query: { query } });
+  emit('submit', query);
+  if (!props.overrideSubmit) {
+    router.push({ name: props.target, query: { query } });
+  }
 }
 
 function closeDropdown() {
