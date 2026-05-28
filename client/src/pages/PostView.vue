@@ -701,8 +701,9 @@ const fitClass = computed(() => {
 });
 
 const renderedDescription = computed(() => {
-  if (post.value.description?.trim().length > 0) {
-    return renderMarkdown(post.value.description);
+  const desc = post.value?.description;
+  if (desc?.trim()) {
+    return renderMarkdown(desc);
   }
   return null;
 })
