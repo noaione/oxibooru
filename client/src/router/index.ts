@@ -54,9 +54,27 @@ const router = createRouter({
     },
     // ── Posts core routes (Stage 4) ──────────────────────────
     {
+      path: '/post/merge/:id1/:id2',
+      name: 'post-merge',
+      meta: { title: 'Merge Posts' },
+      component: () => import('@/pages/PostMergeView.vue'),
+    },
+    {
+      path: '/post/:id/edit',
+      name: 'post-edit',
+      component: () => import('@/pages/PostView.vue'),
+    },
+    {
       path: '/post/:id',
       name: 'post',
       component: () => import('@/pages/PostView.vue'),
+    },
+    // ── Posts upload/edit routes (Stage 5) ────────────────────
+    {
+      path: '/upload',
+      name: 'upload',
+      meta: { title: 'Upload' },
+      component: () => import('@/pages/PostUploadView.vue'),
     },
     // ── User management routes (Stage 3) ──────────────────────
     {

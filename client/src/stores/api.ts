@@ -2,13 +2,17 @@ import type {
   InfoResponse,
   PagedResponsePostInfo,
   PagedResponseUserInfo,
+  PostCreateBody,
   PostInfo,
+  PostMergeBody,
   PostNeighbors,
   PostUpdateBody,
   RatingBody,
+  ReverseSearchResponse,
   TagCategoryInfo,
   UnpagedResponseTagCategoryInfo,
   UnpagedResponsePoolCategoryInfo,
+  UploadResponse,
   UserTokenCreateBody,
   UserTokenUpdateBody,
   UserTokenInfo,
@@ -546,6 +550,83 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data.results };
   };
 
+  const uploadContent = async (
+    file: File,
+  ): Promise<{ success: true; data: UploadResponse } | { success: false; description: string }> => {
+    const form = new FormData();
+    form.append('content', file);
+    const resp = await doFetch<UploadResponse>('/api/uploads', {
+      method: 'POST',
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+      body: form,
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const createPost = async (
+    body: PostCreateBody,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>('/api/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken.value ? { Authorization: authToken.value } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const mergePost = async (
+    body: PostMergeBody,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>('/api/post-merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const reverseSearch = async (
+    params: { contentToken?: string; contentUrl?: string },
+  ): Promise<{ success: true; data: ReverseSearchResponse } | { success: false; description: string }> => {
+    const resp = await doFetch<ReverseSearchResponse>('/api/posts/reverse-search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken.value ? { Authorization: authToken.value } : {}),
+      },
+      body: JSON.stringify(params),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const featurePost = async (
+    id: number,
+  ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PostInfo>(`/api/post/${id}/featured`, {
+      method: 'POST',
+      headers: { Authorization: authToken.value! },
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
   return {
     userToken,
     authToken,
@@ -579,6 +660,11 @@ export const useTokenStore = defineStore('api', () => {
     unfavoritePost,
     listTagCategories,
     listPoolCategories,
+    uploadContent,
+    createPost,
+    mergePost,
+    reverseSearch,
+    featurePost,
   };
 });
 
