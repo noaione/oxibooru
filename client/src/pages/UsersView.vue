@@ -35,7 +35,7 @@
       <div
         v-for="u in users"
         :key="u.name"
-        class="flex flex-col items-center gap-2 w-28 card p-3"
+        class="flex flex-col items-center gap-2 w-48 card p-3"
       >
         <RouterLink v-if="canViewUsers" :to="`/user/${u.name}`" class="flex flex-col items-center gap-2">
           <img
@@ -67,9 +67,9 @@
           </div>
           <span class="text-sm text-center break-all">{{ u.name }}</span>
         </template>
-        <div class="text-xs text-gray-500 text-center">
-          <div>Registered: {{ formatDate(u.creationTime) }}</div>
-          <div>Last seen: {{ formatDate(u.lastLoginTime) }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <div><strong>Registered</strong>: {{ formatDate(u.creationTime) }}</div>
+          <div><strong>Last seen</strong>: {{ formatDate(u.lastLoginTime) }}</div>
         </div>
       </div>
     </div>

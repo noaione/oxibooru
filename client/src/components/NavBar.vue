@@ -108,6 +108,9 @@ const navigations = computed<Navigation[]>(() => {
   if (apiController.hasPrivilege('tag_list')) {
     baseNavs.push({ name: 'Tags', href: '/tags', matcher: /^\/tags?(\/.*)?/ });
   }
+  if (apiController.hasPrivilege('pool_list')) {
+    baseNavs.push({ name: 'Pools', href: '/pools', matcher: /^\/pools?(\/.*)?/ });
+  }
   if (apiController.hasPrivilege('user_list')) {
     baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/ });
   }

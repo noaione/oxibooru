@@ -1,5 +1,5 @@
 <template>
-  <div v-if="app.ready" class="flex flex-col gap-4 w-full">
+  <div class="flex flex-col gap-4 w-full">
     <!-- Search + safety header -->
     <div class="flex flex-col md:flex-row w-full max-w-full gap-2">
       <AutoCompleteTag

@@ -1,9 +1,17 @@
 import type {
   InfoResponse,
   MergeBodySmallString,
+  MergeBodyI64,
+  PagedResponsePoolInfo,
   PagedResponsePostInfo,
   PagedResponseTagInfo,
   PagedResponseUserInfo,
+  PoolCategoryCreateBody,
+  PoolCategoryInfo,
+  PoolCategoryUpdateBody,
+  PoolCreateBody,
+  PoolInfo,
+  PoolUpdateBody,
   PostCreateBody,
   PostInfo,
   PostMergeBody,
@@ -28,7 +36,6 @@ import type {
   UserInfo,
   UserUpdateBody,
   UserRank,
-  PoolCategoryInfo,
 } from '@/types/oxibooru.gen';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -558,6 +565,154 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data.results };
   };
 
+  // ── Pool actions ────────────────────────────────────────────────
+
+  const listPools = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponsePoolInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponsePoolInfo>(`/api/pools?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const getPool = async (
+    id: number,
+  ): Promise<{ success: true; data: PoolInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolInfo>(`/api/pool/${id}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const createPool = async (
+    body: PoolCreateBody,
+  ): Promise<{ success: true; data: PoolInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolInfo>('/api/pool', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updatePool = async (
+    id: number,
+    body: PoolUpdateBody,
+  ): Promise<{ success: true; data: PoolInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolInfo>(`/api/pool/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deletePool = async (
+    id: number,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/pool/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const mergePool = async (
+    body: MergeBodyI64,
+  ): Promise<{ success: true; data: PoolInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolInfo>('/api/pool-merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  // ── Pool category actions ───────────────────────────────────────
+
+  const createPoolCategory = async (
+    body: PoolCategoryCreateBody,
+  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolCategoryInfo>('/api/pool-categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updatePoolCategory = async (
+    name: string,
+    body: PoolCategoryUpdateBody,
+  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolCategoryInfo>(`/api/pool-category/${encodeURIComponent(name)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deletePoolCategory = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/pool-category/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const setDefaultPoolCategory = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<PoolCategoryInfo>(`/api/pool-category/${encodeURIComponent(name)}/default`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
   const uploadContent = async (
     file: File,
   ): Promise<{ success: true; data: UploadResponse } | { success: false; description: string }> => {
@@ -828,6 +983,16 @@ export const useTokenStore = defineStore('api', () => {
     unfavoritePost,
     listTagCategories,
     listPoolCategories,
+    listPools,
+    getPool,
+    createPool,
+    updatePool,
+    deletePool,
+    mergePool,
+    createPoolCategory,
+    updatePoolCategory,
+    deletePoolCategory,
+    setDefaultPoolCategory,
     uploadContent,
     createPost,
     mergePost,
