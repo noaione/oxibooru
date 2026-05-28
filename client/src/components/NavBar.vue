@@ -151,15 +151,19 @@ const navigations = computed<Navigation[]>(() => {
 const leftNavigations = computed(() => navigations.value.filter((nav) => nav.pos !== 'right'));
 const rightNavigations = computed(() => navigations.value.filter((nav) => nav.pos === 'right'));
 
-const isMatch = (nav: Navigation) => {
+const doExcludeMatch = (nav: Navigation) => {
   if (nav.excludeMatcher instanceof RegExp) {
     return !nav.excludeMatcher.test(router.currentRoute.value.path);
   } else if (typeof nav.excludeMatcher === 'string') {
     return router.currentRoute.value.path !== nav.excludeMatcher;
+  } else {
+    return true;
   }
+};
 
+const isMatch = (nav: Navigation) => {
   if (nav.matcher) {
-    return nav.matcher.test(router.currentRoute.value.path);
+    return nav.matcher.test(router.currentRoute.value.path) && doExcludeMatch(nav);
   }
   return router.currentRoute.value.path === nav.href;
 };

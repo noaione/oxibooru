@@ -281,14 +281,9 @@
           <section class="text-gray-500 dark:text-gray-400 text-xs">
             <span>
               Uploaded by
-              <RouterLink
-                v-if="post.user?.name && canViewUsers"
-                :to="`/user/${post.user.name}`"
-                class="text-cyan-500 hover:underline"
-              >{{ post.user.name }}</RouterLink>
-              <span v-else>{{ post.user?.name ?? 'anonymous' }}</span>
+              <AvatarLink :simple="!canViewUsers" :name="post.user?.name ?? 'anonymous'" :avatar-url="post.user?.avatarUrl" />
             </span>
-            <span v-if="post.creationTime">, {{ formatDate(post.creationTime) }}</span>
+            <span v-if="post.creationTime">, <RelativeTime :time="post.creationTime" /></span>
           </section>
 
           <!-- Safety -->
@@ -620,6 +615,8 @@ import { resolveApiUrl } from '@/utils/url';
 import FlatInput from '@/components/FlatInput.vue';
 import FlatTextarea from '@/components/FlatTextarea.vue';
 import FlatButton from '@/components/FlatButton.vue';
+import AvatarLink from '@/components/AvatarLink.vue';
+import RelativeTime from '@/components/RelativeTime.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -731,7 +728,8 @@ const backToListUrl = computed(() => {
 function neighborUrl(id: number) {
   const q: Record<string, string> = {};
   if (route.query.query) q.query = route.query.query as string;
-  return { path: `/post/${id}`, query: q };
+  const urlPath = isEditMode.value ? `/post/${id}/edit` : `/post/${id}`;
+  return { path: urlPath, query: q };
 }
 
 const fullContentUrl = computed(() => resolveApiUrl(post.value?.contentUrl) ?? '');
@@ -822,19 +820,6 @@ function extractDomain(url: string): string {
     return new URL(url).hostname;
   } catch {
     return url;
-  }
-}
-
-function formatDate(iso?: string | null): string {
-  if (!iso) return '';
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(new Date(iso));
-  } catch {
-    return iso;
   }
 }
 

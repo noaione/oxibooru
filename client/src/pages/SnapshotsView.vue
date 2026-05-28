@@ -9,17 +9,6 @@
     </div>
 
     <template v-else>
-      <!-- Search -->
-      <form class="flex gap-2" @submit.prevent="applySearch">
-        <FlatInput
-          v-model="searchInput"
-          type="search"
-          placeholder="Search snapshots…"
-          class="flex-1 bg-gray-50! dark:bg-gray-800!"
-        />
-        <FlatButton type="submit">Search</FlatButton>
-      </form>
-
       <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else>
@@ -43,27 +32,25 @@
 
             <!-- Resource + user + time -->
             <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-gray-500 dark:text-gray-400 capitalize">{{ formatType(snap.type) }}</span>
+              <div class="flex items-center flex-wrap">
+                <span class="text-gray-500 dark:text-gray-400 capitalize">{{ formatType(snap.type) }}&nbsp;</span>
                 <component
                   :is="resourceLink(snap) ? 'RouterLink' : 'span'"
                   :to="resourceLink(snap)"
                   class="font-medium"
                   :class="resourceLink(snap) ? 'text-cyan-500 hover:underline' : ''"
                 >
-                  {{ snap.id }}
+                  {{ formatResourceId(snap) }}
                 </component>
               </div>
 
-              <div class="flex items-center gap-2 text-xs text-gray-400 flex-wrap">
+              <div class="flex items-center text-xs text-gray-400 flex-wrap">
                 <span v-if="snap.user?.name">
                   by
-                  <RouterLink :to="`/user/${snap.user.name}`" class="text-cyan-500 hover:underline">
-                    {{ snap.user.name }}
-                  </RouterLink>
+                  <AvatarLink :name="snap.user.name" :avatar-url="snap.user.avatarUrl" />
                 </span>
                 <span v-else>by anonymous</span>
-                <RelativeTime :time="snap.time" />
+                &nbsp;<RelativeTime :time="snap.time" />
               </div>
             </div>
           </div>
@@ -71,11 +58,11 @@
 
         <!-- Pagination -->
         <Pagination
-          v-if="total > pageSize"
-          :total="total"
-          :offset="offset"
-          :limit="pageSize"
-          @change="(o) => goToPage(o)"
+          v-if="totalCount > pageSize"
+          :current-page="currentPage"
+          :total-count="totalCount"
+          :page-size="pageSize"
+          @page-change="goToPage"
         />
       </template>
     </template>
@@ -91,8 +78,7 @@ import { useLoaderStore } from '@/stores/loader';
 import type { ResourceOperation, ResourceType, SnapshotInfo } from '@/types/oxibooru.gen';
 import Pagination from '@/components/Pagination.vue';
 import RelativeTime from '@/components/RelativeTime.vue';
-import FlatButton from '@/components/FlatButton.vue';
-import FlatInput from '@/components/FlatInput.vue';
+import AvatarLink from '@/components/AvatarLink.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -100,19 +86,20 @@ const api = useTokenStore();
 const loader = useLoaderStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
-useHeadSafe(() => ({ title: serverName.value + ' - Snapshots' }));
+useHeadSafe(() => ({ title: serverName.value + ' - History' }));
 
 const pageSize = 30;
 const canList = computed(() => api.hasPrivilege('snapshot_list'));
 
 const snapshots = ref<SnapshotInfo[]>([]);
-const total = ref(0);
+const totalCount = ref(0);
 const loadError = ref('');
 const loading = ref(false);
 
-const searchInput = ref((route.query.q as string) ?? '');
-const query = computed(() => (route.query.q as string) ?? '');
 const offset = computed(() => Number(route.query.offset ?? 0));
+const currentPage = computed(() => {
+  return Math.floor(offset.value / pageSize) + 1;
+});
 
 async function fetchSnapshots() {
   loader.start();
@@ -121,7 +108,7 @@ async function fetchSnapshots() {
 
   let result: Awaited<ReturnType<typeof api.listSnapshots>>;
   try {
-    result = await api.listSnapshots(query.value, offset.value, pageSize);
+    result = await api.listSnapshots(offset.value, pageSize);
   } catch (e) {
     result = {
       success: false,
@@ -138,16 +125,14 @@ async function fetchSnapshots() {
     return;
   }
 
+  console.log(result);
+  totalCount.value = result.data.total;
   snapshots.value = result.data.results;
-  total.value = result.data.total;
 }
 
-function applySearch() {
-  router.push({ query: { q: searchInput.value || undefined, offset: undefined } });
-}
-
-function goToPage(newOffset: number) {
-  router.push({ query: { ...route.query, offset: newOffset || undefined } });
+function goToPage(page: number) {
+  const offset = (page - 1) * pageSize;
+  router.push({ query: { ...route.query, offset: offset > 0 ? String(offset) : undefined }, });
 }
 
 function operationClass(op?: ResourceOperation): string {
@@ -176,11 +161,22 @@ function resourceLink(snap: SnapshotInfo): string | null {
     default: return null;
   }
 }
+function formatResourceId(snap: SnapshotInfo): string {
+  if (!snap.id) return '';
+  switch (snap.type) {
+    case 'post': return `@${snap.id}`;
+    case 'tag': return `#${snap.id}`;
+    case 'pool': return `$${snap.id}`;
+    case 'user': return `+${snap.id}`;
+    case 'tag_category': return snap.id;
+    case 'pool_category': return snap.id;
+    default: return '';
+  }
+}
 
 watch(() => route.query, fetchSnapshots, { immediate: false });
 
 onMounted(() => {
-  searchInput.value = query.value;
   fetchSnapshots();
 });
 </script>

@@ -26,19 +26,36 @@ const absolute = computed(() => {
 });
 
 const relative = computed(() => {
-  if (!props.time) return '';
-  const rtfl = new Intl.RelativeTimeFormat('en', { style: 'long' });
-  const diff = (now.value - new Date(props.time).getTime()) / 1000;
-  if (diff < 45) return 'just now';
-  if (diff < 90) return rtfl.format(-1, 'minute');
-  if (diff < 3600) return rtfl.format(-Math.round(diff / 60), 'minute');
-  if (diff < 5400) return rtfl.format(-1, 'hour');
-  if (diff < 86400) return rtfl.format(-Math.round(diff / 3600), 'hour');
-  if (diff < 129600) return rtfl.format(-1, 'day');
-  if (diff < 2592000) return rtfl.format(-Math.round(diff / 86400), 'day');
-  if (diff < 3888000) return rtfl.format(-1, 'month');
-  if (diff < 31536000) return rtfl.format(-Math.round(diff / 2592000), 'month');
-  if (diff < 47304000) return rtfl.format(-1, 'year');
-  return rtfl.format(-Math.round(diff / 31536000), 'year');
+  if (!props.time) return 'never';
+  const then = Date.parse(props.time);
+  const difference = Math.abs(now.value - then) / 1000.0;
+  const future = now.value < then;
+
+  const descriptions: [number, string, number?][] = [
+    [60, 'a few seconds', null],
+    [60 * 2, 'a minute', null],
+    [60 * 60, '% minutes', 60],
+    [60 * 60 * 2, 'an hour', null],
+    [60 * 60 * 24, '% hours', 60 * 60],
+    [60 * 60 * 24 * 2, 'a day', null],
+    [60 * 60 * 24 * 30.42, '% days', 60 * 60 * 24],
+    [60 * 60 * 24 * 30.42 * 2, 'a month', null],
+    [60 * 60 * 24 * 30.42 * 12, '% months', 60 * 60 * 24 * 30.42],
+    [60 * 60 * 24 * 30.42 * 12 * 2, 'a year', null],
+    [8640000000000000 /* max*/, '% years', 60 * 60 * 24 * 30.42 * 12],
+  ];
+
+  let text: string | null = null;
+  for (const [multiplier, template, divider] of descriptions) {
+    if (difference < multiplier) {
+      text = template.replace(/%/, Math.round(difference / divider));
+      break;
+    }
+  }
+
+  if (text === 'a day') {
+    return future ? 'tomorrow' : 'yesterday';
+  }
+  return future ? `in ${text}` : `${text} ago`;
 });
 </script>
