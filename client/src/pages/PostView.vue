@@ -42,7 +42,7 @@
           </span>
         </div>
 
-        <div class="flex flex-col gap-1 text-sm">
+        <div class="flex flex-col w-fit gap-1 text-sm">
           <RouterLink
             v-if="canEditPost"
             :to="`/post/${post.id}/edit`"
@@ -385,7 +385,7 @@ const localFavoriteCount = ref(0);
 const canViewUsers = computed(() => api.hasPrivilege('user_view'));
 const canViewTags = computed(() => api.hasPrivilege('tag_view'));
 const canListPosts = computed(() => api.hasPrivilege('post_list'));
-const canEditPost = computed(() => api.hasPrivilege('post_edit_any_safety') || api.hasPrivilege('post_edit_own_safety'));
+const canEditPost = computed(() => api.hasPrivilege('post_edit'));
 const canScore = computed(() => !!api.userToken && api.hasPrivilege('post_score'));
 const canFavorite = computed(() => !!api.userToken && api.hasPrivilege('post_favorite'));
 
