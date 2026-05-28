@@ -1,6 +1,8 @@
 import type {
   InfoResponse,
+  MergeBodySmallString,
   PagedResponsePostInfo,
+  PagedResponseTagInfo,
   PagedResponseUserInfo,
   PostCreateBody,
   PostInfo,
@@ -9,7 +11,13 @@ import type {
   PostUpdateBody,
   RatingBody,
   ReverseSearchResponse,
+  TagCategoryCreateBody,
   TagCategoryInfo,
+  TagCategoryUpdateBody,
+  TagCreateBody,
+  TagInfo,
+  TagSiblings,
+  TagUpdateBody,
   UnpagedResponseTagCategoryInfo,
   UnpagedResponsePoolCategoryInfo,
   UploadResponse,
@@ -627,6 +635,166 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data };
   };
 
+  // ── Tag actions ────────────────────────────────────────────────
+
+  const listTags = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponseTagInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponseTagInfo>(`/api/tags?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const getTag = async (
+    name: string,
+  ): Promise<{ success: true; data: TagInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagInfo>(`/api/tag/${encodeURIComponent(name)}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const getTagSiblings = async (
+    name: string,
+  ): Promise<{ success: true; data: TagSiblings } | { success: false; description: string }> => {
+    const resp = await doFetch<TagSiblings>(`/api/tag-siblings/${encodeURIComponent(name)}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const createTag = async (
+    body: TagCreateBody,
+  ): Promise<{ success: true; data: TagInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagInfo>('/api/tags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updateTag = async (
+    name: string,
+    body: TagUpdateBody,
+  ): Promise<{ success: true; data: TagInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagInfo>(`/api/tag/${encodeURIComponent(name)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deleteTag = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/tag/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const mergeTag = async (
+    body: MergeBodySmallString,
+  ): Promise<{ success: true; data: TagInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagInfo>('/api/tag-merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  // ── Tag category actions ────────────────────────────────────────
+
+  const createTagCategory = async (
+    body: TagCategoryCreateBody,
+  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagCategoryInfo>('/api/tag-categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updateTagCategory = async (
+    name: string,
+    body: TagCategoryUpdateBody,
+  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagCategoryInfo>(`/api/tag-category/${encodeURIComponent(name)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deleteTagCategory = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/tag-category/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const setDefaultTagCategory = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<TagCategoryInfo>(`/api/tag-category/${encodeURIComponent(name)}/default`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
   return {
     userToken,
     authToken,
@@ -665,6 +833,17 @@ export const useTokenStore = defineStore('api', () => {
     mergePost,
     reverseSearch,
     featurePost,
+    listTags,
+    getTag,
+    getTagSiblings,
+    createTag,
+    updateTag,
+    deleteTag,
+    mergeTag,
+    createTagCategory,
+    updateTagCategory,
+    deleteTagCategory,
+    setDefaultTagCategory,
   };
 });
 

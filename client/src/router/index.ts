@@ -103,6 +103,40 @@ const router = createRouter({
       name: 'user-delete',
       component: () => import('@/pages/UserView.vue'),
     },
+    // ── Tag routes (Stage 6) ──────────────────────────────────
+    {
+      path: '/tags',
+      name: 'tags',
+      meta: { title: 'Tags' },
+      component: () => import('@/pages/TagsView.vue'),
+    },
+    {
+      path: '/tag-categories',
+      name: 'tag-categories',
+      meta: { title: 'Tag Categories' },
+      component: () => import('@/pages/TagCategoriesView.vue'),
+    },
+    {
+      path: '/tag/:name/merge/:other',
+      name: 'tag-merge',
+      meta: { title: 'Merge Tags' },
+      component: () => import('@/pages/TagMergeView.vue'),
+    },
+    {
+      path: '/tag/:name/edit',
+      name: 'tag-edit',
+      component: () => import('@/pages/TagView.vue'),
+    },
+    {
+      path: '/tag/:name/delete',
+      name: 'tag-delete',
+      component: () => import('@/pages/TagView.vue'),
+    },
+    {
+      path: '/tag/:name',
+      name: 'tag',
+      component: () => import('@/pages/TagView.vue'),
+    },
     // ── Catch-all 404 ─────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',
