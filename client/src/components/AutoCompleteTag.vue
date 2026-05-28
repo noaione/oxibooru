@@ -20,11 +20,12 @@
         :suggestions="suggestions"
         :active-index="activeIndex"
         :underscore-as-spaces="settingsStore.settings.tagUnderscoresAsSpaces"
+        :wrapper-class="$props.dropdownClass"
         @select="selectSuggestion"
       />
     </div>
     <FlatButton class="ml-2 hidden md:flex" @click="submitSearch">
-      Search
+      <slot name="submit">Search</slot>
     </FlatButton>
   </div>
 
@@ -72,6 +73,7 @@
         :suggestions="suggestions"
         :active-index="activeIndex"
         :underscore-as-spaces="settingsStore.settings.tagUnderscoresAsSpaces"
+        :wrapper-class="$props.dropdownClass"
         @select="selectSuggestion"
       />
     </div>
@@ -105,11 +107,11 @@ const props = withDefaults(
     placeholder?: string;
     class?: string;
     inputClass?: string;
+    dropdownClass?: string;
     /** when true, emit 'submit' but skip router navigation */
     overrideSubmit?: boolean;
     /** input mode: initial tag name → category name map for coloring chips */
     tagCategories?: Record<string, string>;
-    darkened?: boolean;
   }>(),
   {
     mode: 'search',
