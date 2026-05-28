@@ -142,8 +142,12 @@ function onInput() {
 }
 
 async function fetchSuggestions(query: string) {
+  const wrappedQuery = `*${query}* sort:usages`;;
   const res = await apiStore.doFetch<PagedResponseTagInfo>(
-    `/api/tags?query=${encodeURIComponent(query)}&limit=15`,
+    `/api/tags?query=${encodeURIComponent(wrappedQuery)}&limit=15`,
+    {
+      headers: { Authorization: apiStore.authToken },
+    }
   );
   if (!res.success) return;
   suggestions.value = (res.data.results ?? []).map((t) => ({

@@ -1,6 +1,6 @@
 <template>
   <!-- Center but not middle -->
-  <div v-if="app.ready" class="flex flex-col p-4 min-w-full max-w-full">
+  <div v-if="app.ready" class="flex flex-col min-w-full max-w-full">
     <div class="flex flex-col md:flex-row w-full max-w-full">
       <AutoCompleteTag
         target="posts"
