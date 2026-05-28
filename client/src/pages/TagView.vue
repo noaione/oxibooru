@@ -37,7 +37,7 @@
           <RouterLink
             :to="`/tag/${encodeURIComponent(primaryName)}`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'summary' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="section === 'summary' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
           >
             Summary
           </RouterLink>
@@ -45,7 +45,7 @@
             v-if="canEdit"
             :to="`/tag/${encodeURIComponent(primaryName)}/edit`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'edit' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="section === 'edit' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
           >
             Edit
           </RouterLink>
@@ -53,7 +53,7 @@
             v-if="canDelete"
             :to="`/tag/${encodeURIComponent(primaryName)}/delete`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'delete' ? 'border-b-2 border-red-500 text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="section === 'delete' ? 'border-b-2 border-red-500 text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
           >
             Delete
           </RouterLink>
@@ -63,7 +63,7 @@
         <div v-if="section === 'summary'" class="flex flex-col gap-4">
           <!-- Aliases -->
           <div v-if="tag.names && tag.names.length > 1" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Aliases</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Aliases</p>
             <div class="flex flex-wrap gap-2">
               <span
                 v-for="name in tag.names.slice(1)"
@@ -79,7 +79,7 @@
           <!-- Stats -->
           <div class="card p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Posts</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Posts</p>
               <RouterLink
                 :to="`/posts?query=${encodeURIComponent(primaryName)}`"
                 class="font-semibold text-cyan-500 hover:underline"
@@ -88,25 +88,25 @@
               </RouterLink>
             </div>
             <div v-if="tag.creationTime">
-              <p class="text-xs text-gray-500 mb-1">Created</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Created</p>
               <p class="font-medium">{{ formatDate(tag.creationTime) }}</p>
             </div>
             <div v-if="tag.lastEditTime">
-              <p class="text-xs text-gray-500 mb-1">Last edited</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Last edited</p>
               <p class="font-medium">{{ formatDate(tag.lastEditTime) }}</p>
             </div>
           </div>
 
           <!-- Description -->
           <div v-if="tag.description" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Description</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Description</p>
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div class="prose prose-sm dark:prose-invert max-w-none text-sm" v-html="renderedDescription" />
           </div>
 
           <!-- Implications -->
           <div v-if="tag.implications && tag.implications.length" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               Implied tags
               <span class="font-normal normal-case">— auto-added when this tag is used</span>
             </p>
@@ -125,7 +125,7 @@
 
           <!-- Suggestions -->
           <div v-if="tag.suggestions && tag.suggestions.length" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               Suggested tags
               <span class="font-normal normal-case">— shown to user on usage</span>
             </p>
@@ -144,7 +144,7 @@
 
           <!-- Siblings -->
           <div v-if="siblings.length" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Related tags</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Related tags</p>
             <div class="flex flex-wrap gap-2">
               <RouterLink
                 v-for="sib in siblings.slice(0, 20)"
@@ -161,7 +161,7 @@
 
           <!-- Merge action -->
           <div v-if="canMerge" class="card p-4">
-            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Merge with another tag</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Merge with another tag</p>
             <form class="flex gap-2" @submit.prevent="goToMerge">
               <input
                 v-model="mergeTargetInput"
@@ -169,13 +169,13 @@
                 placeholder="Other tag name…"
                 class="flex-1 px-2 py-1 text-sm overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
               />
-              <button
+              <FlatButton
+                kind="warn"
                 type="submit"
                 :disabled="!mergeTargetInput.trim()"
-                class="px-3 py-1 text-sm bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Merge
-              </button>
+              </FlatButton>
             </form>
           </div>
         </div>
@@ -252,14 +252,14 @@
             <!-- Error -->
             <p v-if="saveError" class="text-red-500 text-sm">{{ saveError }}</p>
 
-            <button
+            <FlatButton
               type="button"
+              class="w-fit"
               :disabled="saving"
-              class="px-4 py-2 w-fit text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               @click="saveTag"
             >
               {{ saving ? 'Saving…' : 'Save changes' }}
-            </button>
+            </FlatButton>
           </template>
         </div>
 
@@ -281,14 +281,15 @@
 
             <p v-if="deleteError" class="text-red-500 text-sm">{{ deleteError }}</p>
 
-            <button
+            <FlatButton
               type="button"
+              kind="danger"
               :disabled="deleting"
-              class="px-4 py-2 w-fit text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-fit"
               @click="confirmDelete"
             >
               {{ deleting ? 'Deleting…' : 'Delete tag' }}
-            </button>
+            </FlatButton>
           </template>
         </div>
       </template>
@@ -310,6 +311,7 @@ import { useToast } from '@/composables/useToast';
 import type { TagInfo, TagSibling } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
+import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();

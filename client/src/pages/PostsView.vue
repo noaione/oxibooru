@@ -90,13 +90,14 @@
         <!-- Mass delete mode -->
         <template v-else-if="massActiveState === 'delete'">
           <span class="text-sm text-gray-400">Shift+click to range-select</span>
-          <BlueButton
+          <FlatButton
             :disabled="deletionCandidates.size === 0"
             class="disabled:opacity-50 disabled:cursor-not-allowed"
             @click="doDeletion"
+            kind="danger"
           >
             Delete {{ deletionCandidates.size || '' }} selected
-          </BlueButton>
+          </FlatButton>
           <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="cancelMassDelete">
             Stop deleting
           </button>
@@ -274,7 +275,7 @@ import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
-import BlueButton from '@/components/BlueButton.vue';
+import FlatButton from '@/components/FlatButton.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import PostBadges from '@/components/PostBadges.vue';
