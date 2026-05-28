@@ -233,6 +233,7 @@
                 v-model="editImplications"
                 class="bg-gray-50! dark:bg-gray-800!"
                 input-class="bg-gray-50! dark:bg-gray-800!"
+                dropdown-class="bg-gray-50! dark:bg-gray-800!"
                 placeholder="Add implied tag…"
                 :tag-categories="tagCategoryMap"
               />
@@ -248,6 +249,7 @@
                 v-model="editSuggestions"
                 class="bg-gray-50! dark:bg-gray-800!"
                 input-class="bg-gray-50! dark:bg-gray-800!"
+                dropdown-class="bg-gray-50! dark:bg-gray-800!"
                 placeholder="Add suggested tag…"
                 :tag-categories="tagCategoryMap"
               />
@@ -277,7 +279,7 @@
               You are about to delete tag
               <strong :style="primaryColor ? { color: primaryColor } : {}">{{ displayTag(primaryName) }}</strong>.
               <template v-if="tag.usages && tag.usages > 0">
-                It is used in <strong>{{ tag.usages.toLocaleString() }}</strong>
+                It is used in <strong class="text-accent-500 dark:text-accent-400">{{ tag.usages.toLocaleString() }}</strong>
                 post{{ tag.usages !== 1 ? 's' : '' }}, which will lose this tag.
               </template>
               This cannot be undone.
@@ -366,8 +368,15 @@ const tagCategories = computed(() => categoriesStore.tags);
 
 const tagCategoryMap = computed(() => {
   const map: Record<string, string> = {};
-  for (const cat of categoriesStore.tags) {
-    if (cat.name) map[cat.name] = cat.name;
+  for (const implication of tag.value?.implications ?? []) {
+    for (const name of implication.names) {
+      map[name] = implication.category;
+    }
+  }
+  for (const suggestion of tag.value?.suggestions ?? []) {
+    for (const name of suggestion.names) {
+      map[name] = suggestion.category;
+    }
   }
   return map;
 });

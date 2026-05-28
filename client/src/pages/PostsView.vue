@@ -54,25 +54,14 @@
           <AutoCompleteTag
             target="posts"
             override-submit
-            class="items-center w-full max-w-full md:max-w-[40%]"
+            class="items-center w-full max-w-full md:max-w-[60%]"
             input-class="w-full"
             @submit="startMassTagging"
-          />
-
-          <div
-            v-if="lockedMassTag"
-            class="flex items-center gap-1.5 px-2 py-1 bg-cyan-500/15 border border-cyan-500/50 rounded-sm text-sm shrink-0"
           >
-            <span class="text-cyan-600 dark:text-cyan-400 font-medium">{{ lockedMassTag }}</span>
-            <button
-              class="text-gray-400 hover:text-red-500 cursor-pointer leading-none"
-              title="Clear locked tag"
-              @click="clearLockedTag"
-            >
-              <XIcon :size="12" />
-            </button>
-          </div>
-          <span v-else class="text-sm text-gray-400 italic">No tag selected yet</span>
+            <template #submit>
+              Start tagging
+            </template>
+          </AutoCompleteTag>
 
           <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="stopMassTagging">
             Stop tagging
@@ -270,7 +259,7 @@ import { ref, computed, watch, watchEffect, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useKeyModifier } from '@vueuse/core';
-import { Check as CheckIcon, X as XIcon } from '@lucide/vue';
+import { Check as CheckIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
@@ -450,11 +439,6 @@ function startMassTagging(tag: string) {
   if (!tag.trim()) return;
   lockedMassTag.value = tag.trim();
   router.replace({ query: { ...route.query, massTag: tag.trim() } });
-}
-
-function clearLockedTag() {
-  lockedMassTag.value = '';
-  router.replace({ query: { ...route.query, massTag: undefined } });
 }
 
 function stopMassTagging() {

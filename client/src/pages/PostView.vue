@@ -81,6 +81,7 @@
               :tag-categories="editTagCategories"
               placeholder="Add tags…"
               class="bg-gray-50! dark:bg-gray-800! py-2!"
+              dropdown-class="bg-gray-50! dark:bg-gray-800!"
               input-class="bg-gray-50! dark:bg-gray-800!"
             />
           </section>
@@ -618,6 +619,7 @@ const editTagCategories = computed(() => {
     const name = tag.names[0];
     if (name) map[name] = tag.category;
   }
+  console.log(map);
   return map;
 });
 

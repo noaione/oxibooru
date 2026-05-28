@@ -166,6 +166,7 @@
                   v-model="item.tags"
                   class="bg-gray-50! dark:bg-gray-800!"
                   input-class="bg-gray-50! dark:bg-gray-800!"
+                  dropdown-class="bg-gray-50! dark:bg-gray-800!"
                   placeholder="Add tags…"
                 />
               </div>
