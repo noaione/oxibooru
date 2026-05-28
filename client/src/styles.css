@@ -61,12 +61,8 @@ body.darktheme .overlay-color {
 
 /* ── Links ──────────────────────────────────────────────────────*/
 a {
-  color: #24AADD;
   text-decoration: none;
   transition: color 0.1s linear;
-}
-a:hover {
-  color: oklch(72% 0.12 218);
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────────*/
