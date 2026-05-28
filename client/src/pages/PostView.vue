@@ -287,27 +287,33 @@
         'overflow-hidden': settings.fitMode !== 'fit-original',
       }">
         <!-- Image / Animation -->
-        <img
-          v-if="post.type === 'image' || post.type === 'animation'"
-          :src="resolveApiUrl(post.contentUrl)"
-          :alt="`Post #${post.id}`"
-          class="block"
-          :class="fitClass"
-          draggable="false"
-        />
+        <div v-if="post.type === 'image' || post.type === 'animation'" class="relative self-start">
+          <img
+            ref="imgRef"
+            :src="resolveApiUrl(post.contentUrl)"
+            :alt="`Post #${post.id}`"
+            class="block"
+            :class="fitClass"
+            draggable="false"
+          />
+          <PostNotesOverlay v-if="post.notes?.length" :notes="post.notes" :img-el="imgRef" />
+        </div>
 
         <!-- Video -->
-        <video
-          v-else-if="post.type === 'video'"
-          :class="fitClass"
-          controls
-          playsinline
-          :loop="post.flags?.includes('loop')"
-          :autoplay="settings.autoplayVideos"
-        >
-          <source :src="resolveApiUrl(post.contentUrl)" :type="post.mimeType" />
-          Your browser does not support this video format.
-        </video>
+        <div v-else-if="post.type === 'video'" class="relative self-start">
+          <video
+            ref="videoRef"
+            :class="fitClass"
+            controls
+            playsinline
+            :loop="post.flags?.includes('loop')"
+            :autoplay="settings.autoplayVideos"
+          >
+            <source :src="resolveApiUrl(post.contentUrl)" :type="post.mimeType" />
+            Your browser does not support this video format.
+          </video>
+          <PostNotesOverlay v-if="post.notes?.length" :notes="post.notes" :img-el="videoRef" />
+        </div>
 
         <!-- Flash (unsupported) -->
         <div
@@ -350,6 +356,7 @@ import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PostInfo, PostNeighbors } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
@@ -359,6 +366,9 @@ const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const postId = computed(() => Number(route.params.id));
 const contextQuery = computed(() => (route.query.query as string) ?? '');
+
+const imgRef = ref<HTMLImageElement | null>(null);
+const videoRef = ref<HTMLVideoElement | null>(null);
 
 const post = ref<PostInfo | null>(null);
 const neighbors = ref<PostNeighbors>({});
