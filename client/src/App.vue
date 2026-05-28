@@ -9,9 +9,9 @@ import ConfirmDialog from './components/ConfirmDialog.vue';
 <template>
   <PageLoader />
   <NavBar />
-  <div>
+  <main class="px-6 py-6 md:px-8 md:py-8">
     <RouterView />
-  </div>
+  </main>
   <ToastNotification />
   <ConfirmDialog />
 </template>

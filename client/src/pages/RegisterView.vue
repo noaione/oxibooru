@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start justify-center pt-16 px-4">
+  <div class="flex items-start justify-center pt-8">
     <div class="w-full max-w-sm">
       <!-- Registration disabled -->
       <template v-if="!canRegister">
@@ -90,7 +90,10 @@ const passwordConfirm = ref('');
 const errorMsg = ref('');
 const loading = ref(false);
 
-const canRegister = computed(() => api.hasPrivilege('users:create:self'));
+// Public registration uses user_create_self; admins use user_create_any
+const canRegister = computed(
+  () => api.hasPrivilege('user_create_self') || api.hasPrivilege('user_create_any'),
+);
 
 async function submit() {
   errorMsg.value = '';

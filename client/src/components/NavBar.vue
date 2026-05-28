@@ -1,67 +1,64 @@
 <template>
   <nav class="overlay-color w-dvw max-w-dvw">
-    <div v-if="!apiController.ready" class="mx-auto flex items-center justify-between">
-      <div
-        class="px-5 py-2 text-sm font-medium opacity-80 hover:opacity-100 transition-opacity cursor-not-allowed invisible"
-      >
-        Home
-      </div>
-    </div>
+    <div v-if="!apiController.ready" class="mx-auto flex items-center justify-between h-9" />
     <div v-else class="mx-auto flex items-center justify-between">
+      <!-- Left: main navigation -->
       <div class="flex items-center">
         <RouterLink
           v-for="nav in leftNavigations"
           :key="nav.name"
           :to="nav.href"
-          class="px-5 py-2 text-sm font-medium"
-          :class="{
-            'bg-gray-300 dark:bg-gray-600': nav.highlight,
-            'opacity-80 hover:opacity-100 transition-opacity': !nav.highlight,
-          }"
+          class="px-4 py-2 text-sm font-medium flex items-center gap-1.5"
+          :class="nav.highlight ? activeClass : inactiveClass"
         >
           <img
             v-if="nav.iconImage"
             :src="nav.iconImage"
             alt="avatar"
-            class="w-5 h-5 rounded-full inline mr-1"
+            class="w-5 h-5 rounded-full"
           />
           {{ nav.name }}
         </RouterLink>
       </div>
+
+      <!-- Right: account + utility icons -->
       <div class="flex items-center">
         <RouterLink
           v-for="nav in rightNavigations"
           :key="nav.name"
           :to="nav.href"
-          class="px-5 py-2 text-sm font-medium"
-          :class="{
-            'bg-gray-300 dark:bg-gray-600': nav.highlight,
-            'opacity-80 hover:opacity-100 transition-opacity': !nav.highlight,
-          }"
+          class="px-4 py-2 text-sm font-medium flex items-center gap-1.5"
+          :class="nav.highlight ? activeClass : inactiveClass"
         >
           <img
             v-if="nav.iconImage"
             :src="nav.iconImage"
             alt="avatar"
-            class="w-5 h-5 rounded-full inline mr-1"
+            class="w-5 h-5 rounded-full"
           />
           {{ nav.name }}
         </RouterLink>
+
+        <!-- Settings -->
         <RouterLink
           to="/settings"
-          class="px-5 py-2 text-sm font-medium"
-          :class="{
-            'bg-gray-300 dark:bg-gray-600': isSettings,
-            'opacity-80 hover:opacity-100 transition-opacity': !isSettings,
-          }"
+          :class="['p-2', isSettings ? activeClass : inactiveClass]"
+          title="Settings"
+          aria-label="Settings"
         >
-          Gear
+          <SettingsIcon :size="18" />
         </RouterLink>
+
+        <!-- Dark mode toggle -->
         <button
+          class="p-2 cursor-pointer"
+          :class="inactiveClass"
+          :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
           @click="toggleDark"
-          class="px-5 py-2 text-sm font-medium opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
         >
-          Theme
+          <SunIcon v-if="isDark" :size="18" />
+          <MoonIcon v-else :size="18" />
         </button>
       </div>
     </div>
@@ -69,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { Settings as SettingsIcon, Sun as SunIcon, Moon as MoonIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useDarkTheme } from '@/stores/settings';
 import { computed } from 'vue';
@@ -83,21 +81,22 @@ type Navigation = {
   iconImage?: string;
 };
 
-const { toggleDark } = useDarkTheme();
+const activeClass = 'bg-black/10 dark:bg-white/10';
+const inactiveClass = 'opacity-70 hover:opacity-100 transition-opacity';
+
+const { toggleDark, isDark } = useDarkTheme();
 const apiController = useTokenStore();
 const router = useRouter();
 
-const isSettings = computed(() => isMatch({ name: 'Settings', href: '/settings' }));
+const isSettings = computed(() => router.currentRoute.value.path === '/settings');
 
 const navigations = computed<Navigation[]>(() => {
   const baseNavs: Navigation[] = [{ name: 'Home', href: '/' }];
 
-  if (!apiController.ready) {
-    return baseNavs; // quick return
-  }
+  if (!apiController.ready) return baseNavs;
 
   if (apiController.hasPrivilege('post_list')) {
-    baseNavs.push({ name: 'Posts', href: '/posts', matcher: /^\/posts?(\/.*)?/ });
+    baseNavs.push({ name: 'Posts', href: '/posts', matcher: /^\/post(s)?(\/.*)?/ });
   }
   if (apiController.hasPrivilege('post_create')) {
     baseNavs.push({ name: 'Upload', href: '/upload' });
@@ -112,40 +111,22 @@ const navigations = computed<Navigation[]>(() => {
     baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/ });
   }
 
-  // Right side menu
   if (apiController.user?.name) {
     baseNavs.push({
-      name: 'Account',
+      name: apiController.user.name,
       href: `/user/${apiController.user.name}`,
       pos: 'right',
-      iconImage: apiController.user.avatarUrl,
+      iconImage: apiController.user.avatarUrl ?? undefined,
     });
-
     if (apiController.hasPrivilege('user_create_any')) {
-      baseNavs.push({
-        name: 'Register',
-        href: '/register',
-        pos: 'right',
-      });
+      baseNavs.push({ name: 'Register', href: '/register', pos: 'right' });
     }
-    baseNavs.push({
-      name: 'Logout',
-      href: '/logout',
-      pos: 'right',
-    });
+    baseNavs.push({ name: 'Logout', href: '/logout', pos: 'right' });
   } else {
     if (apiController.hasPrivilege('user_create_self')) {
-      baseNavs.push({
-        name: 'Register',
-        href: '/register',
-        pos: 'right',
-      });
+      baseNavs.push({ name: 'Register', href: '/register', pos: 'right' });
     }
-    baseNavs.push({
-      name: 'Login',
-      href: '/login',
-      pos: 'right',
-    });
+    baseNavs.push({ name: 'Login', href: '/login', pos: 'right' });
   }
 
   baseNavs.push({
@@ -165,9 +146,7 @@ const leftNavigations = computed(() => navigations.value.filter((nav) => nav.pos
 const rightNavigations = computed(() => navigations.value.filter((nav) => nav.pos === 'right'));
 
 const isMatch = (nav: Navigation) => {
-  if (nav.matcher) {
-    return nav.matcher.test(router.currentRoute.value.path);
-  }
+  if (nav.matcher) return nav.matcher.test(router.currentRoute.value.path);
   return router.currentRoute.value.path === nav.href;
 };
 </script>

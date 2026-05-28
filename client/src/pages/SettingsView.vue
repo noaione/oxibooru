@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
     <h1 class="text-2xl font-semibold mb-6">Settings</h1>
 
     <section class="mb-8">
