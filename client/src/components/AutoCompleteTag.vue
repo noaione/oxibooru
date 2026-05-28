@@ -13,7 +13,7 @@
         @input="onInput"
         @keydown="onKeyDown"
         @blur="closeDropdown"
-        @focus="inputText && fetchSuggestions(inputText)"
+        @focus="onFocusSearch"
       />
       <SuggestionDropdown
         v-if="showDropdown && suggestions.length"
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
@@ -142,19 +142,51 @@ function displayTag(raw: string) {
   return settingsStore.settings.tagUnderscoresAsSpaces ? raw.replace(/_/g, ' ') : raw;
 }
 
+/**
+ * In search mode, returns the word the cursor is currently on.
+ * Strips a leading "-" (negation) before returning so it can be used for API search.
+ * If the cursor is right after a space, returns '' (no active word).
+ */
+function getActiveWord(): string {
+  const el = searchInputEl.value;
+  if (!el) return '';
+  const cursor = el.selectionStart ?? el.value.length;
+  const textBeforeCursor = el.value.substring(0, cursor);
+  // Last token after any whitespace / comma
+  const match = textBeforeCursor.match(/(?:^|[\s,]+)(-?)([^\s,]*)$/);
+  const word = match ? (match[2] ?? '') : '';
+  return word;
+}
+
 function onInput() {
   activeIndex.value = -1;
-  if (!inputText.value.trim()) {
-    suggestions.value = [];
-    showDropdown.value = false;
-    return;
+  if (props.mode === 'search') {
+    const term = getActiveWord();
+    if (!term) {
+      suggestions.value = [];
+      showDropdown.value = false;
+      return;
+    }
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchSuggestions(term), 200);
+  } else {
+    if (!inputText.value.trim()) {
+      suggestions.value = [];
+      showDropdown.value = false;
+      return;
+    }
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchSuggestions(inputText.value.trim()), 200);
   }
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchSuggestions(inputText.value.trim()), 200);
+}
+
+function onFocusSearch() {
+  const term = getActiveWord();
+  if (term) fetchSuggestions(term);
 }
 
 async function fetchSuggestions(query: string) {
-  const wrappedQuery = `*${query}* sort:usages`;;
+  const wrappedQuery = `*${query}* sort:usages`;
   const res = await apiStore.doFetch<PagedResponseTagInfo>(
     `/api/tags?query=${encodeURIComponent(wrappedQuery)}&limit=15`,
     {
@@ -203,7 +235,32 @@ function onKeyDown(ev: KeyboardEvent) {
 
 function selectSuggestion(suggestion: Suggestion) {
   if (props.mode === 'search') {
-    inputText.value = suggestion.name;
+    const el = searchInputEl.value;
+    if (el) {
+      const cursor = el.selectionStart ?? el.value.length;
+      const value = el.value;
+      const textBefore = value.substring(0, cursor);
+      const textAfter = value.substring(cursor);
+
+      // Split prefix (everything before the active word) + optional negation + active word
+      const sepMatch = textBefore.match(/^((?:.*[\s,]+)?)(-?)([^\s,]*)$/s);
+      const prefix = sepMatch?.[1] ?? '';
+      const negation = sepMatch?.[2] ?? '';
+
+      // Strip the partial word fragment from the tail (chars before the next space)
+      const cleanSuffix = textAfter.replace(/^[^\s,]*/, '').trimStart();
+
+      const replacement = prefix + negation + suggestion.name + ' ';
+      inputText.value = cleanSuffix ? replacement + cleanSuffix : replacement;
+
+      const newCursor = replacement.length;
+      nextTick(() => {
+        el.setSelectionRange(newCursor, newCursor);
+        el.focus();
+      });
+    } else {
+      inputText.value = suggestion.name;
+    }
     closeDropdown();
   } else {
     localCategoryMap.value.set(suggestion.name, suggestion.category);
@@ -279,7 +336,7 @@ watch(
 watch(
   () => props.modelValue,
   (val) => {
-    if (props.mode === 'search' && val.length > 0) {
+    if (props.mode === 'search') {
       inputText.value = val.join(' ');
     }
   },

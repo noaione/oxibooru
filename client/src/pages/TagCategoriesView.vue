@@ -47,11 +47,12 @@
               <div class="w-20">
                 <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Order</label>
                 <FlatInput
-                  v-model.number="cat.editOrder"
+                  :value="String(cat.editOrder)"
                   type="number"
                   min="0"
                   :disabled="!canEditOrder"
                   class="w-full bg-gray-50! dark:bg-gray-800!"
+                  @update:model-value="(v) => (cat.editOrder = Number(v))"
                 />
               </div>
 
@@ -129,11 +130,12 @@
             <div class="w-20">
               <label class="block text-xs text-gray-500 mb-1">Order</label>
               <FlatInput
-                v-model.number="newOrder"
+                :value="String(newOrder)"
                 type="number"
                 min="0"
                 :disabled="!canEditOrder"
                 class="w-full bg-gray-50! dark:bg-gray-800!"
+                @update:model-value="(v) => (newOrder = Number(v))"
               />
             </div>
           </div>
