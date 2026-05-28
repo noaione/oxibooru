@@ -71,9 +71,9 @@
       <!-- Info + links -->
       <div class="flex flex-col gap-4">
         <ul class="text-sm flex flex-col gap-1">
-          <li><span class="text-gray-500">Registered:</span> {{ formatDate(userData.creationTime) }}</li>
-          <li><span class="text-gray-500">Last seen:</span> {{ formatDate(userData.lastLoginTime) }}</li>
-          <li><span class="text-gray-500">Rank:</span> {{ rankNames.get(userData.rank ?? '') ?? userData.rank }}</li>
+          <li><span class="text-gray-500 dark:text-gray-400">Registered:</span> {{ formatDate(userData.creationTime) }}</li>
+          <li><span class="text-gray-500 dark:text-gray-400">Last seen:</span> {{ formatDate(userData.lastLoginTime) }}</li>
+          <li><span class="text-gray-500 dark:text-gray-400">Rank:</span> {{ rankNames.get(userData.rank ?? '') ?? userData.rank }}</li>
         </ul>
 
         <div class="flex flex-col gap-3">
@@ -198,9 +198,9 @@
           class="flex flex-col gap-2 card p-3"
         >
           <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-            <span class="text-gray-500">Token:</span>
+            <span class="text-gray-500 dark:text-gray-400">Token:</span>
             <span class="font-mono break-all">{{ tok.token }}</span>
-            <span class="text-gray-500">Note:</span>
+            <span class="text-gray-500 dark:text-gray-400">Note:</span>
             <div class="flex items-center gap-2">
               <template v-if="editingNoteIdx === idx">
                 <FormInput v-model="editingNoteValue" class="flex-1 text-sm" @submit="saveNote(idx)" />
@@ -218,14 +218,14 @@
                 </button>
               </template>
             </div>
-            <span class="text-gray-500">Created:</span>
+            <span class="text-gray-500 dark:text-gray-400">Created:</span>
             <span>{{ formatDate(tok.creationTime) }}</span>
-            <span class="text-gray-500">Expires:</span>
+            <span class="text-gray-500 dark:text-gray-400">Expires:</span>
             <span>{{ tok.expirationTime ? formatDate(tok.expirationTime) : 'No expiration' }}</span>
-            <span class="text-gray-500">Last used:</span>
+            <span class="text-gray-500 dark:text-gray-400">Last used:</span>
             <span>{{ formatDate(tok.lastUsageTime) }}</span>
           </div>
-          <div v-if="canDeleteToken">
+          <div v-if="canDeleteToken" class="mt-1">
             <button
               class="px-3 py-1 text-sm bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60"
               :disabled="tokenDeleteLoading === idx"
