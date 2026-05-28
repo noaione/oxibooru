@@ -154,6 +154,7 @@
           v-if="massActiveState === 'none' && canViewPosts"
           :to="postUrl(post.id!)"
           class="block"
+          :title="computeTitle(post)"
           :class="{
             'size-full inline-block': settingsReady && settings.postFlow,
           }"
@@ -459,6 +460,14 @@ async function doDeletion() {
   }
   cancelMassDelete();
   fetchPosts((currentPage.value - 1) * pageSize.value);
+}
+
+function computeTitle(post: PostItem) {
+  // @ID (Type)
+  //
+  // Tags: #list #of #tags
+  const flatTags = (post.tags?.flatMap((t) => t.names) ?? []).map((t) => `#${t}`);
+  return `@${post.id} (${post.type})\n\nTags: ${flatTags.join(', ')}`;
 }
 
 // Endless scroll: native IntersectionObserver via watchEffect for reliable reactivity
