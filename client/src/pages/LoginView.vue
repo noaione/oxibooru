@@ -64,11 +64,14 @@ import { useHeadSafe } from '@unhead/vue';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
-useHeadSafe({ title: 'Log In' });
-
 const api = useTokenStore();
 const router = useRouter();
 const route = useRoute();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Log In',
+}));
 
 const username = ref('');
 const password = ref('');

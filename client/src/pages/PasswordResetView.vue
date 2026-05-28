@@ -106,10 +106,13 @@ import { useHeadSafe } from '@unhead/vue';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
-useHeadSafe({ title: 'Password Reset' });
-
 const api = useTokenStore();
 const route = useRoute();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Password Reset',
+}));
 
 const token = typeof route.query.token === 'string' ? route.query.token : null;
 const identifier = ref('');

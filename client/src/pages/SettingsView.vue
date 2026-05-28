@@ -173,12 +173,18 @@
 </template>
 
 <script setup lang="ts">
+import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import { useHeadSafe } from '@unhead/vue';
 import { computed } from 'vue';
 
+const api = useTokenStore();
 const settingsStore = useSettingsStore();
 const s = computed(() => settingsStore.settings);
 
-useHeadSafe({ title: 'Settings' });
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Settings',
+}));
 </script>

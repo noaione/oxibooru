@@ -307,6 +307,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue';
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const userName = computed(() => route.params.name as string);
 const section = computed(() => {
@@ -317,7 +318,7 @@ const section = computed(() => {
   return 'summary';
 });
 
-useHeadSafe({ title: computed(() => `User ${userName.value}`) });
+useHeadSafe({ title: computed(() => `${serverName.value} - User ${userName.value}`) });
 
 // ── Data ──────────────────────────────────────────────────────────
 const apiReady = computed(() => api.ready);
@@ -370,14 +371,7 @@ function onAvatarFile(e: Event) {
 
 // ── Token section state ──────────────────────────────────────────
 type TokenItem = NonNullable<typeof tokens.value>[0];
-const tokens = ref<Array<{
-  token?: string;
-  note?: string | null;
-  creationTime?: string;
-  expirationTime?: string | null;
-  lastUsageTime?: string;
-  version?: string;
-}>>([]);
+const tokens = ref<TokenItem[]>([]);
 const tokenError = ref('');
 const tokenSuccess = ref('');
 const tokenDeleteLoading = ref<number>(-1);

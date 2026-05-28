@@ -106,11 +106,14 @@ import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 
-useHeadSafe({ title: 'Users' });
-
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Users',
+}));
 
 const PAGE_SIZE = 30;
 
