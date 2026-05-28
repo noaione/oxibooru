@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start justify-center pt-8">
-    <div class="w-full max-w-sm">
+    <div class="w-full max-w-sm card p-6">
       <h1 class="text-2xl font-semibold mb-6 text-center">Log In</h1>
 
       <form class="flex flex-col gap-4" @submit.prevent="submit">
