@@ -10,7 +10,7 @@
       />
 
       <!-- Safety toggles -->
-      <div class="safety-rows ml-0 mt-0 md:ml-2">
+      <div v-if="settingsReady" class="safety-rows ml-0 mt-0 md:ml-2">
         <button
           class="border-2 border-green-600 dark:border-green-300 h-auto w-8 aspect-square cursor-pointer"
           :class="{
@@ -48,7 +48,7 @@
       </div>
 
       <!-- Mass edit controls -->
-      <div class="flex flex-row gap-3 ml-0 mt-0 md:ml-4 w-full items-center flex-wrap">
+      <div v-if="settingsReady" class="flex flex-row gap-3 ml-0 mt-0 md:ml-2 w-full items-center flex-wrap">
         <!-- Mass tag mode -->
         <template v-if="massActiveState === 'tag'">
           <span class="text-sm text-gray-500">
@@ -228,7 +228,7 @@ type PostItem = PagedResponsePostInfo['results'][0];
 const route = useRoute();
 const router = useRouter();
 const app = useTokenStore();
-const { settings } = useSettingsStore();
+const { settings, ready: settingsReady } = useSettingsStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
 
 useHeadSafe(() => ({
@@ -254,7 +254,7 @@ const safetyOptions = [
 const canViewPosts = computed(() => app.hasPrivilege('post_view'));
 const canBulkEditTags = computed(() => app.hasPrivilege('post_bulk_edit_tag'));
 const canBulkEditSafety = computed(() => app.hasPrivilege('post_bulk_edit_safety'));
-const canBulkDelete = computed(() => app.hasPrivilege('post_bulk_delete'));
+const canBulkDelete = computed(() => app.hasPrivilege('post_bulk_edit_delete'));
 
 const searchQuery = computed(() => (route.query.query as string) ?? '');
 

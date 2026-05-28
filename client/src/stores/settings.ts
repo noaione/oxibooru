@@ -43,28 +43,36 @@ export const useSettingsStore = defineStore('settings', () => {
   const isNew = ref(true);
 
   // on app start, load settings from localStorage if they exist
-  onMounted(() => {
-    const savedSettings = localStorage.getItem('settings');
+  function init() {
+    const savedSettings = localStorage.getItem('settings')
+
     if (savedSettings) {
       try {
-        const parsedJson = JSON.parse(savedSettings);
+        const parsedJson = JSON.parse(savedSettings)
+
         settings.value = {
           ...settings.value,
           ...parsedJson,
-        };
-        isNew.value = false;
+        }
+
+        isNew.value = false
       } catch (e) {
-        console.error('Failed to parse settings from localStorage:', e);
+        console.error('Failed to parse settings from localStorage:', e)
       }
     }
 
-    ready.value = true;
-  });
+    console.log('Settings loaded:', settings.value)
+
+    ready.value = true
+  }
 
   // Watch for changes to settings and save to localStorage
   watch(
     () => settings.value,
     (newSettings) => {
+      if (!ready.value) {
+        return;
+      }
       console.log('Settings updated:', newSettings);
       try {
         localStorage.setItem('settings', JSON.stringify(newSettings));
@@ -89,6 +97,7 @@ export const useSettingsStore = defineStore('settings', () => {
     ready,
     isNew,
     settings,
+    init,
     updateTheme,
   };
 });
@@ -96,7 +105,7 @@ export const useSettingsStore = defineStore('settings', () => {
 export const useDarkTheme = () => {
   const isDark = ref(false);
 
-  onMounted(() => {
+  function init() {
     // add "darktheme" class to body if user prefers dark mode
     // also check localstorage
     if (localStorage.getItem('theme') === 'dark') {
@@ -108,7 +117,7 @@ export const useDarkTheme = () => {
     } else {
       isDark.value = false;
     }
-  });
+  }
 
   watch(
     () => isDark.value,
@@ -129,6 +138,7 @@ export const useDarkTheme = () => {
 
   return {
     isDark,
+    init,
     toggleDark,
   };
 };
