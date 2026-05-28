@@ -125,7 +125,6 @@ async function fetchSnapshots() {
     return;
   }
 
-  console.log(result);
   totalCount.value = result.data.total;
   snapshots.value = result.data.results;
 }

@@ -93,12 +93,10 @@ const isShow = ref(false);
 
 const derivedRgb = computed({
   get: () => {
-    console.log(props.modelValue);
     if (!props.modelValue) {
       return 'rgba(0,0,0,1)';
     }
     const color = culoriRgb(props.modelValue);
-    console.log(color);
     if (!color) {
       return 'rgba(0,0,0,1)';
     }
@@ -115,7 +113,6 @@ const derivedRgb = computed({
     return `rgba(${r256}, ${g256}, ${b256}, ${alphaReal})`;
   },
   set: (value) => {
-    console.log(value);
     emits('update:modelValue', value);
   }
 });
