@@ -236,7 +236,7 @@
               v-if="canViewTags"
               :to="`/tag/${tag.names[0]}`"
               class="shrink-0 hover:brightness-110"
-              :style="{ color: tagColor(tag.category) }"
+              :style="{ color: `var(--tag-cat-${tag.category})` }"
             >
               <TagIcon :size="12" />
             </RouterLink>
@@ -244,11 +244,11 @@
               v-if="canListPosts"
               :to="{ path: '/posts', query: { query: tag.names[0] } }"
               class="hover:brightness-110 truncate"
-              :style="{ color: tagColor(tag.category) }"
+              :style="{ color: `var(--tag-cat-${tag.category})` }"
             >
               {{ displayTagName(tag.names[0]) }}
             </RouterLink>
-            <span v-else class="truncate" :style="{ color: tagColor(tag.category) }">
+            <span v-else class="truncate" :style="{ color: `var(--tag-cat-${tag.category})` }">
               {{ displayTagName(tag.names[0]) }}
             </span>
             <span class="text-gray-400 text-xs ml-auto tabular-nums">{{ tag.usages }}</span>
@@ -282,10 +282,8 @@
 
     <!-- ── Main content ───────────────────────────────────────────── -->
     <main class="flex-1 min-w-0 flex flex-col gap-4">
-      <h1 class="text-lg font-semibold">Post #{{ post.id }}</h1>
-
       <!-- Content viewer -->
-      <div class="flex items-start justify-center w-full overflow-hidden">
+      <div class="flex items-start w-full overflow-hidden">
         <!-- Image / Animation -->
         <img
           v-if="post.type === 'image' || post.type === 'animation'"
@@ -348,7 +346,7 @@ import {
 } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
-import type { PostInfo, PostNeighbors, TagCategoryInfo } from '@/types/oxibooru.gen';
+import type { PostInfo, PostNeighbors } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { resolveApiUrl } from '@/utils/url';
 
@@ -362,7 +360,6 @@ const contextQuery = computed(() => (route.query.query as string) ?? '');
 
 const post = ref<PostInfo | null>(null);
 const neighbors = ref<PostNeighbors>({});
-const tagCategories = ref<TagCategoryInfo[]>([]);
 const loading = ref(false);
 const loadError = ref('');
 
@@ -405,19 +402,6 @@ const sourceParts = computed(() => {
   if (!post.value?.source) return [];
   return post.value.source.split(/\s+/).filter(Boolean);
 });
-
-const tagCategoryMap = computed(() => {
-  const map = new Map<string, string>();
-  for (const cat of tagCategories.value) {
-    if (cat.name && cat.color) map.set(cat.name, cat.color);
-  }
-  return map;
-});
-
-function tagColor(category?: string): string {
-  if (!category) return '';
-  return tagCategoryMap.value.get(category) ?? '';
-}
 
 function displayTagName(name: string | undefined): string {
   if (!name) return '';
@@ -548,16 +532,8 @@ async function loadPost(id: number) {
   }
 }
 
-async function loadTagCategories() {
-  if (tagCategories.value.length > 0) return;
-  const result = await api.listTagCategories();
-  if (result.success) {
-    tagCategories.value = result.data;
-  }
-}
-
 onMounted(async () => {
-  await Promise.all([loadPost(postId.value), loadTagCategories()]);
+  await loadPost(postId.value);
 });
 
 watch(
