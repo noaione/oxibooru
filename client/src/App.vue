@@ -10,7 +10,7 @@ import { useTokenStore } from './stores/api.ts';
 import { useCategoriesStore } from './stores/categories.ts';
 import { useSettingsStore, useDarkTheme } from './stores/settings.ts';
 
-const api = useTokenStore();
+const app = useTokenStore();
 const darkMode = useDarkTheme();
 const settings = useSettingsStore();
 const categories = useCategoriesStore();
@@ -19,7 +19,7 @@ onMounted(() => {
   darkMode.init();
   settings.init();
 
-  api.init().then(() => {
+  app.init().then(() => {
     categories.init().then((results) => {
       categories.applyColors(results.tags, results.pools);
     });
@@ -31,7 +31,7 @@ onMounted(() => {
   <PageLoader />
   <NavBar />
   <main class="px-6 py-6 md:px-8 md:py-8">
-    <RouterView />
+    <RouterView v-if="app.ready" />
   </main>
   <ToastNotification />
   <ConfirmDialog />

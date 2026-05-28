@@ -126,6 +126,42 @@ const router = createRouter({
       name: 'tag',
       component: () => import('@/pages/TagView.vue'),
     },
+    // ── Pool routes (Stage 7) ─────────────────────────────────
+    {
+      path: '/pools',
+      name: 'pools',
+      component: () => import('@/pages/PoolsView.vue'),
+    },
+    {
+      path: '/pools/create',
+      name: 'pool-create',
+      component: () => import('@/pages/PoolCreateView.vue'),
+    },
+    {
+      path: '/pool-categories',
+      name: 'pool-categories',
+      component: () => import('@/pages/PoolCategoriesView.vue'),
+    },
+    {
+      path: '/pool/:id/merge/:other',
+      name: 'pool-merge',
+      component: () => import('@/pages/PoolMergeView.vue'),
+    },
+    {
+      path: '/pool/:id/edit',
+      name: 'pool-edit',
+      component: () => import('@/pages/PoolView.vue'),
+    },
+    {
+      path: '/pool/:id/delete',
+      name: 'pool-delete',
+      component: () => import('@/pages/PoolView.vue'),
+    },
+    {
+      path: '/pool/:id',
+      name: 'pool',
+      component: () => import('@/pages/PoolView.vue'),
+    },
     // ── Catch-all 404 ─────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',

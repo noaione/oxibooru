@@ -1,6 +1,6 @@
 <template>
   <!-- Center but not middle -->
-  <div v-if="app.ready" class="flex flex-col items-center justify-start">
+  <div class="flex flex-col items-center justify-start">
     <h1 class="text-5xl">{{ app.config?.config.name || 'Oxibooru' }}</h1>
 
     <div class="flex flex-row items-center mt-8">
