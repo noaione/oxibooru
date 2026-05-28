@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { createHead } from '@unhead/vue/client';
 import './styles.css';
+import '@cyhnkckali/vue3-color-picker/dist/style.css';
 
 import App from './App.vue';
 import router from './router';

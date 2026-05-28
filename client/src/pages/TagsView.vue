@@ -13,27 +13,20 @@
 
     <!-- Search + Sort -->
     <form class="flex flex-wrap gap-2" @submit.prevent="applySearch">
-      <input
+      <FlatInput
         v-model="searchInput"
         type="text"
         placeholder="Search tags…"
-        class="flex-1 min-w-40 px-2 py-1 overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors text-sm"
+        class="flex-1 min-w-40 px-2 py-1"
       />
-      <select
-        v-model="sortBy"
-        class="px-2 py-1 overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors text-sm cursor-pointer"
-        @change="applySearch"
-      >
+      <FlatSelect v-model="sortBy">
         <option value="sort:name">Name</option>
         <option value="sort:usages">Post count</option>
         <option value="sort:creation-time">Creation date</option>
-      </select>
-      <button
-        type="submit"
-        class="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors cursor-pointer"
-      >
+      </FlatSelect>
+      <FlatButton type="submit" @click="applySearch">
         Search
-      </button>
+      </FlatButton>
     </form>
 
     <!-- Loading -->
@@ -98,7 +91,7 @@
             <td class="py-2 pr-4 text-right tabular-nums">
               <RouterLink
                 :to="`/posts?query=${encodeURIComponent(tag.names?.[0] ?? '')}`"
-                class="hover:underline text-gray-600 dark:text-gray-400"
+                class="hover:underline text-cyan-500"
               >
                 {{ (tag.usages ?? 0).toLocaleString() }}
               </RouterLink>
@@ -137,8 +130,9 @@ import { useSettingsStore } from '@/stores/settings';
 import type { TagInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
-
-useHeadSafe({ title: 'Tags' });
+import FlatButton from '@/components/FlatButton.vue';
+import FlatInput from '@/components/FlatInput.vue';
+import FlatSelect from '@/components/FlatSelect.vue';
 
 const PAGE_SIZE = 50;
 
@@ -146,6 +140,11 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const settings = useSettingsStore();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Tags',
+}));
 
 const tags = ref<TagInfo[]>([]);
 const totalCount = ref(0);

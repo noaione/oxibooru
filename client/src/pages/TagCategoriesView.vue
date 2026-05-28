@@ -25,124 +25,86 @@
           <div
             v-for="cat in localCategories"
             :key="cat.name"
-            class="card p-3 flex flex-col gap-3"
+            class="card p-3 flex flex-col border gap-3"
+            :class="{
+              'border-accent-400': cat.default,
+              'border-[#F5F5F5] dark:border-[#333333]': !cat.default,
+            }"
           >
             <div class="flex flex-wrap items-center gap-3">
-              <!-- Default badge -->
-              <span
-                v-if="cat.isDefault"
-                class="text-xs px-1.5 py-0.5 rounded bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 font-medium"
-              >
-                default
-              </span>
-
               <!-- Name -->
               <div class="flex-1 min-w-32">
-                <label class="block text-xs text-gray-500 mb-1">Name</label>
-                <input
+                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Name</label>
+                <FlatInput
                   v-model="cat.editName"
                   type="text"
-                  :disabled="!canEditName || cat.isDefault"
-                  class="w-full px-2 py-1 text-sm overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="!canEditName"
+                  class="w-full bg-gray-50! dark:bg-gray-800!"
                 />
               </div>
 
               <!-- Order -->
               <div class="w-20">
-                <label class="block text-xs text-gray-500 mb-1">Order</label>
-                <input
+                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Order</label>
+                <FlatInput
                   v-model.number="cat.editOrder"
                   type="number"
                   min="0"
                   :disabled="!canEditOrder"
-                  class="w-full px-2 py-1 text-sm overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full bg-gray-50! dark:bg-gray-800!"
                 />
               </div>
 
               <!-- Usage count -->
-              <div class="text-xs text-gray-500 whitespace-nowrap mt-4">
+              <RouterLink
+                :to="`/posts?query=${encodeURIComponent(cat.slug)}`"
+                class="text-cyan-500 hover:underline text-xs whitespace-nowrap mt-4"
+              >
                 {{ (cat.usages ?? 0).toLocaleString() }} tags
-              </div>
+              </RouterLink>
             </div>
 
             <!-- Color picker row -->
             <div v-if="canEditColor">
-              <label class="block text-xs text-gray-500 mb-1">Color</label>
-              <div class="flex flex-wrap items-center gap-3">
-                <!-- Light mode preview swatch -->
-                <div class="flex flex-col items-center gap-0.5">
-                  <div
-                    class="w-8 h-8 rounded border border-gray-300 dark:border-gray-600"
-                    :style="{ backgroundColor: validColor(cat.editColor) || '#888' }"
-                    title="Light mode"
-                  />
-                  <span class="text-[10px] text-gray-400">Light</span>
-                </div>
-
-                <!-- Dark mode preview swatch (derived) -->
-                <div class="flex flex-col items-center gap-0.5">
-                  <div
-                    class="w-8 h-8 rounded border border-gray-300 dark:border-gray-600"
-                    :style="{ backgroundColor: darkColor(cat.editColor) || '#888' }"
-                    title="Dark mode (derived)"
-                  />
-                  <span class="text-[10px] text-gray-400">Dark</span>
-                </div>
-
-                <!-- Native color picker (hex only) -->
-                <div class="flex flex-col items-center gap-0.5">
-                  <input
-                    type="color"
-                    :value="toHex(cat.editColor)"
-                    class="w-8 h-8 rounded cursor-pointer border-0 p-0"
-                    title="Pick a color"
-                    @input="(e) => cat.editColor = (e.target as HTMLInputElement).value"
-                  />
-                  <span class="text-[10px] text-gray-400">Picker</span>
-                </div>
-
-                <!-- Text input for raw CSS color -->
-                <input
-                  v-model="cat.editColor"
-                  type="text"
-                  placeholder="#rrggbb or any CSS color"
-                  class="flex-1 min-w-36 px-2 py-1 text-sm font-mono overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
-                />
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Color</label>
+              <div class="flex flex-wrap items-center gap-3 w-full">
+                <ColorSwatches v-model="cat.editColor" />
               </div>
             </div>
 
             <!-- Row actions -->
             <div class="flex flex-wrap items-center gap-2 pt-1">
-              <button
+              <FlatButton
                 v-if="canEdit"
                 type="button"
                 :disabled="cat.saving"
-                class="px-3 py-1 text-xs bg-cyan-600 hover:bg-cyan-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-2 py-1 text-xs"
                 @click="saveCategory(cat)"
               >
                 {{ cat.saving ? 'Saving…' : 'Save' }}
-              </button>
+              </FlatButton>
 
-              <button
+              <FlatButton
                 v-if="canSetDefault && !cat.isDefault"
                 type="button"
                 :disabled="cat.saving"
-                class="px-3 py-1 text-xs overlay-color border border-gray-200 dark:border-gray-700 hover:border-cyan-500 rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-2 py-1 text-xs"
                 @click="setDefault(cat)"
               >
                 Set as default
-              </button>
+              </FlatButton>
 
-              <button
+              <FlatButton
                 v-if="canDelete && !cat.isDefault"
                 type="button"
+                kind="danger"
                 :disabled="cat.saving || (cat.usages ?? 0) > 0"
-                class="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-2 py-1 text-xs"
                 :title="(cat.usages ?? 0) > 0 ? 'Cannot delete: category is in use' : ''"
                 @click="deleteCategory(cat)"
               >
                 Delete
-              </button>
+              </FlatButton>
 
               <p v-if="cat.error" class="text-xs text-red-500">{{ cat.error }}</p>
             </div>
@@ -155,73 +117,45 @@
 
           <div class="flex flex-wrap gap-3">
             <div class="flex-1 min-w-32">
-              <label class="block text-xs text-gray-500 mb-1">Name</label>
-              <input
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Name</label>
+              <FlatInput
                 v-model="newName"
                 type="text"
+                :disabled="!canEditName"
                 placeholder="Category name"
-                class="w-full px-2 py-1 text-sm overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
               />
             </div>
             <div class="w-20">
               <label class="block text-xs text-gray-500 mb-1">Order</label>
-              <input
+              <FlatInput
                 v-model.number="newOrder"
                 type="number"
                 min="0"
-                class="w-full px-2 py-1 text-sm overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
+                :disabled="!canEditOrder"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
               />
             </div>
           </div>
 
           <!-- Color for new category -->
           <div>
-            <label class="block text-xs text-gray-500 mb-1">Color</label>
-            <div class="flex flex-wrap items-center gap-3">
-              <div class="flex flex-col items-center gap-0.5">
-                <div
-                  class="w-8 h-8 rounded border border-gray-300 dark:border-gray-600"
-                  :style="{ backgroundColor: validColor(newColor) || '#888' }"
-                  title="Light mode"
-                />
-                <span class="text-[10px] text-gray-400">Light</span>
-              </div>
-              <div class="flex flex-col items-center gap-0.5">
-                <div
-                  class="w-8 h-8 rounded border border-gray-300 dark:border-gray-600"
-                  :style="{ backgroundColor: darkColor(newColor) || '#888' }"
-                  title="Dark mode (derived)"
-                />
-                <span class="text-[10px] text-gray-400">Dark</span>
-              </div>
-              <div class="flex flex-col items-center gap-0.5">
-                <input
-                  type="color"
-                  :value="toHex(newColor)"
-                  class="w-8 h-8 rounded cursor-pointer border-0 p-0"
-                  @input="(e) => newColor = (e.target as HTMLInputElement).value"
-                />
-                <span class="text-[10px] text-gray-400">Picker</span>
-              </div>
-              <input
-                v-model="newColor"
-                type="text"
-                placeholder="#rrggbb or any CSS color"
-                class="flex-1 min-w-36 px-2 py-1 text-sm font-mono overlay-color border border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
-              />
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Color</label>
+            <div class="flex flex-wrap items-center gap-3 w-full">
+              <ColorSwatches v-model="newColor" />
             </div>
           </div>
 
           <p v-if="createError" class="text-xs text-red-500">{{ createError }}</p>
 
-          <button
+          <FlatButton
             type="button"
             :disabled="!newName.trim() || creating"
-            class="px-4 py-2 w-fit text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-fit"
             @click="createCategory"
           >
             {{ creating ? 'Creating…' : 'Create category' }}
-          </button>
+          </FlatButton>
         </div>
       </template>
     </template>
@@ -231,21 +165,25 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useHeadSafe } from '@unhead/vue';
-import { formatHex, oklch } from 'culori';
 import { useTokenStore } from '@/stores/api';
 import { useCategoriesStore } from '@/stores/categories';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
-import { mixinCssColorForDarkTheme } from '@/utils/colorama';
 import type { TagCategoryInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
-
-useHeadSafe({ title: 'Tag Categories' });
+import FlatButton from '@/components/FlatButton.vue';
+import ColorSwatches from '@/components/ColorSwatches.vue';
+import FlatInput from '@/components/FlatInput.vue';
 
 const api = useTokenStore();
 const categories = useCategoriesStore();
 const confirm = useConfirm();
 const toast = useToast();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Tag Categories',
+}));
 
 interface LocalCategory extends TagCategoryInfo {
   editName: string;
@@ -254,6 +192,7 @@ interface LocalCategory extends TagCategoryInfo {
   isDefault: boolean;
   saving: boolean;
   error: string;
+  slug: string;
 }
 
 const localCategories = ref<LocalCategory[]>([]);
@@ -284,41 +223,8 @@ function toLocalCategory(cat: TagCategoryInfo, isDefault: boolean): LocalCategor
     isDefault,
     saving: false,
     error: '',
+    slug: `category:${cat.name ?? ''}`,
   };
-}
-
-function toHex(color: string): string {
-  try {
-    const parsed = oklch(color);
-    if (!parsed) return '#888888';
-    return formatHex(parsed) ?? '#888888';
-  } catch {
-    return '#888888';
-  }
-}
-
-function validColor(color: string): string | null {
-  if (!color?.trim()) return null;
-  try {
-    const parsed = oklch(color);
-    if (!parsed) return null;
-    return formatHex(parsed) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function darkColor(color: string): string | null {
-  if (!color?.trim()) return null;
-  try {
-    const parsed = oklch(color);
-    if (!parsed) return null;
-    const dark = mixinCssColorForDarkTheme(color);
-    const hex = formatHex(oklch(dark) ?? oklch('#888888')!);
-    return hex ?? null;
-  } catch {
-    return null;
-  }
 }
 
 async function loadCategories() {

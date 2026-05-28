@@ -125,7 +125,7 @@
 
         <div v-if="canEditName" class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="ue-name">Username</label>
-          <FormInput id="ue-name" v-model="editName" class="w-full" autocomplete="off" />
+          <FlatInput id="ue-name" v-model="editName" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="off" />
         </div>
 
         <div v-if="canEditPassword" class="flex flex-col gap-1">
@@ -133,23 +133,23 @@
             Password
             <span class="text-gray-400 font-normal ml-1 text-xs">leave blank to keep current</span>
           </label>
-          <FormInput id="ue-password" v-model="editPassword" type="password" class="w-full" autocomplete="new-password" />
+          <FlatInput id="ue-password" v-model="editPassword" type="password" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="new-password" />
         </div>
 
         <div v-if="canEditEmail" class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="ue-email">Email</label>
-          <FormInput id="ue-email" v-model="editEmail" type="email" class="w-full" autocomplete="off" />
+          <FlatInput id="ue-email" v-model="editEmail" type="email" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="off" />
         </div>
 
         <div v-if="canEditRank" class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="ue-rank">Rank</label>
-          <select
+          <FlatSelect
             id="ue-rank"
             v-model="editRank"
-            class="px-2 py-1 overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
+            class="px-2 py-1 bg-gray-50! dark:bg-gray-800!"
           >
             <option v-for="[key, label] in availableRanks" :key="key" :value="key">{{ label }}</option>
-          </select>
+          </FlatSelect>
         </div>
 
         <div v-if="canEditAvatar" class="flex flex-col gap-1">
@@ -168,7 +168,7 @@
               ref="avatarFileInput"
               type="file"
               accept="image/*"
-              class="text-sm"
+              class="text-sm "
               @change="onAvatarFile"
             />
           </div>
@@ -177,14 +177,14 @@
         <p v-if="editError" class="text-sm text-red-500">{{ editError }}</p>
         <p v-if="editSuccess" class="text-sm text-green-600 dark:text-green-400">{{ editSuccess }}</p>
 
-        <button
+        <FlatButton
           type="submit"
-          class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+          class="flex items-center justify-center gap-2 w-fit"
           :disabled="editLoading"
         >
           <LoadingSpinner v-if="editLoading" size="sm" />
           Save settings
-        </button>
+        </FlatButton>
       </form>
     </div>
 
@@ -203,15 +203,15 @@
             <span class="text-gray-500 dark:text-gray-400">Note:</span>
             <div class="flex items-center gap-2">
               <template v-if="editingNoteIdx === idx">
-                <FormInput v-model="editingNoteValue" class="flex-1 text-sm" @submit="saveNote(idx)" />
-                <button class="text-sm text-cyan-500 hover:underline" @click="saveNote(idx)">Save</button>
-                <button class="text-sm opacity-60 hover:opacity-100" @click="editingNoteIdx = -1">Cancel</button>
+                <FlatInput v-model="editingNoteValue" class="flex-1 text-sm bg-gray-50! dark:bg-gray-800!" @submit="saveNote(idx)" />
+                <button class="text-sm text-cyan-500 hover:underline cursor-pointer" @click="saveNote(idx)">Save</button>
+                <button class="text-sm opacity-60 hover:opacity-100 cursor-pointer" @click="editingNoteIdx = -1">Cancel</button>
               </template>
               <template v-else>
                 <span>{{ tok.note ?? 'No note' }}</span>
                 <button
                   v-if="canEditToken"
-                  class="text-xs text-cyan-500 hover:underline"
+                  class="text-xs text-cyan-500 hover:underline cursor-pointer"
                   @click="startEditNote(idx)"
                 >
                   (change)
@@ -226,14 +226,15 @@
             <span>{{ formatDate(tok.lastUsageTime) }}</span>
           </div>
           <div v-if="canDeleteToken" class="mt-1">
-            <button
-              class="px-3 py-1 text-sm bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60"
+            <FlatButton
+              class="w-fit flex justify-center items-center gap-2 text-sm px-2! py-1!"
               :disabled="tokenDeleteLoading === idx"
               @click="deleteToken(idx)"
+              kind="danger"
             >
               <LoadingSpinner v-if="tokenDeleteLoading === idx" size="sm" class="inline mr-1" />
               {{ tok.token === api.userToken?.token ? 'Delete and logout' : 'Delete' }}
-            </button>
+            </FlatButton>
           </div>
         </div>
       </div>
@@ -248,23 +249,23 @@
         <form class="flex flex-col gap-3 w-full max-w-sm" @submit.prevent="submitCreateToken">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="tok-note">Note</label>
-            <FormInput id="tok-note" v-model="newTokenNote" class="w-full" />
+            <FlatInput id="tok-note" v-model="newTokenNote" class="w-full" />
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="tok-expiry">
               Expires
               <span class="text-gray-400 font-normal ml-1 text-xs">optional, YYYY-MM-DD</span>
             </label>
-            <FormInput id="tok-expiry" v-model="newTokenExpiry" class="w-full" placeholder="never" />
+            <FlatInput id="tok-expiry" v-model="newTokenExpiry" class="w-full" placeholder="never" />
           </div>
-          <button
+          <FlatButton
             type="submit"
-            class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            class="w-fit flex items-center justify-center gap-2"
             :disabled="tokenCreateLoading"
           >
             <LoadingSpinner v-if="tokenCreateLoading" size="sm" />
             Create token
-          </button>
+          </FlatButton>
         </form>
       </div>
     </div>
@@ -284,14 +285,15 @@
 
         <p v-if="deleteError" class="text-sm text-red-500">{{ deleteError }}</p>
 
-        <button
+        <FlatButton
           type="submit"
-          class="w-full py-2 bg-red-600 text-white font-medium hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+          kind="danger"
+          class="w-fit flex items-center justify-center gap-2"
           :disabled="deleteLoading || !deleteConfirm"
         >
           <LoadingSpinner v-if="deleteLoading" size="sm" />
           Delete account
-        </button>
+        </FlatButton>
       </form>
     </div>
   </div>
@@ -303,9 +305,11 @@ import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore, allRanks, rankNames } from '@/stores/api';
 import type { UserInfo, AvatarStyle, UserRank, UserTokenInfo } from '@/types/oxibooru.gen';
-import FormInput from '@/components/FormInput.vue';
+import FlatInput from '@/components/FlatInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { resolveApiUrl } from '@/utils/url';
+import FlatButton from '@/components/FlatButton.vue';
+import FlatSelect from '@/components/FlatSelect.vue';
 
 const route = useRoute();
 const router = useRouter();

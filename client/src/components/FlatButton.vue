@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 const props = withDefaults(
-  defineProps<{ kind?: 'info' | 'warn' | 'danger' | 'success', class?: string; }>(),
+  defineProps<{ kind?: 'info' | 'warn' | 'danger' | 'success' | 'neutral', class?: string; }>(),
   {
     kind: 'info',
     class: '',
@@ -32,6 +32,9 @@ const computedStyles = computed(() => {
     case 'success': {
       return 'btn-success';
     }
+    case 'neutral': {
+      return 'btn-neutral';
+    }
     case 'info':
     default: {
       return 'btn-info';
@@ -40,22 +43,59 @@ const computedStyles = computed(() => {
 });
 </script>
 
-<style lang="css" scoped>
-@reference "../styles.css";
+<style lang="postcss" scoped>
 
 .btn-info {
-  @apply bg-cyan-500 hover:bg-cyan-600 disabled:bg-cyan-500 text-white;
+  color: white;
+  background-color: oklch(71.5% 0.143 215.221);
+
+  &:focus {
+    background-color: oklch(60.9% 0.126 221.723);
+  }
 }
 
 .btn-warn {
-  @apply bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-500 text-white;
+  color: white;
+  background-color: oklch(79.5% 0.184 86.047);
+
+  &:focus {
+    background-color: oklch(68.1% 0.162 75.834);
+  }
 }
 
 .btn-danger {
-  @apply bg-red-500 hover:bg-red-600 disabled:bg-red-500 text-white;
+  color: white;
+  background-color: oklch(63.7% 0.237 25.331);
+
+  &:focus {
+    background-color: oklch(57.7% 0.245 27.325);
+  }
 }
 
 .btn-success {
-  @apply bg-green-500 hover:bg-green-600 disabled:bg-green-500 text-white;
+  color: white;
+  background-color: oklch(72.3% 0.219 149.579);
+
+  &:focus {
+    background-color: oklch(62.7% 0.194 149.214);
+  }
+}
+
+.btn-neutral {
+  color: black;
+  background-color: oklch(90%   0 0);
+
+  &:focus {
+    background-color: oklch(82% 0 0);
+  }
+
+  &:where(.darktheme, .darktheme *) {
+    color: white;
+    background-color: oklch(38%   0 0);
+
+    &:focus {
+      background-color: oklch(30%   0 0);
+    }
+  }
 }
 </style>

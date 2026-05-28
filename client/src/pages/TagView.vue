@@ -163,11 +163,11 @@
           <div v-if="canMerge" class="card p-4">
             <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Merge with another tag</p>
             <form class="flex gap-2" @submit.prevent="goToMerge">
-              <input
+              <FlatInput
                 v-model="mergeTargetInput"
                 type="text"
                 placeholder="Other tag name…"
-                class="flex-1 px-2 py-1 text-sm overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors"
+                class="flex-1 px-2 py-1 text-sm bg-gray-50! dark:bg-gray-800!"
               />
               <FlatButton
                 kind="warn"
@@ -191,24 +191,24 @@
               <label class="block text-sm font-medium mb-1">
                 Names <span class="text-gray-400 font-normal">(one per line; first is primary)</span>
               </label>
-              <textarea
+              <FlatTextarea
                 v-model="editNames"
                 rows="4"
-                class="w-full px-2 py-1 text-sm overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors resize-y font-mono"
+                class="w-full resize-y font-mono bg-gray-50! dark:bg-gray-800!"
               />
             </div>
 
             <!-- Category -->
             <div v-if="canEditCategory">
               <label class="block text-sm font-medium mb-1">Category</label>
-              <select
+              <FlatSelect
                 v-model="editCategory"
-                class="w-full px-2 py-1 text-sm overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors cursor-pointer"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
               >
                 <option v-for="cat in tagCategories" :key="cat.name" :value="cat.name">
                   {{ cat.name }}{{ cat.default ? ' (default)' : '' }}
                 </option>
-              </select>
+              </FlatSelect>
             </div>
 
             <!-- Description -->
@@ -216,10 +216,10 @@
               <label class="block text-sm font-medium mb-1">
                 Description <span class="text-gray-400 font-normal">(Markdown)</span>
               </label>
-              <textarea
+              <FlatTextarea
                 v-model="editDescription"
                 rows="5"
-                class="w-full px-2 py-1 text-sm overlay-color border-2 border-gray-200 dark:border-gray-700 outline-0 focus:border-cyan-500 transition-colors resize-y font-mono"
+                class="w-full resize-y font-mono bg-gray-50! dark:bg-gray-800!"
               />
             </div>
 
@@ -231,6 +231,8 @@
               <AutoCompleteTag
                 mode="input"
                 v-model="editImplications"
+                class="bg-gray-50! dark:bg-gray-800!"
+                input-class="bg-gray-50! dark:bg-gray-800!"
                 placeholder="Add implied tag…"
                 :tag-categories="tagCategoryMap"
               />
@@ -244,6 +246,8 @@
               <AutoCompleteTag
                 mode="input"
                 v-model="editSuggestions"
+                class="bg-gray-50! dark:bg-gray-800!"
+                input-class="bg-gray-50! dark:bg-gray-800!"
                 placeholder="Add suggested tag…"
                 :tag-categories="tagCategoryMap"
               />
@@ -312,6 +316,9 @@ import type { TagInfo, TagSibling } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import FlatButton from '@/components/FlatButton.vue';
+import FlatInput from '@/components/FlatInput.vue';
+import FlatTextarea from '@/components/FlatTextarea.vue';
+import FlatSelect from '@/components/FlatSelect.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -320,6 +327,7 @@ const categoriesStore = useCategoriesStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
 const toast = useToast();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const tag = ref<TagInfo | null>(null);
 const siblings = ref<TagSibling[]>([]);
@@ -380,7 +388,9 @@ const renderedDescription = computed(() => {
   return DOMPurify.sanitize(html);
 });
 
-useHeadSafe(() => ({ title: primaryName.value ? `Tag: ${primaryName.value}` : 'Tag' }));
+useHeadSafe(() => ({
+  title: serverName.value + ' - ' + (primaryName.value ? `Tag: ${primaryName.value}` : 'Tag'),
+}));
 
 function displayTag(raw: string) {
   return settings.settings.tagUnderscoresAsSpaces ? raw.replace(/_/g, ' ') : raw;

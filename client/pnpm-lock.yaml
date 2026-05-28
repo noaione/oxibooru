@@ -23,6 +23,9 @@ importers:
 
   .:
     dependencies:
+      '@cyhnkckali/vue3-color-picker':
+        specifier: ^2.1.7
+        version: 2.1.7(vue@3.6.0-beta.10(typescript@6.0.3))
       '@lucide/vue':
         specifier: ^1.16.0
         version: 1.16.0(vue@3.6.0-beta.10(typescript@6.0.3))
@@ -276,6 +279,11 @@ packages:
   '@babel/types@7.29.7':
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
+
+  '@cyhnkckali/vue3-color-picker@2.1.7':
+    resolution: {integrity: sha512-Vw4IM4aKHbJkNwuLsyVdfLm727uIkazpbFjHFOwsj03J2uZqy4TKwmX+83zHIXp2+ELCXFNULXgbETiFUzS+Eg==}
+    peerDependencies:
+      vue: ^3.3.8
 
   '@emnapi/core@1.9.2':
     resolution: {integrity: sha512-UC+ZhH3XtczQYfOlu3lNEkdW/p4dsJ1r/bP7H8+rhao3TTTMO1ATq/4DdIi23XuGoFY+Cz0JmCbdVl0hz9jZcA==}
@@ -2567,6 +2575,10 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@cyhnkckali/vue3-color-picker@2.1.7(vue@3.6.0-beta.10(typescript@6.0.3))':
+    dependencies:
+      vue: 3.6.0-beta.10(typescript@6.0.3)
 
   '@emnapi/core@1.9.2':
     dependencies:
