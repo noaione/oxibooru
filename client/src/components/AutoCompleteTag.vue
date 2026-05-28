@@ -23,9 +23,9 @@
         @select="selectSuggestion"
       />
     </div>
-    <BlueButton class="ml-2 hidden md:flex" @click="submitSearch">
-      <slot>Search</slot>
-    </BlueButton>
+    <FlatButton class="ml-2 hidden md:flex" @click="submitSearch">
+      Search
+    </FlatButton>
   </div>
 
   <!-- input mode: multi-value chip input, emits array -->
@@ -83,8 +83,8 @@ import { useRouter } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponseTagInfo } from '@/types/oxibooru.gen';
-import BlueButton from './BlueButton.vue';
 import SuggestionDropdown from './SuggestionDropdown.vue';
+import FlatButton from './FlatButton.vue';
 
 interface Suggestion {
   name: string;

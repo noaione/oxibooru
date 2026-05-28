@@ -46,17 +46,17 @@
 
     <!-- Results -->
     <template v-else>
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
         {{ totalCount.toLocaleString() }} tag{{ totalCount !== 1 ? 's' : '' }}
       </div>
 
-      <div v-if="tags.length === 0" class="card p-8 text-center text-gray-500 text-sm">
+      <div v-if="tags.length === 0" class="card p-8 text-center text-gray-500 dark:text-gray-400 text-sm">
         No tags found.
       </div>
 
       <table v-else class="w-full text-sm border-collapse">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 uppercase tracking-wide">
+          <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             <th class="pb-2 font-medium">Name</th>
             <th class="pb-2 font-medium">Category</th>
             <th class="pb-2 font-medium text-right">Posts</th>
@@ -103,7 +103,7 @@
                 {{ (tag.usages ?? 0).toLocaleString() }}
               </RouterLink>
             </td>
-            <td class="py-2 pr-4 text-right tabular-nums text-gray-500">
+            <td class="py-2 pr-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
               {{ (tag.implications?.length ?? 0) }}
             </td>
             <td v-if="canEditTags" class="py-2 text-right">

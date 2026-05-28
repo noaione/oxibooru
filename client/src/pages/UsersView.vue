@@ -10,9 +10,9 @@
         />
       </div>
       <div class="flex items-center mt-2 md:mt-0 gap-2">
-        <BlueButton class="ml-0 md:ml-2" type="submit">
+        <FlatButton class="ml-0 md:ml-2" type="submit">
           Search
-        </BlueButton>
+        </FlatButton>
         <RouterLink
           to="/help/search?t=users"
           class="text-sm text-gray-500 hover:brightness-110"
@@ -97,7 +97,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import type { PagedResponseUserInfo } from '@/types/oxibooru.gen';
-import BlueButton from '@/components/BlueButton.vue';
+import FlatButton from '@/components/FlatButton.vue';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
