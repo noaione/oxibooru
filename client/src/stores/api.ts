@@ -2,8 +2,12 @@ import type {
   InfoResponse,
   PagedResponseUserInfo,
   UserTokenCreateBody,
+  UserTokenUpdateBody,
   UserTokenInfo,
+  UnpagedResponseUserTokenInfo,
   UserInfo,
+  UserUpdateBody,
+  UserRank,
 } from '@/types/oxibooru.gen';
 import { defineStore } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
@@ -265,6 +269,140 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true };
   };
 
+  // ── User management ────────────────────────────────────────────
+
+  const getUser = async (
+    name: string,
+  ): Promise<{ success: true; data: UserInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(name)}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const updateUser = async (
+    name: string,
+    body: Omit<UserUpdateBody, 'version'> & { version: string },
+    avatarFile?: File | null,
+  ): Promise<{ success: true; data: UserInfo } | { success: false; description: string }> => {
+    let resp: Awaited<ReturnType<typeof doFetch<UserInfo>>>;
+    if (avatarFile) {
+      const form = new FormData();
+      form.append('avatar', avatarFile);
+      form.append('metadata', JSON.stringify(body));
+      resp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(name)}`, {
+        method: 'PUT',
+        headers: { Authorization: authToken.value! },
+        body: form,
+      });
+    } else {
+      resp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(name)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+        body: JSON.stringify(body),
+      });
+    }
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    if (name === userToken.value?.user) {
+      user.value = resp.data;
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deleteUser = async (
+    name: string,
+    version: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/user/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify({ version }),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const getUserTokens = async (
+    name: string,
+  ): Promise<{ success: true; data: UnpagedResponseUserTokenInfo['results'] } | { success: false; description: string }> => {
+    const resp = await doFetch<UnpagedResponseUserTokenInfo>(`/api/user-tokens/${encodeURIComponent(name)}`, {
+      headers: { Authorization: authToken.value! },
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data.results };
+  };
+
+  const createUserToken = async (
+    name: string,
+    note?: string,
+    expirationTime?: string | null,
+  ): Promise<{ success: true; data: UserTokenInfo } | { success: false; description: string }> => {
+    const body: UserTokenCreateBody = { note: note || null, enabled: true, expirationTime: expirationTime ?? null };
+    const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(name)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const deleteUserToken = async (
+    name: string,
+    token: string,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    const resp = await doFetch(`/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`, {
+      method: 'DELETE',
+      headers: { Authorization: authToken.value! },
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true };
+  };
+
+  const updateUserToken = async (
+    name: string,
+    token: string,
+    body: UserTokenUpdateBody,
+  ): Promise<{ success: true; data: UserTokenInfo } | { success: false; description: string }> => {
+    const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+      body: JSON.stringify(body),
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const listUsers = async (
+    query: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ success: true; data: PagedResponseUserInfo } | { success: false; description: string }> => {
+    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const resp = await doFetch<PagedResponseUserInfo>(`/api/users?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) {
+      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+    }
+    return { success: true, data: resp.data };
+  };
+
   return {
     userToken,
     authToken,
@@ -279,8 +417,16 @@ export const useTokenStore = defineStore('api', () => {
     register,
     requestPasswordReset,
     confirmPasswordReset,
+    getUser,
+    updateUser,
+    deleteUser,
+    getUserTokens,
+    createUserToken,
+    deleteUserToken,
+    updateUserToken,
+    listUsers,
   };
 });
 
-// Re-export the error response type for consumers
-export type { ErrorResponse };
+// Re-export types for consumers
+export type { ErrorResponse, UserRank };

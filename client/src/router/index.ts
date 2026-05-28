@@ -52,6 +52,33 @@ const router = createRouter({
       meta: { title: 'Password Reset' },
       component: () => import('@/pages/PasswordResetView.vue'),
     },
+    // ── User management routes (Stage 3) ──────────────────────
+    {
+      path: '/users',
+      name: 'users',
+      meta: { title: 'Users' },
+      component: () => import('@/pages/UsersView.vue'),
+    },
+    {
+      path: '/user/:name',
+      name: 'user',
+      component: () => import('@/pages/UserView.vue'),
+    },
+    {
+      path: '/user/:name/edit',
+      name: 'user-edit',
+      component: () => import('@/pages/UserView.vue'),
+    },
+    {
+      path: '/user/:name/tokens',
+      name: 'user-tokens',
+      component: () => import('@/pages/UserView.vue'),
+    },
+    {
+      path: '/user/:name/delete',
+      name: 'user-delete',
+      component: () => import('@/pages/UserView.vue'),
+    },
     // ── Catch-all 404 ─────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',
