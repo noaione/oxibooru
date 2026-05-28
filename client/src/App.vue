@@ -31,7 +31,11 @@ onMounted(() => {
   <PageLoader />
   <NavBar />
   <main class="px-6 py-6 md:px-8 md:py-8">
-    <RouterView v-if="app.ready" />
+    <RouterView v-if="app.ready" v-slot="{ Component }">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </RouterView>
   </main>
   <ToastNotification />
   <ConfirmDialog />

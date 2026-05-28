@@ -599,7 +599,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onDeactivated, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import {
@@ -659,8 +659,8 @@ const localScore = ref(0);
 const localOwnScore = ref(0);
 const localOwnFavorite = ref(false);
 const localFavoriteCount = ref(0);
-const localCachedPages = ref<Record<string, PostInfo>>({});
-const localCachedNeighbors = ref<Record<string, PostNeighbors>>({});
+const localCachedPages = reactive(new Map<number, PostInfo>());
+const localCachedNeighbors = reactive(new Map<number, PostNeighbors>());
 
 // ── Edit state ────────────────────────────────────────────────
 const editTags = ref<string[]>([]);
@@ -996,17 +996,16 @@ async function submitComment() {
 async function refreshNeighborsOnly(id: number, force = false) {
   const result = await api.getPostNeighbors(id, contextQuery.value || undefined);
   if (result.success) {
-    // neighbors.value = result.data;
-    localCachedNeighbors.value[id] = result.data;
+    localCachedNeighbors.set(id, result.data);
     if (force) {
       neighbors.value = result.data;
     }
 
     if (result.data.next?.id) {
-      localCachedPages.value[result.data.next.id] = result.data.next;
+      localCachedPages.set(result.data.next.id, result.data.next);
     }
     if (result.data.prev?.id) {
-      localCachedPages.value[result.data.prev.id] = result.data.prev;
+      localCachedPages.set(result.data.prev.id, result.data.prev);
     }
   }
 }
@@ -1014,17 +1013,21 @@ async function refreshNeighborsOnly(id: number, force = false) {
 async function lazyloadNeighbors(id: number) {
   const prevId = id + 1;
   const nextId = id - 1;
-  if (localCachedNeighbors.value[id]) {
-    neighbors.value = localCachedNeighbors.value[id];
+  const cached = localCachedNeighbors.get(id);
+  if (cached) {
+    neighbors.value = cached;
     return;
   }
-  if (localCachedPages.value[prevId] && localCachedPages.value[nextId]) {
+  const prevCache = localCachedPages.get(prevId);
+  const nextCache = localCachedPages.get(nextId);
+  if (prevCache && nextCache) {
     // make it
-    localCachedNeighbors.value[id] = {
-      prev: localCachedPages.value[prevId],
-      next: localCachedPages.value[nextId],
+    const neigh = {
+      prev: prevCache,
+      next: nextCache,
     };
-    neighbors.value = localCachedNeighbors.value[id];
+    localCachedNeighbors.set(id, neigh);
+    neighbors.value = neigh;
     return;
   }
   await refreshNeighborsOnly(id, true);
@@ -1034,13 +1037,14 @@ async function loadPost(id: number) {
   loadError.value = '';
   localLoaded.value = id;
 
-  if (localCachedPages.value[id]) {
-    post.value = localCachedPages.value[id];
-    localScore.value = post.value.score ?? 0;
-    localOwnScore.value = post.value.ownScore ?? 0;
-    localOwnFavorite.value = post.value.ownFavorite ?? false;
-    localFavoriteCount.value = post.value.favoriteCount ?? 0;
-    localComments.value = post.value.comments ?? [];
+  const cachedPage = localCachedPages.get(id);
+  if (cachedPage) {
+    post.value = cachedPage;
+    localScore.value = cachedPage.score ?? 0;
+    localOwnScore.value = cachedPage.ownScore ?? 0;
+    localOwnFavorite.value = cachedPage.ownFavorite ?? false;
+    localFavoriteCount.value = cachedPage.favoriteCount ?? 0;
+    localComments.value = cachedPage.comments ?? [];
     await lazyloadNeighbors(id);
     return;
   }
@@ -1086,7 +1090,7 @@ async function loadPost(id: number) {
     return;
   }
 
-  localCachedPages.value[id] = postResult.data; // store
+  localCachedPages.set(id, postResult.data); // cache
   post.value = postResult.data;
   localScore.value = postResult.data.score ?? 0;
   localOwnScore.value = postResult.data.ownScore ?? 0;
@@ -1096,14 +1100,14 @@ async function loadPost(id: number) {
 
   if (neighborsResult.success) {
     neighbors.value = neighborsResult.data;
-    localCachedNeighbors.value[id] = neighborsResult.data;
+    localCachedNeighbors.set(id, neighborsResult.data);
 
     if (neighborsResult.data.next?.id) {
-      localCachedPages.value[neighborsResult.data.next.id] = neighborsResult.data.next;
+      localCachedPages.set(neighborsResult.data.next.id, neighborsResult.data.next);
       await refreshNeighborsOnly(neighborsResult.data.next.id);
     }
     if (neighborsResult.data.prev?.id) {
-      localCachedPages.value[neighborsResult.data.prev.id] = neighborsResult.data.prev;
+      localCachedPages.set(neighborsResult.data.prev.id, neighborsResult.data.prev);
       await refreshNeighborsOnly(neighborsResult.data.prev.id);
     }
   }
@@ -1125,4 +1129,9 @@ useHeadSafe(() => ({
     ? `${serverName.value} - Post #${post.value.id}`
     : serverName.value + ' - Post',
 }));
+
+onDeactivated(() => {
+  // we keep the local cache, but remove the post value
+  post.value = null;
+});
 </script>
