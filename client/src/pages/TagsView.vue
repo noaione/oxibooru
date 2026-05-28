@@ -12,22 +12,22 @@
     </div>
 
     <!-- Search + Sort -->
-    <form class="flex flex-wrap gap-2" @submit.prevent="applySearch">
-      <FlatInput
-        v-model="searchInput"
-        type="text"
+    <div class="flex flex-wrap gap-2">
+      <AutoCompleteTag
+        mode="search"
+        target="tags"
+        :model-value="searchModelValue"
+        class="flex-1 min-w-40"
+        override-submit
         placeholder="Search tags…"
-        class="flex-1 min-w-40 px-2 py-1"
+        @submit="onSearchSubmit"
       />
-      <FlatSelect v-model="sortBy">
+      <FlatSelect v-model="sortBy" @change="applySearchWithCurrentQuery">
         <option value="sort:name">Name</option>
         <option value="sort:usages">Post count</option>
         <option value="sort:creation-time">Creation date</option>
       </FlatSelect>
-      <FlatButton type="submit" @click="applySearch">
-        Search
-      </FlatButton>
-    </form>
+    </div>
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
@@ -130,9 +130,8 @@ import { useSettingsStore } from '@/stores/settings';
 import type { TagInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
-import FlatButton from '@/components/FlatButton.vue';
-import FlatInput from '@/components/FlatInput.vue';
 import FlatSelect from '@/components/FlatSelect.vue';
+import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 
 const PAGE_SIZE = 50;
 
@@ -196,7 +195,23 @@ async function fetchTags() {
   totalCount.value = result.data.total ?? 0;
 }
 
-function applySearch() {
+// The model-value prop for AutoCompleteTag — wraps the URL query as a single-element array
+// so AutoCompleteTag's watcher initializes its inputText from it.
+const searchModelValue = computed(() => searchInput.value ? [searchInput.value] : []);
+
+function onSearchSubmit(query: string) {
+  searchInput.value = query;
+  router.push({
+    name: 'tags',
+    query: {
+      ...(query.trim() ? { query: query.trim() } : {}),
+      sort: sortBy.value,
+      page: 1,
+    },
+  });
+}
+
+function applySearchWithCurrentQuery() {
   router.push({
     name: 'tags',
     query: {
