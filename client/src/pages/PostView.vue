@@ -283,7 +283,7 @@
     <!-- ── Main content ───────────────────────────────────────────── -->
     <main class="flex-1 min-w-0 flex flex-col gap-4">
       <!-- Content viewer -->
-      <div class="flex items-start w-full overflow-hidden">
+      <div class="flex items-start w-full overflow-y-hidden overflow-x-auto">
         <!-- Image / Animation -->
         <img
           v-if="post.type === 'image' || post.type === 'animation'"
