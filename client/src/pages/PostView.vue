@@ -64,7 +64,7 @@
         <!-- Download -->
         <section class="flex flex-col gap-1">
           <a
-            :href="post.contentUrl"
+            :href="resolveApiUrl(post.contentUrl)"
             download
             class="flex items-center gap-1.5 text-cyan-500 hover:underline font-medium"
           >
@@ -126,7 +126,7 @@
                 :title="src"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-cyan-500 hover:underline truncate max-w-[10rem]"
+                class="text-cyan-500 hover:underline truncate max-w-40"
               >
                 {{ extractDomain(src) }}
               </a>
@@ -212,7 +212,7 @@
             class="block"
           >
             <img
-              :src="rel.thumbnailUrl"
+              :src="resolveApiUrl(rel.thumbnailUrl)"
               :alt="`Post #${rel.id}`"
               class="w-16 h-16 object-cover hover:ring-2 hover:ring-cyan-500"
               loading="lazy"
@@ -289,7 +289,7 @@
         <!-- Image / Animation -->
         <img
           v-if="post.type === 'image' || post.type === 'animation'"
-          :src="post.contentUrl"
+          :src="resolveApiUrl(post.contentUrl)"
           :alt="`Post #${post.id}`"
           class="block"
           :class="fitClass"
@@ -305,7 +305,7 @@
           :loop="post.flags?.includes('loop')"
           :autoplay="settings.autoplayVideos"
         >
-          <source :src="post.contentUrl" :type="post.mimeType" />
+          <source :src="resolveApiUrl(post.contentUrl)" :type="post.mimeType" />
           Your browser does not support this video format.
         </video>
 
@@ -350,17 +350,12 @@ import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PostInfo, PostNeighbors, TagCategoryInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
 const api = useTokenStore();
 const { settings } = useSettingsStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
-
-useHeadSafe(() => ({
-  title: post.value
-    ? `${serverName.value} - Post #${post.value.id}`
-    : serverName.value + ' - Post',
-}));
 
 const postId = computed(() => Number(route.params.id));
 const contextQuery = computed(() => (route.query.query as string) ?? '');
@@ -404,14 +399,7 @@ function neighborUrl(id: number) {
   return { path: `/post/${id}`, query: q };
 }
 
-const fullContentUrl = computed(() => {
-  if (!post.value?.contentUrl) return '';
-  try {
-    return new URL(post.value.contentUrl, window.location.origin).href;
-  } catch {
-    return post.value.contentUrl;
-  }
-});
+const fullContentUrl = computed(() => resolveApiUrl(post.value?.contentUrl) ?? '');
 
 const sourceParts = computed(() => {
   if (!post.value?.source) return [];
@@ -578,4 +566,10 @@ watch(
     await loadPost(id);
   },
 );
+
+useHeadSafe(() => ({
+  title: post.value
+    ? `${serverName.value} - Post #${post.value.id}`
+    : serverName.value + ' - Post',
+}));
 </script>

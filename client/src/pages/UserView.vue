@@ -56,7 +56,7 @@
       <div class="shrink-0">
         <img
           v-if="userData.avatarUrl"
-          :src="userData.avatarUrl"
+          :src="resolveApiUrl(userData.avatarUrl)"
           :alt="userData.name"
           class="w-24 h-24 object-cover"
         />
@@ -305,6 +305,7 @@ import { useTokenStore, allRanks, rankNames } from '@/stores/api';
 import type { UserInfo, AvatarStyle, UserRank, UserTokenInfo } from '@/types/oxibooru.gen';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
 const router = useRouter();
