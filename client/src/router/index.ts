@@ -9,26 +9,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      meta: { title: 'Home' },
       component: () => import('@/pages/HomeView.vue'),
     },
     {
       path: '/posts',
       name: 'posts',
-      meta: { title: 'Posts' },
       component: () => import('@/pages/PostsView.vue'),
     },
     {
       path: '/settings',
       name: 'settings',
-      meta: { title: 'Settings' },
       component: () => import('@/pages/SettingsView.vue'),
     },
     // ── Auth routes (Stage 2) ──────────────────────────────────
     {
       path: '/login',
       name: 'login',
-      meta: { title: 'Log in' },
       component: () => import('@/pages/LoginView.vue'),
     },
     {
@@ -44,20 +40,17 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      meta: { title: 'Register' },
       component: () => import('@/pages/RegisterView.vue'),
     },
     {
       path: '/password-reset',
       name: 'password-reset',
-      meta: { title: 'Password Reset' },
       component: () => import('@/pages/PasswordResetView.vue'),
     },
     // ── Posts core routes (Stage 4) ──────────────────────────
     {
       path: '/post/merge/:id1/:id2',
       name: 'post-merge',
-      meta: { title: 'Merge Posts' },
       component: () => import('@/pages/PostMergeView.vue'),
     },
     {
@@ -74,14 +67,12 @@ const router = createRouter({
     {
       path: '/upload',
       name: 'upload',
-      meta: { title: 'Upload' },
       component: () => import('@/pages/PostUploadView.vue'),
     },
     // ── User management routes (Stage 3) ──────────────────────
     {
       path: '/users',
       name: 'users',
-      meta: { title: 'Users' },
       component: () => import('@/pages/UsersView.vue'),
     },
     {
@@ -108,19 +99,16 @@ const router = createRouter({
     {
       path: '/tags',
       name: 'tags',
-      meta: { title: 'Tags' },
       component: () => import('@/pages/TagsView.vue'),
     },
     {
       path: '/tag-categories',
       name: 'tag-categories',
-      meta: { title: 'Tag Categories' },
       component: () => import('@/pages/TagCategoriesView.vue'),
     },
     {
       path: '/tag/:name/merge/:other',
       name: 'tag-merge',
-      meta: { title: 'Merge Tags' },
       component: () => import('@/pages/TagMergeView.vue'),
     },
     {
