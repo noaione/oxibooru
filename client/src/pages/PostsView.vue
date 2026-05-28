@@ -429,11 +429,23 @@ function cancelMassDelete() {
   lastClickedAction.value = 'add';
 }
 
-function startMassTagging(query: string) {
+async function startMassTagging(query: string) {
   const tags = query.trim().split(/\s+/).filter(Boolean);
   if (!tags.length) return;
-  lockedMassTags.value = tags;
-  router.replace({ query: { ...route.query, massTag: tags.join(' ') } });
+
+  const results = await Promise.allSettled(tags.map((t) => app.getTag(t)));
+  const expanded = new Set(tags);
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value.success) {
+      for (const impl of r.value.data.implications ?? []) {
+        const name = impl.names[0];
+        if (name) expanded.add(name);
+      }
+    }
+  }
+
+  lockedMassTags.value = [...expanded];
+  router.replace({ query: { ...route.query, massTag: [...expanded].join(' ') } });
 }
 
 function stopMassTagging() {
