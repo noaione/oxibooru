@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start justify-center pt-16 px-4">
+  <div class="flex items-start justify-center pt-8">
     <div class="w-full max-w-sm">
       <h1 class="text-2xl font-semibold mb-6 text-center">Password Reset</h1>
 
