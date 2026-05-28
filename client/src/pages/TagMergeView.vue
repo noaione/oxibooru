@@ -84,14 +84,15 @@
 
           <p v-if="mergeError" class="text-red-500 text-xs">{{ mergeError }}</p>
 
-          <button
+          <FlatButton
             type="button"
+            kind="danger"
             :disabled="!baseTagName || merging"
-            class="px-4 py-2 w-fit rounded bg-red-600 hover:bg-red-700 text-white font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-fit"
             @click="confirmMerge"
           >
             {{ merging ? 'Merging…' : 'Merge tags' }}
-          </button>
+          </FlatButton>
         </div>
       </template>
     </template>
@@ -108,8 +109,7 @@ import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { TagInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
-
-useHeadSafe({ title: 'Merge Tags' });
+import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -117,6 +117,11 @@ const api = useTokenStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
 const toast = useToast();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Merge Tags',
+}));
 
 const tag1 = ref<TagInfo | null>(null);
 const tag2 = ref<TagInfo | null>(null);

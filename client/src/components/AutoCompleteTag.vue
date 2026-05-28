@@ -61,6 +61,7 @@
         type="text"
         :placeholder="modelValue.length === 0 ? placeholder : ''"
         class="w-full bg-transparent outline-none text-sm"
+        :class="inputClass"
         autocomplete="off"
         @input="onInput"
         @keydown="onKeyDown"
@@ -108,6 +109,7 @@ const props = withDefaults(
     overrideSubmit?: boolean;
     /** input mode: initial tag name → category name map for coloring chips */
     tagCategories?: Record<string, string>;
+    darkened?: boolean;
   }>(),
   {
     mode: 'search',

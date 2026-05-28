@@ -5,31 +5,31 @@
 
       <!-- Step 1: request reset -->
       <template v-if="!token">
-        <p class="text-sm text-gray-500 mb-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Enter your username or email. If it exists, you'll receive a reset link.
         </p>
 
         <form v-if="!requestSent" class="flex flex-col gap-4" @submit.prevent="submitRequest">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-identifier">Username or Email</label>
-            <FormInput
+            <FlatInput
               id="pr-identifier"
               v-model="identifier"
-              class="w-full"
+              class="w-full bg-gray-50! dark:bg-gray-800!"
               required
             />
           </div>
 
           <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-          <button
+          <FlatButton
             type="submit"
-            class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            class="w-fit flex items-center justify-center gap-2"
             :disabled="loading"
           >
             <LoadingSpinner v-if="loading" size="sm" />
             Send Reset Link
-          </button>
+          </FlatButton>
         </form>
 
         <p v-else class="text-sm text-green-600 dark:text-green-400">
@@ -44,10 +44,10 @@
         <form v-if="!resetDone" class="flex flex-col gap-4" @submit.prevent="submitConfirm">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-identifier2">Username</label>
-            <FormInput
+            <FlatInput
               id="pr-identifier2"
               v-model="identifier"
-              class="w-full"
+              class="w-full bg-gray-50! dark:bg-gray-800!"
               autocomplete="username"
               required
             />
@@ -55,11 +55,11 @@
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-new-password">New Password</label>
-            <FormInput
+            <FlatInput
               id="pr-new-password"
               v-model="newPassword"
               type="password"
-              class="w-full"
+              class="w-full bg-gray-50! dark:bg-gray-800!"
               autocomplete="new-password"
               required
             />
@@ -67,11 +67,11 @@
 
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium" for="pr-confirm-password">Confirm Password</label>
-            <FormInput
+            <FlatInput
               id="pr-confirm-password"
               v-model="confirmPassword"
               type="password"
-              class="w-full"
+              class="w-full bg-gray-50! dark:bg-gray-800!"
               autocomplete="new-password"
               required
             />
@@ -79,14 +79,14 @@
 
           <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-          <button
+          <FlatButton
             type="submit"
-            class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            class="w-fit flex items-center justify-center gap-2"
             :disabled="loading"
           >
             <LoadingSpinner v-if="loading" size="sm" />
             Reset Password
-          </button>
+          </FlatButton>
         </form>
 
         <div v-else class="flex flex-col gap-3 text-sm">
@@ -103,8 +103,9 @@ import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
-import FormInput from '@/components/FormInput.vue';
+import FlatInput from '@/components/FlatInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();
 const route = useRoute();

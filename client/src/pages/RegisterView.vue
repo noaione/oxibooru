@@ -27,10 +27,10 @@
                 Username
                 <span class="text-gray-400 font-normal ml-1 text-xs">letters, digits, _, -</span>
               </label>
-              <FormInput
+              <FlatInput
                 id="reg-username"
                 v-model="username"
-                class="w-full"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
                 autocomplete="off"
                 required
               />
@@ -41,11 +41,11 @@
                 Password
                 <span class="text-gray-400 font-normal ml-1 text-xs">5+ characters</span>
               </label>
-              <FormInput
+              <FlatInput
                 id="reg-password"
                 v-model="password"
                 type="password"
-                class="w-full"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
                 autocomplete="new-password"
                 required
               />
@@ -53,11 +53,11 @@
 
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium" for="reg-confirm">Confirm Password</label>
-              <FormInput
+              <FlatInput
                 id="reg-confirm"
                 v-model="passwordConfirm"
                 type="password"
-                class="w-full"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
                 autocomplete="new-password"
                 required
               />
@@ -68,11 +68,11 @@
                 Email
                 <span class="text-gray-400 font-normal ml-1 text-xs">optional</span>
               </label>
-              <FormInput
+              <FlatInput
                 id="reg-email"
                 v-model="email"
                 type="email"
-                class="w-full"
+                class="w-full bg-gray-50! dark:bg-gray-800!"
                 autocomplete="off"
                 placeholder="used for password reset & Gravatar"
               />
@@ -80,14 +80,14 @@
 
             <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-            <button
+            <FlatButton
               type="submit"
-              class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default flex items-center justify-center gap-2"
+              class="w-full flex items-center justify-center gap-2"
               :disabled="loading"
             >
               <LoadingSpinner v-if="loading" size="sm" />
               Create an account
-            </button>
+            </FlatButton>
           </form>
 
           <div class="mt-4 text-sm text-center">
@@ -136,8 +136,9 @@ import {
   MessageCircle as MessageCircleIcon,
   Star as StarIcon,
 } from '@lucide/vue';
-import FormInput from '@/components/FormInput.vue';
+import FlatInput from '@/components/FlatInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();
 const router = useRouter();

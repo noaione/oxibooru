@@ -14,6 +14,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "@cyhnkckali/vue3-color-picker": "^2.1.7",
     "@lucide/vue": "^1.16.0",
     "@tailwindcss/vite": "^4.2.4",
     "@types/dompurify": "^3.2.0",

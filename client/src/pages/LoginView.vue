@@ -6,10 +6,10 @@
       <form class="flex flex-col gap-4" @submit.prevent="submit">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="login-username">Username</label>
-          <FormInput
+          <FlatInput
             id="login-username"
             v-model="username"
-            class="w-full"
+            class="w-full bg-gray-50! dark:bg-gray-800!"
             autocomplete="username"
             required
           />
@@ -17,11 +17,11 @@
 
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="login-password">Password</label>
-          <FormInput
+          <FlatInput
             id="login-password"
             v-model="password"
             type="password"
-            class="w-full"
+            class="w-full bg-gray-50! dark:bg-gray-800!"
             autocomplete="current-password"
             required
           />
@@ -34,17 +34,17 @@
 
         <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-        <button
+        <FlatButton
           type="submit"
-          class="w-full py-2 bg-cyan-600 text-white font-medium hover:bg-cyan-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default flex items-center justify-center gap-2"
+          class="flex items-center justify-center gap-2 w-fit"
           :disabled="loading"
         >
           <LoadingSpinner v-if="loading" size="sm" />
           Log In
-        </button>
+        </FlatButton>
       </form>
 
-      <div class="mt-4 text-sm text-center flex flex-col gap-1">
+      <div class="mt-4 text-sm text-center flex flex-col gap-1 w-fit">
         <RouterLink to="/password-reset" class="text-cyan-500 hover:underline">
           Forgot password?
         </RouterLink>
@@ -61,8 +61,9 @@ import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
-import FormInput from '@/components/FormInput.vue';
+import FlatInput from '@/components/FlatInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();
 const router = useRouter();

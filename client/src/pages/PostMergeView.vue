@@ -124,14 +124,15 @@
           <!-- Error -->
           <p v-if="mergeError" class="text-red-500 text-xs">{{ mergeError }}</p>
 
-          <button
+          <FlatButton
             type="button"
-            class="px-4 py-2 w-fit rounded bg-red-600 hover:bg-red-700 text-white font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            kind="danger"
+            class="w-fit"
             :disabled="!mergeToId || merging"
             @click="confirmMerge"
           >
             {{ merging ? 'Merging…' : 'Merge posts' }}
-          </button>
+          </FlatButton>
         </div>
       </template>
     </template>
@@ -148,14 +149,18 @@ import { useToast } from '@/composables/useToast';
 import type { PostInfo } from '@/types/oxibooru.gen';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { resolveApiUrl } from '@/utils/url';
-
-useHeadSafe({ title: 'Merge Posts' });
+import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const confirm = useConfirm();
 const toast = useToast();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Merge Post',
+}));
 
 const id1 = computed(() => Number(route.params.id1));
 const id2 = computed(() => Number(route.params.id2));

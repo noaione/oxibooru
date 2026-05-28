@@ -38,21 +38,20 @@
 
       <!-- URL input -->
       <div class="flex gap-2">
-        <input
+        <FlatInput
           v-model="urlInput"
           type="url"
-          class="flex-1 px-3 py-2 text-sm overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors"
+          class="flex-1 px-3 py-2 text-sm"
           placeholder="Or paste a URL…"
           @keydown.enter.prevent="addUrl"
         />
-        <button
+        <FlatButton
           type="button"
-          class="px-4 py-2 text-sm rounded bg-cyan-600 hover:bg-cyan-700 text-white transition-colors cursor-pointer disabled:opacity-50"
           :disabled="!urlInput.trim()"
           @click="addUrl"
         >
           Add
-        </button>
+        </FlatButton>
       </div>
 
       <!-- Queue -->
@@ -75,22 +74,21 @@
 
         <!-- Submit / Cancel -->
         <div class="flex gap-2">
-          <button
+          <FlatButton
             type="button"
-            class="px-4 py-2 text-sm rounded bg-cyan-600 hover:bg-cyan-700 text-white font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isSubmitting || items.every(i => i.state === 'done' || i.state === 'skipped')"
             @click="submitAll"
           >
             {{ isSubmitting ? 'Uploading…' : 'Upload all' }}
-          </button>
-          <button
+          </FlatButton>
+          <FlatButton
             v-if="isSubmitting"
             type="button"
-            class="px-4 py-2 text-sm rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+            kind="neutral"
             @click="cancelUpload"
           >
             Cancel
-          </button>
+          </FlatButton>
         </div>
 
         <!-- Item list -->
@@ -126,7 +124,7 @@
             <div class="flex-1 min-w-0 flex flex-col gap-2 text-sm">
               <!-- Name / state header -->
               <div class="flex items-start justify-between gap-2">
-                <p class="text-xs text-gray-500 truncate">{{ item.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ item.name }}</p>
                 <div class="flex items-center gap-1.5 shrink-0">
                   <!-- State badge -->
                   <span
@@ -153,7 +151,7 @@
                   v-for="s in safetyOptions"
                   :key="s.value"
                   class="flex items-center gap-1 cursor-pointer"
-                  :class="item.safety === s.value ? s.activeClass : 'text-gray-500'"
+                  :class="item.safety === s.value ? s.activeClass : 'text-gray-500 dark:text-gray-400'"
                 >
                   <input v-model="item.safety" type="radio" :value="s.value" :disabled="item.state !== 'idle'" class="sr-only" />
                   <span class="w-2 h-2 rounded-full" :class="s.dotClass" />
@@ -163,14 +161,20 @@
 
               <!-- Tags -->
               <div :class="{ 'pointer-events-none opacity-50': item.state !== 'idle' }">
-                <AutoCompleteTag mode="input" v-model="item.tags" placeholder="Add tags…" />
+                <AutoCompleteTag
+                  mode="input"
+                  v-model="item.tags"
+                  class="bg-gray-50! dark:bg-gray-800!"
+                  input-class="bg-gray-50! dark:bg-gray-800!"
+                  placeholder="Add tags…"
+                />
               </div>
 
               <!-- Source -->
-              <input
+              <FlatInput
                 v-model="item.source"
                 type="text"
-                class="w-full px-2 py-1 text-xs overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors"
+                class="w-full px-2 py-1 text-xs bg-gray-50! dark:bg-gray-800!"
                 placeholder="Source URL (optional)"
                 :disabled="item.state !== 'idle'"
               />
@@ -187,22 +191,26 @@
                   :to="`/post/${item.exactPost.id}`"
                   target="_blank"
                   class="text-xs text-cyan-500 hover:underline"
-                >View post ↗</RouterLink>
+                >
+                  View post ↗
+                </RouterLink>
                 <div class="flex gap-2 mt-1">
-                  <button
+                  <FlatButton
                     type="button"
-                    class="px-2 py-0.5 text-xs rounded bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer"
+                    class="px-2 py-0.5 text-xs"
+                    kind="warn"
                     @click="resolveConfirm('confirm', item.key)"
                   >
                     Upload anyway
-                  </button>
-                  <button
+                  </FlatButton>
+                  <FlatButton
                     type="button"
-                    class="px-2 py-0.5 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer"
+                    class="px-2 py-0.5 text-xs"
+                    kind="neutral"
                     @click="resolveConfirm('skip', item.key)"
                   >
                     Skip
-                  </button>
+                  </FlatButton>
                 </div>
               </div>
 
@@ -228,20 +236,22 @@
                   </RouterLink>
                 </div>
                 <div class="flex gap-2 mt-1">
-                  <button
+                  <FlatButton
                     type="button"
-                    class="px-2 py-0.5 text-xs rounded bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer"
+                    kind="warn"
+                    class="px-2 py-0.5 text-xs"
                     @click="resolveConfirm('confirm', item.key)"
                   >
                     Upload anyway
-                  </button>
-                  <button
+                  </FlatButton>
+                  <FlatButton
                     type="button"
-                    class="px-2 py-0.5 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer"
+                    kind="neutral"
+                    class="px-2 py-0.5 text-xs"
                     @click="resolveConfirm('skip', item.key)"
                   >
                     Skip
-                  </button>
+                  </FlatButton>
                 </div>
               </div>
 
@@ -270,8 +280,8 @@ import { useToast } from '@/composables/useToast';
 import type { PostInfo, PostSafety, SimilarPost } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import { resolveApiUrl } from '@/utils/url';
-
-useHeadSafe({ title: 'Upload' });
+import FlatButton from '@/components/FlatButton.vue';
+import FlatInput from '@/components/FlatInput.vue';
 
 type ItemState = 'idle' | 'uploading' | 'searching' | 'needs-confirm' | 'creating' | 'done' | 'skipped' | 'error';
 
@@ -297,6 +307,11 @@ interface UploadItem {
 const router = useRouter();
 const api = useTokenStore();
 const toast = useToast();
+const serverName = computed(() => api.config?.config.name || 'Oxibooru');
+
+useHeadSafe(() => ({
+  title: serverName.value + ' - Upload',
+}));
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
@@ -413,7 +428,7 @@ function stateBadgeClass(state: ItemState): string {
     case 'done':
       return 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300';
     case 'skipped':
-      return 'bg-gray-100 dark:bg-gray-700 text-gray-500';
+      return 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
     case 'error':
       return 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300';
     default:

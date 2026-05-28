@@ -75,7 +75,14 @@
           <!-- Tags -->
           <section v-if="canEditPostTags" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Tags</label>
-            <AutoCompleteTag mode="input" v-model="editTags" :tag-categories="editTagCategories" placeholder="Add tags…" />
+            <AutoCompleteTag
+              mode="input"
+              v-model="editTags"
+              :tag-categories="editTagCategories"
+              placeholder="Add tags…"
+              class="bg-gray-50! dark:bg-gray-800! py-2!"
+              input-class="bg-gray-50! dark:bg-gray-800!"
+            />
           </section>
 
           <!-- Safety -->
@@ -98,10 +105,10 @@
           <!-- Source -->
           <section v-if="canEditPostSource" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Source</label>
-            <textarea
+            <FlatTextarea
               v-model="editSource"
               rows="3"
-              class="w-full px-2 py-1 text-xs overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors resize-none"
+              class="w-full px-2 py-1 text-xs resize-none bg-gray-50! dark:bg-gray-800!"
               placeholder="Source URL(s), one per line"
             />
           </section>
@@ -109,10 +116,10 @@
           <!-- Relations -->
           <section v-if="canEditPostRelations" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Relations</label>
-            <input
+            <FlatInput
               v-model="editRelations"
               type="text"
-              class="w-full px-2 py-1 text-xs overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors"
+              class="w-full px-2 py-1 text-xs bg-gray-50! dark:bg-gray-800!"
               placeholder="Space-separated post IDs"
             />
           </section>
@@ -133,10 +140,10 @@
           <!-- Description -->
           <section v-if="canEditPostDescription" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Description</label>
-            <textarea
+            <FlatTextarea
               v-model="editDescription"
               rows="4"
-              class="w-full px-2 py-1 text-xs overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors resize-y"
+              class="w-full px-2 py-1 text-xs resize-y bg-gray-50! dark:bg-gray-800!"
               placeholder="Markdown supported"
             />
           </section>
@@ -145,7 +152,7 @@
           <section v-if="canEditPostContent" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Replace content</label>
             <div
-              class="border border-dashed border-gray-400 dark:border-gray-600 rounded p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
+              class="border border-dashed bg-gray-50 dark:bg-gray-800 border-gray-400 dark:border-gray-600 p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
               @click="contentInputRef?.click()"
               @dragover.prevent
               @drop.prevent="(e) => { editNewContent = (e as DragEvent).dataTransfer?.files[0] ?? null }"
@@ -172,7 +179,7 @@
           <section v-if="canEditPostThumbnail" class="flex flex-col gap-1">
             <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Replace thumbnail</label>
             <div
-              class="border border-dashed border-gray-400 dark:border-gray-600 rounded p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
+              class="border border-dashed bg-gray-50 dark:bg-gray-800 border-gray-400 dark:border-gray-600 p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
               @click="thumbnailInputRef?.click()"
               @dragover.prevent
               @drop.prevent="(e) => { editNewThumbnail = (e as DragEvent).dataTransfer?.files[0] ?? null }"
@@ -197,13 +204,13 @@
           </section>
 
           <!-- Save button -->
-          <button
-            class="w-full py-1.5 rounded bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+          <FlatButton
+            class="w-full py-1.5 text-sm font-medium"
             :disabled="editSaving"
             @click="savePost"
           >
             {{ editSaving ? 'Saving…' : 'Save' }}
-          </button>
+          </FlatButton>
 
           <!-- Management -->
           <section v-if="canDeletePost || canMergePost || canFeaturePost" class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700">
@@ -212,7 +219,7 @@
             <button
               v-if="canFeaturePost"
               type="button"
-              class="text-xs text-left text-gray-600 dark:text-gray-300 hover:text-cyan-500 cursor-pointer"
+              class="text-xs text-left text-cyan-400 hover:text-cyan-500 cursor-pointer"
               @click="featurePost"
             >
               Feature this post on main page
@@ -221,22 +228,22 @@
             <div v-if="canMergePost" class="flex flex-col gap-1">
               <span class="text-xs text-gray-500 dark:text-gray-400">Merge with post #</span>
               <div class="flex gap-1">
-                <input
+                <FlatInput
                   v-model="editMergeTargetId"
                   type="text"
                   inputmode="numeric"
                   pattern="[0-9]*"
-                  class="flex-1 px-2 py-0.5 text-xs overlay-color border border-gray-200 dark:border-gray-700 rounded outline-none focus:border-cyan-500 transition-colors"
+                  class="flex-1 px-2 py-0.5 text-xs bg-gray-50! dark:bg-gray-800!"
                   placeholder="Post ID"
                   @keydown.enter.prevent="goToMerge"
                 />
-                <button
+                <FlatButton
                   type="button"
-                  class="px-2 py-0.5 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-                  @click="goToMerge"
+                  kind="warn"
+                  class="px-2! py-0! text-black! text-xs"
                 >
                   Go
-                </button>
+                </FlatButton>
               </div>
             </div>
 
@@ -559,6 +566,9 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
+import FlatInput from '@/components/FlatInput.vue';
+import FlatTextarea from '@/components/FlatTextarea.vue';
+import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();

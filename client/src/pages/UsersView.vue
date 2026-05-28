@@ -3,7 +3,7 @@
     <!-- Search header -->
     <form class="flex flex-row gap-2 items-center flex-wrap" @submit.prevent="search">
       <div class="flex flex-col gap-1 items-center w-full max-w-full md:max-w-[30%]">
-        <FormInput
+        <FlatInput
           id="users-search"
           v-model="searchQuery"
           class="w-full"
@@ -98,7 +98,7 @@ import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import type { PagedResponseUserInfo } from '@/types/oxibooru.gen';
 import FlatButton from '@/components/FlatButton.vue';
-import FormInput from '@/components/FormInput.vue';
+import FlatInput from '@/components/FlatInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import { resolveApiUrl } from '@/utils/url';
