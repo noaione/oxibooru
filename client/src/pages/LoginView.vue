@@ -36,10 +36,9 @@
 
         <FlatButton
           type="submit"
-          class="flex items-center justify-center gap-2 w-fit"
+          class="w-fit"
           :disabled="loading"
         >
-          <LoadingSpinner v-if="loading" size="sm" />
           Log In
         </FlatButton>
       </form>
@@ -62,7 +61,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
 import FlatInput from '@/components/FlatInput.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();

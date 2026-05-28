@@ -11,13 +11,8 @@
     </div>
 
     <template v-else>
-      <!-- Loading -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
-
       <!-- Load error -->
-      <div v-else-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else-if="post1 && post2">
         <!-- Side-by-side -->
@@ -144,16 +139,17 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { PostInfo } from '@/types/oxibooru.gen';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { resolveApiUrl } from '@/utils/url';
 import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const confirm = useConfirm();
 const toast = useToast();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
@@ -167,7 +163,6 @@ const id2 = computed(() => Number(route.params.id2));
 
 const post1 = ref<PostInfo | null>(null);
 const post2 = ref<PostInfo | null>(null);
-const loading = ref(false);
 const loadError = ref('');
 const merging = ref(false);
 const mergeError = ref('');
@@ -193,7 +188,7 @@ const replaceContent = computed(() => {
 });
 
 async function loadPosts() {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
 
   const [r1, r2] = await Promise.all([
@@ -201,7 +196,7 @@ async function loadPosts() {
     api.getPost(id2.value),
   ]);
 
-  loading.value = false;
+  loader.done();
 
   if (!r1.success) {
     loadError.value = `Post #${id1.value}: ${r1.description}`;

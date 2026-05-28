@@ -23,13 +23,8 @@
     </div>
 
     <template v-else>
-      <!-- Loading -->
-      <div v-if="loading" class="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
-
       <!-- Load error -->
-      <div v-else-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else-if="tag">
         <!-- Section tabs -->
@@ -310,12 +305,12 @@ import { useHeadSafe } from '@unhead/vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useCategoriesStore } from '@/stores/categories';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { TagInfo, TagSibling } from '@/types/oxibooru.gen';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import FlatButton from '@/components/FlatButton.vue';
 import FlatInput from '@/components/FlatInput.vue';
@@ -325,6 +320,7 @@ import FlatSelect from '@/components/FlatSelect.vue';
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const categoriesStore = useCategoriesStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
@@ -333,7 +329,6 @@ const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const tag = ref<TagInfo | null>(null);
 const siblings = ref<TagSibling[]>([]);
-const loading = ref(false);
 const loadError = ref('');
 
 const saving = ref(false);
@@ -423,7 +418,7 @@ function syncEditFields() {
 }
 
 async function loadTag() {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
 
   const [tagResult, siblingsResult] = await Promise.all([
@@ -431,7 +426,7 @@ async function loadTag() {
     api.getTagSiblings(tagName.value),
   ]);
 
-  loading.value = false;
+  loader.done();
 
   if (!tagResult.success) {
     loadError.value = tagResult.description;

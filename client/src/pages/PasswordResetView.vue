@@ -24,10 +24,9 @@
 
           <FlatButton
             type="submit"
-            class="w-fit flex items-center justify-center gap-2"
+            class="w-fit"
             :disabled="loading"
           >
-            <LoadingSpinner v-if="loading" size="sm" />
             Send Reset Link
           </FlatButton>
         </form>
@@ -81,10 +80,9 @@
 
           <FlatButton
             type="submit"
-            class="w-fit flex items-center justify-center gap-2"
+            class="w-fit"
             :disabled="loading"
           >
-            <LoadingSpinner v-if="loading" size="sm" />
             Reset Password
           </FlatButton>
         </form>
@@ -104,7 +102,6 @@ import { useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
 import FlatInput from '@/components/FlatInput.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();

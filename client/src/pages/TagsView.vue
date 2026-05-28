@@ -29,13 +29,8 @@
       </FlatSelect>
     </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-12">
-      <LoadingSpinner size="lg" />
-    </div>
-
     <!-- Error -->
-    <div v-else-if="error" class="card p-4 text-red-500 text-sm">{{ error }}</div>
+    <div v-if="error" class="card p-4 text-red-500 text-sm">{{ error }}</div>
 
     <!-- Results -->
     <template v-else>
@@ -126,9 +121,9 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
 import type { TagInfo } from '@/types/oxibooru.gen';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import FlatSelect from '@/components/FlatSelect.vue';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
@@ -138,6 +133,7 @@ const PAGE_SIZE = 50;
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const settings = useSettingsStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
@@ -147,7 +143,6 @@ useHeadSafe(() => ({
 
 const tags = ref<TagInfo[]>([]);
 const totalCount = ref(0);
-const loading = ref(false);
 const error = ref('');
 
 const searchInput = ref((route.query.query as string) || '');
@@ -171,7 +166,7 @@ function tagColor(category?: string): Record<string, string> {
 }
 
 async function fetchTags() {
-  loading.value = true;
+  loader.start();
   error.value = '';
 
   const query = [
@@ -184,7 +179,7 @@ async function fetchTags() {
   const offset = (currentPage.value - 1) * PAGE_SIZE;
   const result = await api.listTags(query, offset, PAGE_SIZE);
 
-  loading.value = false;
+  loader.done();
 
   if (!result.success) {
     error.value = result.description;

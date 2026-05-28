@@ -82,10 +82,9 @@
 
             <FlatButton
               type="submit"
-              class="w-full flex items-center justify-center gap-2"
+              class="w-full"
               :disabled="loading"
             >
-              <LoadingSpinner v-if="loading" size="sm" />
               Create an account
             </FlatButton>
           </form>
@@ -137,7 +136,6 @@ import {
   Star as StarIcon,
 } from '@lucide/vue';
 import FlatInput from '@/components/FlatInput.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import FlatButton from '@/components/FlatButton.vue';
 
 const api = useTokenStore();

@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { useLoaderStore } from '@/stores/loader';
 import { useTokenStore } from '@/stores/api';
@@ -155,7 +156,7 @@ router.beforeEach((to) => {
 });
 
 router.afterEach(() => {
-  useLoaderStore().done();
+  nextTick(() => useLoaderStore().done());
 });
 
 export { router };

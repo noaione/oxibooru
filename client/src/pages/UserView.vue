@@ -1,9 +1,5 @@
 <template>
-  <div v-if="!apiReady" class="flex items-center justify-center pt-16">
-    <LoadingSpinner size="lg" />
-  </div>
-
-  <div v-else-if="loadError" class="flex items-start justify-center pt-8">
+  <div v-if="loadError" class="flex items-start justify-center pt-8">
     <div class="w-full max-w-lg">
       <p class="text-red-500">{{ loadError }}</p>
     </div>
@@ -328,7 +324,6 @@ const section = computed(() => {
 useHeadSafe(() => ({ title: `${serverName.value} - User ${userName.value}` }));
 
 // ── Data ──────────────────────────────────────────────────────────
-const apiReady = computed(() => api.ready);
 const userData = ref<UserInfo | null>(null);
 const loadError = ref('');
 

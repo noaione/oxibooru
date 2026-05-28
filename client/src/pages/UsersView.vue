@@ -25,13 +25,8 @@
     <!-- Error -->
     <p v-if="loadError" class="text-sm text-red-500">{{ loadError }}</p>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <LoadingSpinner size="lg" />
-    </div>
-
     <!-- No results -->
-    <p v-else-if="!loading && users.length === 0 && !loadError" class="text-sm text-gray-500">
+    <p v-if="!loader.loading && users.length === 0 && !loadError" class="text-sm text-gray-500">
       No users found.
     </p>
 
@@ -96,16 +91,17 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import type { PagedResponseUserInfo } from '@/types/oxibooru.gen';
 import FlatButton from '@/components/FlatButton.vue';
 import FlatInput from '@/components/FlatInput.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 useHeadSafe(() => ({
@@ -120,7 +116,6 @@ type UserItem = PagedResponseUserInfo['results'][0];
 
 const users = ref<UserItem[]>([]);
 const totalCount = ref(0);
-const loading = ref(false);
 const loadError = ref('');
 const searchQuery = ref((route.query.query as string) ?? '');
 
@@ -130,10 +125,10 @@ const currentPage = computed(() => {
 });
 
 async function fetchUsers(query: string, offset: number) {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
   const result = await api.listUsers(query, offset, PAGE_SIZE);
-  loading.value = false;
+  loader.done();
   if (!result.success) {
     loadError.value = result.description;
     return;

@@ -16,11 +16,7 @@
     </div>
 
     <template v-else>
-      <div v-if="loading" class="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
-
-      <div v-else-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else-if="tag1 && tag2">
         <!-- Side-by-side cards -->
@@ -104,16 +100,17 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { TagInfo } from '@/types/oxibooru.gen';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import FlatButton from '@/components/FlatButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
 const toast = useToast();
@@ -125,7 +122,6 @@ useHeadSafe(() => ({
 
 const tag1 = ref<TagInfo | null>(null);
 const tag2 = ref<TagInfo | null>(null);
-const loading = ref(false);
 const loadError = ref('');
 const merging = ref(false);
 const mergeError = ref('');
@@ -169,7 +165,7 @@ function tagColor(category?: string): Record<string, string> {
 }
 
 async function loadTags() {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
 
   const [r1, r2] = await Promise.all([
@@ -177,7 +173,7 @@ async function loadTags() {
     api.getTag(otherName.value),
   ]);
 
-  loading.value = false;
+  loader.done();
 
   if (!r1.success) {
     loadError.value = `Tag "${sourceName.value}": ${r1.description}`;

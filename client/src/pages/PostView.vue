@@ -1,11 +1,6 @@
 <template>
-  <!-- Loading -->
-  <div v-if="loading" class="flex items-center justify-center py-12">
-    <LoadingSpinner size="lg" />
-  </div>
-
   <!-- Error -->
-  <div v-else-if="loadError" class="flex flex-col gap-2">
+  <div v-if="loadError" class="flex flex-col gap-2">
     <p class="text-red-500">{{ loadError }}</p>
     <RouterLink to="/posts" class="text-sm text-cyan-500 hover:underline">Back to posts</RouterLink>
   </div>
@@ -558,12 +553,12 @@ import {
   Volume2 as Volume2Icon,
 } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { PostInfo, PostNeighbors, PostSafety, PostFlag, PostUpdateBody } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
@@ -574,6 +569,7 @@ import FlatButton from '@/components/FlatButton.vue';
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const { settings } = useSettingsStore();
 const confirm = useConfirm();
 const toast = useToast();
@@ -588,7 +584,6 @@ const videoRef = ref<HTMLVideoElement | null>(null);
 
 const post = ref<PostInfo | null>(null);
 const neighbors = ref<PostNeighbors>({});
-const loading = ref(false);
 const loadError = ref('');
 
 // ── Local interactive state ────────────────────────────────────
@@ -893,7 +888,7 @@ function goToMerge() {
 
 // ── Data loading ──────────────────────────────────────────────
 async function loadPost(id: number) {
-  loading.value = true;
+  loader.start();
   loadError.value = '';
   post.value = null;
 
@@ -902,7 +897,7 @@ async function loadPost(id: number) {
     api.getPostNeighbors(id, contextQuery.value || undefined),
   ]);
 
-  loading.value = false;
+  loader.done();
 
   if (!postResult.success) {
     loadError.value = postResult.description;
