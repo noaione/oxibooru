@@ -178,7 +178,6 @@
           class="flex items-center justify-center gap-2 w-fit"
           :disabled="editLoading"
         >
-          <LoadingSpinner v-if="editLoading" size="sm" />
           Save settings
         </FlatButton>
       </form>
@@ -228,7 +227,6 @@
               @click="deleteToken(idx)"
               kind="danger"
             >
-              <LoadingSpinner v-if="tokenDeleteLoading === idx" size="sm" class="inline mr-1" />
               {{ tok.token === api.userToken?.token ? 'Delete and logout' : 'Delete' }}
             </FlatButton>
           </div>
@@ -259,7 +257,6 @@
             class="w-fit flex items-center justify-center gap-2"
             :disabled="tokenCreateLoading"
           >
-            <LoadingSpinner v-if="tokenCreateLoading" size="sm" />
             Create token
           </FlatButton>
         </form>
@@ -287,7 +284,6 @@
           class="w-fit flex items-center justify-center gap-2"
           :disabled="deleteLoading || !deleteConfirm"
         >
-          <LoadingSpinner v-if="deleteLoading" size="sm" />
           Delete account
         </FlatButton>
       </form>
@@ -300,9 +296,9 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore, allRanks, rankNames } from '@/stores/api';
+import { useLoaderStore } from '@/stores/loader';
 import type { UserInfo, AvatarStyle, UserRank, UserTokenInfo } from '@/types/oxibooru.gen';
 import FlatInput from '@/components/FlatInput.vue';
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { resolveApiUrl } from '@/utils/url';
 import FlatButton from '@/components/FlatButton.vue';
 import FlatSelect from '@/components/FlatSelect.vue';
@@ -310,6 +306,7 @@ import FlatSelect from '@/components/FlatSelect.vue';
 const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
+const loader = useLoaderStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const userName = computed(() => route.params.name as string);
@@ -389,8 +386,10 @@ const deleteLoading = ref(false);
 
 // ── Load user data ────────────────────────────────────────────────
 async function loadUser() {
+  loader.start();
   loadError.value = '';
   const result = await api.getUser(userName.value);
+  loader.done();
   if (!result.success) {
     loadError.value = result.description;
     return;

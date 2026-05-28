@@ -93,6 +93,7 @@ interface Suggestion {
   name: string;
   category: string;
   usages: number;
+  implications: string[];
 }
 
 // tag name → category name, used to color chips
@@ -201,6 +202,7 @@ async function fetchSuggestions(query: string) {
       name: t.names?.[0] ?? '',
       category: t.category ?? 'default',
       usages: t.usages ?? 0,
+      implications: (t.implications ?? []).map((impl) => impl.names[0] ?? '').filter(Boolean),
     }))
     .filter((s) => s.name && !props.modelValue.includes(s.name));
   // cache category for every result so chips can be colored later
@@ -252,7 +254,10 @@ function selectSuggestion(suggestion: Suggestion) {
       // Strip the partial word fragment from the tail (chars before the next space)
       const cleanSuffix = textAfter.replace(/^[^\s,]*/, '').trimStart();
 
-      const replacement = prefix + negation + suggestion.name + ' ';
+      const implPart = !negation && suggestion.implications.length
+        ? ' ' + suggestion.implications.join(' ')
+        : '';
+      const replacement = prefix + negation + suggestion.name + implPart + ' ';
       inputText.value = cleanSuffix ? replacement + cleanSuffix : replacement;
 
       const newCursor = replacement.length;
@@ -266,7 +271,11 @@ function selectSuggestion(suggestion: Suggestion) {
     closeDropdown();
   } else {
     localCategoryMap.value.set(suggestion.name, suggestion.category);
-    addTag(suggestion.name);
+    const existing = new Set(props.modelValue);
+    const toAdd = [suggestion.name, ...suggestion.implications].filter((t) => t && !existing.has(t));
+    if (toAdd.length) {
+      emit('update:modelValue', [...props.modelValue, ...toAdd]);
+    }
     inputText.value = '';
     closeDropdown();
   }
