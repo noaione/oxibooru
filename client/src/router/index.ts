@@ -52,6 +52,12 @@ const router = createRouter({
       meta: { title: 'Password Reset' },
       component: () => import('@/pages/PasswordResetView.vue'),
     },
+    // ── Posts core routes (Stage 4) ──────────────────────────
+    {
+      path: '/post/:id',
+      name: 'post',
+      component: () => import('@/pages/PostView.vue'),
+    },
     // ── User management routes (Stage 3) ──────────────────────
     {
       path: '/users',
