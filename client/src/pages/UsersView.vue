@@ -45,7 +45,7 @@
         <RouterLink v-if="canViewUsers" :to="`/user/${u.name}`" class="flex flex-col items-center gap-2">
           <img
             v-if="u.avatarUrl"
-            :src="u.avatarUrl"
+            :src="resolveApiUrl(u.avatarUrl)"
             :alt="u.name"
             class="w-20 h-20 object-cover"
           />
@@ -60,7 +60,7 @@
         <template v-else>
           <img
             v-if="u.avatarUrl"
-            :src="u.avatarUrl"
+            :src="resolveApiUrl(u.avatarUrl)"
             :alt="u.name"
             class="w-20 h-20 object-cover"
           />
@@ -101,6 +101,7 @@ import BlueButton from '@/components/BlueButton.vue';
 import FormInput from '@/components/FormInput.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
+import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
 const router = useRouter();

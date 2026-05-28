@@ -71,6 +71,7 @@ import { useTokenStore } from '@/stores/api';
 import { useDarkTheme } from '@/stores/settings';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { resolveApiUrl } from '@/utils/url';
 
 type Navigation = {
   name: string;
@@ -116,7 +117,7 @@ const navigations = computed<Navigation[]>(() => {
       name: apiController.user.name,
       href: `/user/${apiController.user.name}`,
       pos: 'right',
-      iconImage: apiController.user.avatarUrl ?? undefined,
+      iconImage: resolveApiUrl(apiController.user.avatarUrl),
     });
     if (apiController.hasPrivilege('user_create_any')) {
       baseNavs.push({ name: 'Register', href: '/register', pos: 'right' });

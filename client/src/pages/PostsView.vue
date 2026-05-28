@@ -148,7 +148,7 @@
           @click.stop
         >
           <img
-            :src="post.thumbnailUrl"
+            :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
             class="w-32 h-32 object-cover block"
             loading="lazy"
@@ -159,7 +159,7 @@
         <!-- Non-navigable thumbnail in mass modes -->
         <template v-else>
           <img
-            :src="post.thumbnailUrl"
+            :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
             class="w-32 h-32 object-cover block"
             loading="lazy"
@@ -221,6 +221,7 @@ import BlueButton from '@/components/BlueButton.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Pagination from '@/components/Pagination.vue';
 import PostBadges from '@/components/PostBadges.vue';
+import { resolveApiUrl } from '@/utils/url';
 
 type PostItem = PagedResponsePostInfo['results'][0];
 
