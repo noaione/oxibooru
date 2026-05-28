@@ -135,13 +135,28 @@
       <div v-if="canEditPosts" class="flex flex-col gap-2">
         <label class="text-sm font-medium">Posts <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(drag order matters)</span></label>
 
-        <div v-if="editPosts.length > 0" class="flex flex-col gap-1">
+        <div v-if="editPosts.length > 0" ref="listRef" class="flex flex-col gap-1">
           <div
             v-for="(ep, idx) in editPosts"
             :key="ep.id"
             class="card flex items-center gap-2 p-2"
+            :draggable="true"
+            :class="{
+              'opacity-25 outline-2 outline-dashed outline-gray-400 dark:outline-gray-500': dragIndex === idx,
+              'border-t-4 border-cyan-500': insertBefore !== null && insertBefore === idx && dragIndex !== null && dragIndex !== idx,
+              'border-b-4 border-cyan-500': insertBefore !== null && insertBefore === editPosts.length && idx === editPosts.length - 1 && dragIndex !== null,
+            }"
           >
-            <span class="text-xs text-gray-400 tabular-nums w-6 text-right shrink-0">{{ idx + 1 }}</span>
+            <!-- Drag handle -->
+            <span
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-grab active:cursor-grabbing touch-none select-none shrink-0 px-1 text-base leading-none"
+              title="Drag to reorder"
+              @pointerdown="startDrag(idx, $event)"
+              @pointermove="onDragMove($event)"
+              @pointerup="endDrag"
+              @pointercancel="cancelDrag"
+            >⠿</span>
+            <span class="text-xs text-gray-400 tabular-nums text-right shrink-0">{{ idx + 1 }}</span>
             <img
               v-if="ep.thumbnailUrl"
               :src="resolveApiUrl(ep.thumbnailUrl)"
@@ -155,28 +170,12 @@
               #{{ ep.id }}
             </div>
             <span class="flex-1 text-sm tabular-nums">Post #{{ ep.id }}</span>
-            <div class="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 px-1 cursor-pointer disabled:opacity-30"
-                :disabled="idx === 0"
-                title="Move up"
-                @click="movePostUp(idx)"
-              >▲</button>
-              <button
-                type="button"
-                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 px-1 cursor-pointer disabled:opacity-30"
-                :disabled="idx === editPosts.length - 1"
-                title="Move down"
-                @click="movePostDown(idx)"
-              >▼</button>
-              <button
-                type="button"
-                class="text-red-400 hover:text-red-600 px-1 cursor-pointer"
-                title="Remove from pool"
-                @click="removePost(idx)"
-              >✕</button>
-            </div>
+            <button
+              type="button"
+              class="text-red-400 hover:text-red-600 px-1 cursor-pointer shrink-0"
+              title="Remove from pool"
+              @click="removePost(idx)"
+            >✕</button>
           </div>
         </div>
         <p v-else class="text-sm text-gray-500 dark:text-gray-400">No posts yet.</p>
@@ -347,18 +346,52 @@ function removePost(idx: number) {
   editPosts.value.splice(idx, 1);
 }
 
-function movePostUp(idx: number) {
-  if (idx <= 0) return;
-  const arr = [...editPosts.value];
-  [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
-  editPosts.value = arr;
+// ── Drag-to-reorder ────────────────────────────────────────────
+const listRef = ref<HTMLElement | null>(null);
+const dragIndex = ref<number | null>(null);
+// insertBefore is a gap index: 0 = before first item, length = after last item
+const insertBefore = ref<number | null>(null);
+
+function startDrag(idx: number, e: PointerEvent) {
+  e.preventDefault();
+  dragIndex.value = idx;
+  insertBefore.value = idx;
+  (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 }
 
-function movePostDown(idx: number) {
-  if (idx >= editPosts.value.length - 1) return;
-  const arr = [...editPosts.value];
-  [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
-  editPosts.value = arr;
+function onDragMove(e: PointerEvent) {
+  if (dragIndex.value === null || !listRef.value) return;
+  e.preventDefault();
+  const items = Array.from(listRef.value.children) as HTMLElement[];
+  let ib = items.length;
+  for (let i = 0; i < items.length; i++) {
+    const rect = items[i].getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      ib = i;
+      break;
+    }
+  }
+  insertBefore.value = ib;
+}
+
+function endDrag() {
+  if (dragIndex.value !== null && insertBefore.value !== null) {
+    const ib = insertBefore.value;
+    const di = dragIndex.value;
+    if (ib !== di && ib !== di + 1) {
+      const arr = [...editPosts.value];
+      const [item] = arr.splice(di, 1);
+      arr.splice(ib > di ? ib - 1 : ib, 0, item);
+      editPosts.value = arr;
+    }
+  }
+  dragIndex.value = null;
+  insertBefore.value = null;
+}
+
+function cancelDrag() {
+  dragIndex.value = null;
+  insertBefore.value = null;
 }
 
 // ── Save / delete ──────────────────────────────────────────────
