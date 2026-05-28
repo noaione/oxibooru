@@ -12,7 +12,7 @@ interface Settings {
   tagSuggestions: boolean;
   autoplayVideos: boolean;
   tagUnderscoresAsSpaces: boolean;
-  fitMode: 'fit-both' | 'fit-original' | 'fit-height';
+  fitMode: 'fit-both' | 'fit-original' | 'fit-height' | 'fit-width';
   listPosts: {
     safe: boolean;
     sketchy: boolean;

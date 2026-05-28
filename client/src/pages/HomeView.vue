@@ -9,13 +9,37 @@
       <RouterLink to="/posts" class="text-cyan-500"> browse all posts </RouterLink>
     </div>
 
-    <!-- Featured posts -->
-    <!-- <div v-if="app.config?.featuredPost" class="flex flex-col my-8">
-      <span>featured posts here</span>
-    </div> -->
+    <!-- Featured post -->
+    <div v-if="app.config?.featuredPost" class="flex flex-col items-center mt-8 gap-2">
+      <img
+        :src="resolveApiUrl(app.config.featuredPost.thumbnailUrl)"
+        :alt="`Featured post #${app.config.featuredPost.id}`"
+        class="max-w-[80dvw] w-full object-cover"
+      />
+      <p class="text-gray-500 dark:text-gray-400 text-center mt-4">
+        <span>Featured post: </span>
+        <RouterLink
+          :to="`/post/${app.config.featuredPost.id}`"
+          class="text-cyan-500 hover:underline"
+        >@{{ app.config.featuredPost.id }}</RouterLink>
+        <template v-if="app.config.featuringUser">
+          <span>, posted by </span>
+          <RouterLink
+            :to="`/user/${app.config.featuringUser}`"
+            class="text-cyan-500 hover:underline"
+          >{{ app.config.featuringUser }}</RouterLink>
+        </template>
+        <template v-if="app.config.featuringTime">
+          <span> around {{ formatRelativeTime(app.config.featuringTime) }}</span>
+        </template>
+      </p>
+    </div>
 
     <!-- Footer -->
-    <footer class="mt-16 text-sm text-gray-500">
+    <footer class="text-sm text-gray-500" :class="{
+      'mt-16': !app.config?.featuredPost,
+      'mt-4': app.config?.featuredPost,
+    }">
       <span>{{ app.config?.postCount ?? 0 }} posts</span>
       <span class="mx-1"> &middot; </span>
       <span>{{ formattedDiskUsage }}</span>
@@ -32,6 +56,7 @@ import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
 import { computed } from 'vue';
+import { resolveApiUrl } from '@/utils/url';
 
 const app = useTokenStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
@@ -49,7 +74,23 @@ const formattedDiskUsage = computed(() => {
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 });
 
-// reactive change on app.config?.config.name since this doesn't trigger a re-render of the page title otherwise
+function formatRelativeTime(iso: string): string {
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+    return `${Math.floor(months / 12)}y ago`;
+  } catch {
+    return '';
+  }
+}
+
 useHeadSafe(() => ({
   title: serverName.value + ' - Home',
 }));

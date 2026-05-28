@@ -27,7 +27,9 @@ onMounted(() => {
 
       const tagSheets = results.tags.map((tag) => {
         if (!tag.color) return '';
-        const okl = formatOklch(intoOklch(tag.color));
+        const parsed = intoOklch(tag.color);
+        if (!parsed) return '';
+        const okl = formatOklch(parsed);
         return `--tag-cat-${tag.name}: ${okl};`;
       });
       const darkTagSheets = results.tags.map((tag) => {
@@ -38,7 +40,9 @@ onMounted(() => {
 
       const poolSheets = results.pools.map((pool) => {
         if (!pool.color) return '';
-        const okl = formatOklch(intoOklch(pool.color));
+        const parsed = intoOklch(pool.color);
+        if (!parsed) return '';
+        const okl = formatOklch(parsed);
         return `--pool-cat-${pool.name}: ${okl};`;
       });
 

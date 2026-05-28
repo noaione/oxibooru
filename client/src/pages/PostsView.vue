@@ -1,5 +1,5 @@
 <template>
-  <div v-if="app.ready" class="flex flex-col gap-4 min-w-full max-w-full">
+  <div v-if="app.ready" class="flex flex-col gap-4 w-full">
     <!-- Search + safety header -->
     <div class="flex flex-col md:flex-row w-full max-w-full gap-2">
       <AutoCompleteTag
@@ -51,19 +51,29 @@
       <div v-if="settingsReady" class="flex flex-row gap-3 ml-0 mt-0 md:ml-2 w-full items-center flex-wrap">
         <!-- Mass tag mode -->
         <template v-if="massActiveState === 'tag'">
-          <span class="text-sm text-gray-500">
-            {{ lockedMassTag ? `Tagging: ${lockedMassTag}` : 'Enter tag to apply:' }}
-          </span>
           <AutoCompleteTag
-            v-if="!lockedMassTag"
             target="posts"
             override-submit
             class="items-center w-full max-w-full md:max-w-[40%]"
             input-class="w-full"
             @submit="startMassTagging"
+          />
+
+          <div
+            v-if="lockedMassTag"
+            class="flex items-center gap-1.5 px-2 py-1 bg-cyan-500/15 border border-cyan-500/50 rounded-sm text-sm shrink-0"
           >
-            Start tagging
-          </AutoCompleteTag>
+            <span class="text-cyan-600 dark:text-cyan-400 font-medium">{{ lockedMassTag }}</span>
+            <button
+              class="text-gray-400 hover:text-red-500 cursor-pointer leading-none"
+              title="Clear locked tag"
+              @click="clearLockedTag"
+            >
+              <XIcon :size="12" />
+            </button>
+          </div>
+          <span v-else class="text-sm text-gray-400 italic">No tag selected yet</span>
+
           <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="stopMassTagging">
             Stop tagging
           </button>
@@ -79,6 +89,7 @@
 
         <!-- Mass delete mode -->
         <template v-else-if="massActiveState === 'delete'">
+          <span class="text-sm text-gray-400">Shift+click to range-select</span>
           <BlueButton
             :disabled="deletionCandidates.size === 0"
             class="disabled:opacity-50 disabled:cursor-not-allowed"
@@ -91,7 +102,7 @@
           </button>
         </template>
 
-        <!-- Default: action launchers (only show if user has permissions) -->
+        <!-- Default: action launchers -->
         <template v-else>
           <button
             v-if="canBulkEditTags"
@@ -121,7 +132,7 @@
     <!-- Error -->
     <p v-if="loadError" class="text-sm text-red-500">{{ loadError }}</p>
 
-    <!-- Loading -->
+    <!-- Loading (initial) -->
     <div v-if="loading" class="flex items-center justify-center py-12">
       <LoadingSpinner size="lg" />
     </div>
@@ -132,12 +143,25 @@
     </p>
 
     <!-- Post grid -->
-    <div v-else class="flex flex-wrap gap-1" :class="{ 'select-none': massActiveState !== 'none' }">
+    <div
+      v-else
+      class="w-full gap-1"
+      :class="[
+        settingsReady && settings.postFlow
+          ? 'flex flex-wrap'
+          : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7',
+        { 'select-none': massActiveState !== 'none' },
+      ]"
+    >
       <div
         v-for="post in posts"
         :key="post.id"
-        class="relative group cursor-pointer"
-        :class="massActiveState === 'delete' && deletionCandidates.has(post.id!) ? 'ring-2 ring-red-500' : ''"
+        class="relative group cursor-pointer overflow-hidden"
+        :class="{
+          'ring-2 ring-red-500': massActiveState === 'delete' && deletionCandidates.has(post.id!),
+          'hover:ring-2 hover:ring-cyan-500': !(massActiveState === 'delete' && deletionCandidates.has(post.id!)),
+          'post-flow-item': settingsReady && settings.postFlow,
+        }"
         @click="onPostClick(post)"
       >
         <!-- Thumbnail link (only navigates when not in mass mode) -->
@@ -145,12 +169,15 @@
           v-if="massActiveState === 'none' && canViewPosts"
           :to="postUrl(post.id!)"
           class="block"
+          :class="{
+            'size-full inline-block': settingsReady && settings.postFlow,
+          }"
           @click.stop
         >
           <img
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
-            class="w-32 h-32 object-cover block"
+            :class="['object-cover block group-hover:opacity-90 transition-opacity', thumbnailSizeClass]"
             loading="lazy"
           />
           <PostBadges :post="post" />
@@ -161,11 +188,22 @@
           <img
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
-            class="w-32 h-32 object-cover block"
+            :class="['object-cover block group-hover:opacity-90 transition-opacity', thumbnailSizeClass]"
             loading="lazy"
           />
           <PostBadges :post="post" />
         </template>
+
+        <!-- Mass tag state indicator -->
+        <div
+          v-if="massActiveState === 'tag' && lockedMassTag"
+          class="absolute inset-0 flex items-center justify-center pointer-events-none"
+          :class="postHasTag(post, lockedMassTag) ? 'bg-green-500/40' : 'bg-red-500/30'"
+        >
+          <span class="text-white font-bold text-2xl select-none drop-shadow">
+            {{ postHasTag(post, lockedMassTag) ? '−' : '+' }}
+          </span>
+        </div>
 
         <!-- Safety flipper overlay (mass safety mode) -->
         <div
@@ -194,10 +232,28 @@
           <CheckIcon v-if="deletionCandidates.has(post.id!)" :size="12" class="text-white" />
         </div>
       </div>
+
+      <!-- Flow mode: dummy spacers pad the last row so items don't stretch to fill it -->
+      <template v-if="settingsReady && settings.postFlow">
+        <div
+          v-for="n in 10"
+          :key="`dummy-${n}`"
+          aria-hidden="true"
+          style="flex: 1 1 12vw; min-width: 10em; height: 0"
+        />
+      </template>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="totalCount > pageSize" class="flex justify-center">
+    <!-- Load more spinner (endless scroll) -->
+    <div v-if="loadingMore" class="flex items-center justify-center py-4">
+      <LoadingSpinner size="sm" />
+    </div>
+
+    <!-- Endless scroll sentinel — always rendered so the observer can track it -->
+    <div v-if="settingsReady && settings.endlessScroll" ref="sentinelRef" class="h-4 w-full" aria-hidden="true" />
+
+    <!-- Pagination (only in paginated mode) -->
+    <div v-if="settingsReady && !settings.endlessScroll && totalCount > pageSize" class="flex justify-center">
       <Pagination
         :current-page="currentPage"
         :total-count="totalCount"
@@ -209,10 +265,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, watchEffect, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
-import { Check as CheckIcon } from '@lucide/vue';
+import { useKeyModifier } from '@vueuse/core';
+import { Check as CheckIcon, X as XIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
@@ -240,10 +297,15 @@ const pageSize = computed(() => settings.postsPerPage ?? 42);
 const posts = ref<PostItem[]>([]);
 const totalCount = ref(0);
 const loading = ref(false);
+const loadingMore = ref(false);
 const loadError = ref('');
 const massActiveState = ref<'tag' | 'safety' | 'delete' | 'none'>('none');
 const lockedMassTag = ref('');
 const deletionCandidates = ref<Set<number>>(new Set());
+const lastClickedIdx = ref(-1);
+const lastClickedAction = ref<'add' | 'remove'>('add');
+
+const isShiftDown = useKeyModifier('Shift');
 
 const safetyOptions = [
   { value: 'safe' as const, label: 'Safe', bgClass: 'bg-green-500' },
@@ -280,6 +342,15 @@ const fullQuery = computed(() => {
   return parts.join(' ');
 });
 
+// Grid mode: fill each cell completely; flow mode: fill the container height
+const thumbnailSizeClass = computed(() =>
+  settings.postFlow ? 'w-full h-full' : 'w-full aspect-square'
+);
+
+function postHasTag(post: PostItem, tag: string): boolean {
+  return (post.tags ?? []).some((t) => t.names[0] === tag);
+}
+
 function postUrl(id: number) {
   const q: Record<string, string> = {};
   if (route.query.query) q.query = route.query.query as string;
@@ -290,6 +361,7 @@ function postUrl(id: number) {
 async function fetchPosts(offset: number) {
   loading.value = true;
   loadError.value = '';
+  lastClickedIdx.value = -1;
   const result = await app.listPosts(fullQuery.value, offset, pageSize.value);
   loading.value = false;
   if (!result.success) {
@@ -298,6 +370,18 @@ async function fetchPosts(offset: number) {
   }
   posts.value = result.data.results;
   totalCount.value = result.data.total ?? 0;
+}
+
+async function loadMorePosts() {
+  if (loadingMore.value || loading.value) return;
+  if (totalCount.value > 0 && posts.value.length >= totalCount.value) return;
+  loadingMore.value = true;
+  const result = await app.listPosts(fullQuery.value, posts.value.length, pageSize.value);
+  loadingMore.value = false;
+  if (result.success) {
+    posts.value = [...posts.value, ...result.data.results];
+    totalCount.value = result.data.total ?? 0;
+  }
 }
 
 function goToPage(page: number) {
@@ -313,18 +397,39 @@ const toggleSafety = (mode: 'safe' | 'sketchy' | 'unsafe') => {
 };
 
 async function onPostClick(post: PostItem) {
+  const idx = posts.value.findIndex((p) => p.id === post.id);
+
   if (massActiveState.value === 'delete') {
-    const id = post.id!;
-    const next = new Set(deletionCandidates.value);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    deletionCandidates.value = next;
+    if (isShiftDown.value && lastClickedIdx.value >= 0 && idx >= 0) {
+      const start = Math.min(lastClickedIdx.value, idx);
+      const end = Math.max(lastClickedIdx.value, idx);
+      const next = new Set(deletionCandidates.value);
+      for (let i = start; i <= end; i++) {
+        const id = posts.value[i]?.id;
+        if (id != null) {
+          if (lastClickedAction.value === 'add') next.add(id);
+          else next.delete(id);
+        }
+      }
+      deletionCandidates.value = next;
+    } else {
+      const id = post.id!;
+      const next = new Set(deletionCandidates.value);
+      if (next.has(id)) {
+        next.delete(id);
+        lastClickedAction.value = 'remove';
+      } else {
+        next.add(id);
+        lastClickedAction.value = 'add';
+      }
+      deletionCandidates.value = next;
+    }
+    lastClickedIdx.value = idx;
   } else if (massActiveState.value === 'tag' && lockedMassTag.value && post.id && post.version) {
     const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
     const tagIdx = currentTags.indexOf(lockedMassTag.value);
-    const newTags = tagIdx >= 0
-      ? currentTags.filter((_, i) => i !== tagIdx)
-      : [...currentTags, lockedMassTag.value];
+    const newTags =
+      tagIdx >= 0 ? currentTags.filter((_, i) => i !== tagIdx) : [...currentTags, lockedMassTag.value];
     const result = await app.updatePost(post.id, { version: post.version, tags: newTags });
     if (result.success) {
       post.tags = result.data.tags;
@@ -336,16 +441,25 @@ async function onPostClick(post: PostItem) {
 function cancelMassDelete() {
   massActiveState.value = 'none';
   deletionCandidates.value = new Set();
+  lastClickedIdx.value = -1;
+  lastClickedAction.value = 'add';
 }
 
 function startMassTagging(tag: string) {
   if (!tag.trim()) return;
   lockedMassTag.value = tag.trim();
+  router.replace({ query: { ...route.query, massTag: tag.trim() } });
+}
+
+function clearLockedTag() {
+  lockedMassTag.value = '';
+  router.replace({ query: { ...route.query, massTag: undefined } });
 }
 
 function stopMassTagging() {
   massActiveState.value = 'none';
   lockedMassTag.value = '';
+  router.replace({ query: { ...route.query, massTag: undefined } });
 }
 
 async function setSafety(post: PostItem, safety: 'safe' | 'sketchy' | 'unsafe') {
@@ -353,6 +467,7 @@ async function setSafety(post: PostItem, safety: 'safe' | 'sketchy' | 'unsafe') 
   const result = await app.updatePost(post.id, { version: post.version, safety });
   if (result.success) {
     post.safety = result.data.safety;
+    post.version = result.data.version;
   }
 }
 
@@ -367,23 +482,76 @@ async function doDeletion() {
   fetchPosts((currentPage.value - 1) * pageSize.value);
 }
 
+// Endless scroll: native IntersectionObserver via watchEffect for reliable reactivity
+const sentinelRef = ref<HTMLElement | null>(null);
+
+watchEffect((onCleanup) => {
+  const el = sentinelRef.value;
+  if (!el) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry?.isIntersecting) return;
+      if (!settings.endlessScroll || loading.value || loadingMore.value) return;
+      loadMorePosts();
+    },
+    { threshold: 0 }
+  );
+  observer.observe(el);
+  onCleanup(() => observer.disconnect());
+});
+
 onMounted(() => {
   fetchPosts((currentPage.value - 1) * pageSize.value);
+
+  const urlMassTag = route.query.massTag as string | undefined;
+  if (urlMassTag) {
+    massActiveState.value = 'tag';
+    lockedMassTag.value = urlMassTag;
+  }
 });
 
 watch(
-  () => [route.query.query, route.query.offset],
+  () => [route.query.query, route.query.offset] as const,
   ([, o]) => {
-    fetchPosts(Number(o ?? 0));
+    if (settings.endlessScroll) {
+      posts.value = [];
+      fetchPosts(0);
+    } else {
+      fetchPosts(Number(o ?? 0));
+    }
+  },
+);
+
+watch(
+  () => route.query.massTag as string | undefined,
+  (tag) => {
+    if (tag) {
+      massActiveState.value = 'tag';
+      lockedMassTag.value = tag;
+    }
   },
 );
 
 watch(
   () => settings.listPosts,
   () => {
-    fetchPosts((currentPage.value - 1) * pageSize.value);
+    if (settings.endlessScroll) {
+      posts.value = [];
+      fetchPosts(0);
+    } else {
+      fetchPosts((currentPage.value - 1) * pageSize.value);
+    }
   },
   { deep: true },
+);
+
+watch(
+  () => settings.endlessScroll,
+  () => {
+    posts.value = [];
+    fetchPosts(0);
+  },
 );
 </script>
 
@@ -394,5 +562,12 @@ watch(
   grid-template-rows: 1fr;
   gap: 0.5rem;
   align-items: center;
+}
+
+.post-flow-item {
+  display: block;
+  flex-grow: 1;
+  min-height: 7.5em;
+  height: 14vw;
 }
 </style>
