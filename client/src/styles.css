@@ -46,7 +46,7 @@ body.darktheme {
   body { font-size: 0.95rem; }
 }
 
-/* ── Panel / overlay colour (navbar, cards, inputs) ─────────────
+/* ── Panel / overlay colour (navbar, inputs) ────────────────────
    Light:  #F5F5F5 bg, #111 text
    Dark:   #333333 bg, #e6e6e6 text
 */
@@ -55,6 +55,19 @@ body.darktheme {
   color: #111111;
 }
 body.darktheme .overlay-color {
+  background-color: #333333;
+  color: #e6e6e6;
+}
+
+/* ── Card surface (content-wrapper equivalent) ──────────────────
+   Elevated above the page body (white → #F5F5F5 / #1a1a1a → #333).
+   Add padding via Tailwind (e.g. p-4, p-5) at the use site.
+*/
+.card {
+  background-color: #F5F5F5;
+  color: #111111;
+}
+body.darktheme .card {
   background-color: #333333;
   color: #e6e6e6;
 }

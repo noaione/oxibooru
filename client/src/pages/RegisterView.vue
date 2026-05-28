@@ -2,7 +2,7 @@
   <div class="flex items-start justify-center pt-8">
     <!-- Registration disabled -->
     <template v-if="!canRegister">
-      <div class="w-full max-w-sm">
+      <div class="w-full max-w-sm card p-6">
         <h1 class="text-2xl font-semibold mb-4 text-center">Registration Disabled</h1>
         <p class="text-sm text-center text-gray-500">
           New account registration is not available on this server.
@@ -12,7 +12,7 @@
 
     <!-- Registration form + info panel -->
     <template v-else>
-      <div class="flex flex-col md:flex-row gap-8 w-full max-w-2xl">
+      <div class="flex flex-col md:flex-row gap-8 w-full max-w-2xl card p-6">
         <!-- Form -->
         <div class="w-full md:w-80 shrink-0">
           <h1 class="text-2xl font-semibold mb-6">Registration</h1>

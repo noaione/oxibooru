@@ -13,43 +13,45 @@
     <!-- Page header + tab nav -->
     <div>
       <h1 class="text-2xl font-semibold mb-3">{{ userData.name }}</h1>
-      <nav class="flex gap-1 border-b border-gray-300 dark:border-gray-600">
-        <RouterLink
-          :to="`/user/${userName}`"
-          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-          :class="section === 'summary' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
-        >
-          Summary
-        </RouterLink>
-        <RouterLink
-          v-if="canEditAnything"
-          :to="`/user/${userName}/edit`"
-          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-          :class="section === 'edit' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
-        >
-          Settings
-        </RouterLink>
-        <RouterLink
-          v-if="canListTokens"
-          :to="`/user/${userName}/tokens`"
-          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-          :class="section === 'tokens' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
-        >
-          Login tokens
-        </RouterLink>
-        <RouterLink
-          v-if="canDelete"
-          :to="`/user/${userName}/delete`"
-          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-          :class="section === 'delete' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
-        >
-          Delete
-        </RouterLink>
+      <nav class="overflow-x-auto border-b border-gray-300 dark:border-gray-600">
+        <div class="flex gap-1 min-w-max">
+          <RouterLink
+            :to="`/user/${userName}`"
+            class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+            :class="section === 'summary' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+          >
+            Summary
+          </RouterLink>
+          <RouterLink
+            v-if="canEditAnything"
+            :to="`/user/${userName}/edit`"
+            class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+            :class="section === 'edit' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+          >
+            Settings
+          </RouterLink>
+          <RouterLink
+            v-if="canListTokens"
+            :to="`/user/${userName}/tokens`"
+            class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+            :class="section === 'tokens' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+          >
+            Login tokens
+          </RouterLink>
+          <RouterLink
+            v-if="canDelete"
+            :to="`/user/${userName}/delete`"
+            class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+            :class="section === 'delete' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+          >
+            Delete
+          </RouterLink>
+        </div>
       </nav>
     </div>
 
     <!-- ── Summary ───────────────────────────────────────────────── -->
-    <div v-if="section === 'summary'" class="flex flex-col sm:flex-row gap-6">
+    <div v-if="section === 'summary'" class="flex flex-col sm:flex-row gap-6 card p-5 w-full">
       <!-- Avatar -->
       <div class="shrink-0">
         <img
@@ -116,7 +118,7 @@
     </div>
 
     <!-- ── Edit / Settings ───────────────────────────────────────── -->
-    <div v-else-if="section === 'edit'" class="w-full max-w-sm">
+    <div v-else-if="section === 'edit'" class="w-full max-w-sm card p-5">
       <form class="flex flex-col gap-4" autocomplete="off" @submit.prevent="submitEdit">
         <input class="hidden" type="text" name="fakeuser" tabindex="-1" />
         <input class="hidden" type="password" name="fakepass" tabindex="-1" />
@@ -193,7 +195,7 @@
         <div
           v-for="(tok, idx) in tokens"
           :key="tok.token"
-          class="flex flex-col gap-2 p-3 border border-gray-300 dark:border-gray-600"
+          class="flex flex-col gap-2 card p-3"
         >
           <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <span class="text-gray-500">Token:</span>
@@ -268,7 +270,7 @@
     </div>
 
     <!-- ── Delete ────────────────────────────────────────────────── -->
-    <div v-else-if="section === 'delete'" class="w-full max-w-sm">
+    <div v-else-if="section === 'delete'" class="w-full max-w-sm card p-5">
       <form class="flex flex-col gap-4" @submit.prevent="submitDelete">
         <label class="flex items-start gap-2 text-sm cursor-pointer">
           <input

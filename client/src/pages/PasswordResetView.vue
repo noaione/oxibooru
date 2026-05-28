@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start justify-center pt-8">
-    <div class="w-full max-w-sm">
+    <div class="w-full max-w-sm card p-6">
       <h1 class="text-2xl font-semibold mb-6 text-center">Password Reset</h1>
 
       <!-- Step 1: request reset -->
@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTokenStore } from '@/stores/api';
 import { useHeadSafe } from '@unhead/vue';
