@@ -11,6 +11,29 @@
     <title>Loading...</title>
     <link rel="shortcut icon" type="image/png" href="/img/favicon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
+    <style>
+      /* quick styles to avoid FoUC */
+      body {
+        background-color: white;
+        color: oklch(8% 0 0);
+      }
+      body.darktheme {
+        background-color: oklch(14% 0 0);
+        color: oklch(90% 0 0);
+      }
+    </style>
+    <script>
+      /* quick script to avoid FoUC */
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (
+          t === 'dark' ||
+          (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.body.classList.add('darktheme');
+        }
+      })();
+    </script>
     <link
       rel="apple-touch-startup-image"
       href="/img/apple-touch-startup-image-640x1136.png"

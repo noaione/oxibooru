@@ -3,7 +3,7 @@
   <div class="flex flex-col items-center justify-start">
     <h1 class="text-5xl">{{ app.config?.config.name || 'Oxibooru' }}</h1>
 
-    <div class="flex flex-row items-center mt-8">
+    <div v-if="canListPosts" class="flex flex-row items-center mt-8">
       <AutoCompleteTag target="posts" placeholder="enter some tags" />
       <span class="text-gray-500 mx-5">or</span>
       <RouterLink to="/posts" class="text-cyan-500 hover:brightness-120">
@@ -43,7 +43,7 @@
 
     <!-- Footer -->
     <footer
-      class="text-sm text-gray-500"
+      class="text-sm text-gray-500 dark:text-gray-400"
       :class="{
         'mt-16': !app.config?.featuredPost,
         'mt-4': app.config?.featuredPost,
@@ -54,8 +54,10 @@
       <span>{{ formattedDiskUsage }}</span>
       <span class="mx-1"> &middot; </span>
       <span>build latest from XXX</span>
-      <span class="mx-1"> &middot; </span>
-      <RouterLink to="/history" class="text-cyan-500 hover:underline">history</RouterLink>
+      <span v-if="canListHistory" class="mx-1"> &middot; </span>
+      <RouterLink v-if="canListHistory" to="/history" class="text-cyan-500 hover:underline">
+        history
+      </RouterLink>
     </footer>
   </div>
 </template>
@@ -72,8 +74,10 @@ import AvatarLink from '@/components/AvatarLink.vue';
 const app = useTokenStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
 
+const canListPosts = computed(() => app.hasPrivilege('post_list'));
 const canViewFeatured = computed(() => app.hasPrivilege('post_view_featured'));
 const canViewUser = computed(() => app.hasPrivilege('user_view'));
+const canListHistory = computed(() => app.hasPrivilege('snapshot_list'));
 
 const formattedDiskUsage = computed(() => {
   if (!app.config?.diskUsage) return '0 B';

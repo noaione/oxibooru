@@ -55,7 +55,7 @@
           :class="inactiveClass"
           :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
           :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          @click="toggleDark"
+          @click="darkTheme.toggleDark"
         >
           <SunIcon v-if="isDark" :size="18" />
           <MoonIcon v-else :size="18" />
@@ -70,6 +70,7 @@ import { Settings as SettingsIcon, Sun as SunIcon, Moon as MoonIcon } from '@luc
 import { useTokenStore } from '@/stores/api';
 import { useDarkTheme } from '@/stores/settings';
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { resolveApiUrl } from '@/utils/url';
 
@@ -86,7 +87,8 @@ type Navigation = {
 const activeClass = 'bg-black/10 dark:bg-white/10';
 const inactiveClass = 'opacity-70 hover:opacity-100 transition-opacity';
 
-const { toggleDark, isDark } = useDarkTheme();
+const darkTheme = useDarkTheme();
+const { isDark } = storeToRefs(darkTheme);
 const apiController = useTokenStore();
 const router = useRouter();
 

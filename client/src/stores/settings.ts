@@ -102,12 +102,10 @@ export const useSettingsStore = defineStore('settings', () => {
   };
 });
 
-export const useDarkTheme = () => {
+export const useDarkTheme = defineStore('dark-theme', () => {
   const isDark = ref(false);
 
   function init() {
-    // add "darktheme" class to body if user prefers dark mode
-    // also check localstorage
     if (localStorage.getItem('theme') === 'dark') {
       isDark.value = true;
     } else if (localStorage.getItem('theme') === 'light') {
@@ -119,26 +117,19 @@ export const useDarkTheme = () => {
     }
   }
 
-  watch(
-    () => isDark.value,
-    (newValue) => {
-      if (newValue) {
-        document.body.classList.add('darktheme');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.body.classList.remove('darktheme');
-        localStorage.setItem('theme', 'light');
-      }
-    },
-  );
+  watch(isDark, (newValue) => {
+    if (newValue) {
+      document.body.classList.add('darktheme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('darktheme');
+      localStorage.setItem('theme', 'light');
+    }
+  });
 
   const toggleDark = () => {
     isDark.value = !isDark.value;
   };
 
-  return {
-    isDark,
-    init,
-    toggleDark,
-  };
-};
+  return { isDark, init, toggleDark };
+});
