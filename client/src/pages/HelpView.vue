@@ -6,10 +6,12 @@
         <li v-for="s in sections" :key="s.id">
           <RouterLink
             :to="s.id === 'about' ? '/help' : `/help/${s.id}`"
-            class="block px-3 py-1.5 rounded text-sm transition-colors"
-            :class="activeSection === s.id
-              ? 'bg-cyan-500 text-white font-medium'
-              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            class="block px-3 py-1.5 text-sm transition-colors"
+            :class="
+              activeSection === s.id
+                ? 'bg-cyan-500 text-white font-medium'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            "
           >
             {{ s.label }}
           </RouterLink>
@@ -19,10 +21,7 @@
 
     <!-- Content -->
     <div class="flex-1 min-w-0">
-      <div
-        class="prose prose-sm dark:prose-invert max-w-none"
-        v-html="renderedContent"
-      />
+      <div class="prose prose-sm dark:prose-invert max-w-none" v-html="renderedContent" />
     </div>
   </div>
 </template>
@@ -46,13 +45,14 @@ const sections = [
   { id: 'api', label: 'API' },
 ];
 
+const canSelfRegister = computed(() => api.canAccess('user_create_self', 'anonymous'));
 const activeSection = computed(() => (route.params.section as string) || 'about');
 
 useHeadSafe(() => ({
   title: `${serverName.value} - Help: ${sections.find((s) => s.id === activeSection.value)?.label ?? 'Help'}`,
 }));
 
-const CONTENT: Record<string, string> = {
+const CONTENT = {
   about: `# About
 
 This is **${serverName.value}**, an image board powered by [Oxibooru](https://github.com/liamwhite/oxibooru).
@@ -61,9 +61,17 @@ You can browse, upload, tag, and comment on posts. Use the search bar on the pos
 
 ## Getting started
 
-- Browse posts at [/posts](/posts)
-- Sign up at [/register](/register) for an account
+- Browse posts at [/posts](/posts)${canSelfRegister.value ? '\n- Sign up at [/register](/register) for an account' : ''}
 - Use tags to organize and find content
+
+## Registration
+
+Registration is currently ${canSelfRegister.value ? '**Open**' : '**Closed**'} on this server.
+
+The e-mail you enter during account creation is only used to retrieve your Gravatar and for password reminders.
+Only you can see it (well, except the database staff… we won’t spam your mailbox anyway).
+
+Oh, and you can delete your account at any time. Posts you uploaded will stay, unless some angry admin removes them.
 `,
 
   search: `# Search
@@ -149,7 +157,7 @@ Refer to the [szurubooru API documentation](https://github.com/rr-/szurubooru/bl
 };
 
 const renderedContent = computed(() => {
-  const raw = CONTENT[activeSection.value] ?? CONTENT['about'];
-  return renderMarkdown(raw);
+  const target = CONTENT[activeSection.value as keyof typeof CONTENT] ?? CONTENT['about'];
+  return renderMarkdown(target);
 });
 </script>

@@ -191,7 +191,7 @@ export const useTokenStore = defineStore('api', () => {
     }
   };
 
-  const hasPrivilege = (privilege: string) => {
+  const canAccess = (privilege: string, myRank: UserRank) => {
     let minViable: number | null = null;
     for (const [priv, minRank] of Object.entries(config.value?.config.privileges || {})) {
       if (!priv.startsWith(privilege)) continue;
@@ -201,8 +201,12 @@ export const useTokenStore = defineStore('api', () => {
       }
     }
     if (minViable === null) return false;
-    const myRank = user.value?.rank ? allRanks.indexOf(user.value.rank) : 0;
-    return myRank >= minViable;
+    return allRanks.indexOf(myRank) >= minViable;
+  };
+
+  const hasPrivilege = (privilege: string) => {
+    const myRank: UserRank = user.value?.rank ?? 'anonymous';
+    return canAccess(privilege, myRank);
   };
 
   // ── Auth actions ───────────────────────────────────────────────────
@@ -281,7 +285,10 @@ export const useTokenStore = defineStore('api', () => {
   ): Promise<{ success: true } | { success: false; description: string }> => {
     const resp = await doFetch(`/api/password-reset/${encodeURIComponent(identifier)}`);
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -297,7 +304,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ token, password: newPassword }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -311,7 +321,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -339,7 +352,10 @@ export const useTokenStore = defineStore('api', () => {
       });
     }
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     if (name === userToken.value?.user) {
       user.value = resp.data;
@@ -357,19 +373,31 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
 
   const getUserTokens = async (
     name: string,
-  ): Promise<{ success: true; data: UnpagedResponseUserTokenInfo['results'] } | { success: false; description: string }> => {
-    const resp = await doFetch<UnpagedResponseUserTokenInfo>(`/api/user-tokens/${encodeURIComponent(name)}`, {
-      headers: { Authorization: authToken.value! },
-    });
+  ): Promise<
+    | { success: true; data: UnpagedResponseUserTokenInfo['results'] }
+    | { success: false; description: string }
+  > => {
+    const resp = await doFetch<UnpagedResponseUserTokenInfo>(
+      `/api/user-tokens/${encodeURIComponent(name)}`,
+      {
+        headers: { Authorization: authToken.value! },
+      },
+    );
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data.results };
   };
@@ -379,14 +407,21 @@ export const useTokenStore = defineStore('api', () => {
     note?: string,
     expirationTime?: string | null,
   ): Promise<{ success: true; data: UserTokenInfo } | { success: false; description: string }> => {
-    const body: UserTokenCreateBody = { note: note || null, enabled: true, expirationTime: expirationTime ?? null };
+    const body: UserTokenCreateBody = {
+      note: note || null,
+      enabled: true,
+      expirationTime: expirationTime ?? null,
+    };
     const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(name)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -395,12 +430,18 @@ export const useTokenStore = defineStore('api', () => {
     name: string,
     token: string,
   ): Promise<{ success: true } | { success: false; description: string }> => {
-    const resp = await doFetch(`/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`, {
-      method: 'DELETE',
-      headers: { Authorization: authToken.value! },
-    });
+    const resp = await doFetch(
+      `/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`,
+      {
+        method: 'DELETE',
+        headers: { Authorization: authToken.value! },
+      },
+    );
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -410,13 +451,19 @@ export const useTokenStore = defineStore('api', () => {
     token: string,
     body: UserTokenUpdateBody,
   ): Promise<{ success: true; data: UserTokenInfo } | { success: false; description: string }> => {
-    const resp = await doFetch<UserTokenInfo>(`/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
-      body: JSON.stringify(body),
-    });
+    const resp = await doFetch<UserTokenInfo>(
+      `/api/user-token/${encodeURIComponent(name)}/${encodeURIComponent(token)}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+        body: JSON.stringify(body),
+      },
+    );
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -425,13 +472,18 @@ export const useTokenStore = defineStore('api', () => {
     query: string,
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponseUserInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponseUserInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseUserInfo>(`/api/users?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -442,13 +494,18 @@ export const useTokenStore = defineStore('api', () => {
     query: string,
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponsePostInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponsePostInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponsePostInfo>(`/api/posts?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -460,7 +517,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -474,7 +534,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -489,7 +552,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -504,7 +570,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -519,7 +588,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ score } satisfies RatingBody),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -532,7 +604,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: { Authorization: authToken.value! },
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -545,27 +620,40 @@ export const useTokenStore = defineStore('api', () => {
       headers: { Authorization: authToken.value! },
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
 
-  const listTagCategories = async (): Promise<{ success: true; data: TagCategoryInfo[] } | { success: false; description: string }> => {
+  const listTagCategories = async (): Promise<
+    { success: true; data: TagCategoryInfo[] } | { success: false; description: string }
+  > => {
     const resp = await doFetch<UnpagedResponseTagCategoryInfo>('/api/tag-categories', {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data.results };
   };
 
-  const listPoolCategories = async (): Promise<{ success: true; data: PoolCategoryInfo[] } | { success: false; description: string }> => {
+  const listPoolCategories = async (): Promise<
+    { success: true; data: PoolCategoryInfo[] } | { success: false; description: string }
+  > => {
     const resp = await doFetch<UnpagedResponsePoolCategoryInfo>('/api/pool-categories', {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data.results };
   };
@@ -576,13 +664,18 @@ export const useTokenStore = defineStore('api', () => {
     query: string,
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponsePoolInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponsePoolInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponsePoolInfo>(`/api/pools?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -594,7 +687,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -608,7 +704,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -623,7 +722,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -638,7 +740,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -652,7 +757,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -661,14 +769,19 @@ export const useTokenStore = defineStore('api', () => {
 
   const createPoolCategory = async (
     body: PoolCategoryCreateBody,
-  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PoolCategoryInfo } | { success: false; description: string }
+  > => {
     const resp = await doFetch<PoolCategoryInfo>('/api/pool-categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -676,14 +789,19 @@ export const useTokenStore = defineStore('api', () => {
   const updatePoolCategory = async (
     name: string,
     body: PoolCategoryUpdateBody,
-  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PoolCategoryInfo } | { success: false; description: string }
+  > => {
     const resp = await doFetch<PoolCategoryInfo>(`/api/pool-category/${encodeURIComponent(name)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -698,7 +816,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -706,14 +827,22 @@ export const useTokenStore = defineStore('api', () => {
   const setDefaultPoolCategory = async (
     name: string,
     version: string,
-  ): Promise<{ success: true; data: PoolCategoryInfo } | { success: false; description: string }> => {
-    const resp = await doFetch<PoolCategoryInfo>(`/api/pool-category/${encodeURIComponent(name)}/default`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
-      body: JSON.stringify({ version }),
-    });
+  ): Promise<
+    { success: true; data: PoolCategoryInfo } | { success: false; description: string }
+  > => {
+    const resp = await doFetch<PoolCategoryInfo>(
+      `/api/pool-category/${encodeURIComponent(name)}/default`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+        body: JSON.stringify({ version }),
+      },
+    );
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -729,7 +858,10 @@ export const useTokenStore = defineStore('api', () => {
       body: form,
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -746,7 +878,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -760,14 +895,20 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
 
-  const reverseSearch = async (
-    params: { contentToken?: string; contentUrl?: string },
-  ): Promise<{ success: true; data: ReverseSearchResponse } | { success: false; description: string }> => {
+  const reverseSearch = async (params: {
+    contentToken?: string;
+    contentUrl?: string;
+  }): Promise<
+    { success: true; data: ReverseSearchResponse } | { success: false; description: string }
+  > => {
     const resp = await doFetch<ReverseSearchResponse>('/api/posts/reverse-search', {
       method: 'POST',
       headers: {
@@ -777,7 +918,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(params),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -790,7 +934,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: { Authorization: authToken.value! },
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -801,13 +948,18 @@ export const useTokenStore = defineStore('api', () => {
     query: string,
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponseTagInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponseTagInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseTagInfo>(`/api/tags?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -819,7 +971,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -831,7 +986,10 @@ export const useTokenStore = defineStore('api', () => {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -845,7 +1003,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -860,7 +1021,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -875,7 +1039,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -889,7 +1056,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -898,14 +1068,19 @@ export const useTokenStore = defineStore('api', () => {
 
   const createTagCategory = async (
     body: TagCategoryCreateBody,
-  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: TagCategoryInfo } | { success: false; description: string }
+  > => {
     const resp = await doFetch<TagCategoryInfo>('/api/tag-categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -913,14 +1088,19 @@ export const useTokenStore = defineStore('api', () => {
   const updateTagCategory = async (
     name: string,
     body: TagCategoryUpdateBody,
-  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: TagCategoryInfo } | { success: false; description: string }
+  > => {
     const resp = await doFetch<TagCategoryInfo>(`/api/tag-category/${encodeURIComponent(name)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -935,7 +1115,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -943,14 +1126,22 @@ export const useTokenStore = defineStore('api', () => {
   const setDefaultTagCategory = async (
     name: string,
     version: string,
-  ): Promise<{ success: true; data: TagCategoryInfo } | { success: false; description: string }> => {
-    const resp = await doFetch<TagCategoryInfo>(`/api/tag-category/${encodeURIComponent(name)}/default`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
-      body: JSON.stringify({ version }),
-    });
+  ): Promise<
+    { success: true; data: TagCategoryInfo } | { success: false; description: string }
+  > => {
+    const resp = await doFetch<TagCategoryInfo>(
+      `/api/tag-category/${encodeURIComponent(name)}/default`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: authToken.value! },
+        body: JSON.stringify({ version }),
+      },
+    );
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -961,13 +1152,18 @@ export const useTokenStore = defineStore('api', () => {
     query: string,
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponseCommentInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponseCommentInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseCommentInfo>(`/api/comments?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -981,7 +1177,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -996,7 +1195,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify(body),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -1011,7 +1213,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ version }),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true };
   };
@@ -1026,7 +1231,10 @@ export const useTokenStore = defineStore('api', () => {
       body: JSON.stringify({ score } as RatingBody),
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -1036,13 +1244,18 @@ export const useTokenStore = defineStore('api', () => {
   const listSnapshots = async (
     offset: number,
     limit: number,
-  ): Promise<{ success: true; data: PagedResponseSnapshotInfo } | { success: false; description: string }> => {
+  ): Promise<
+    { success: true; data: PagedResponseSnapshotInfo } | { success: false; description: string }
+  > => {
     const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseSnapshotInfo>(`/api/snapshots?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
     if (!resp.success) {
-      return { success: false, description: (resp as ErrorResponse).description || (resp as ErrorResponse).title };
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
     }
     return { success: true, data: resp.data };
   };
@@ -1056,6 +1269,7 @@ export const useTokenStore = defineStore('api', () => {
     init,
     refreshInfo,
     hasPrivilege,
+    canAccess,
     doFetch,
     login,
     logout,

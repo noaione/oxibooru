@@ -48,7 +48,10 @@
       </div>
 
       <!-- Mass edit controls -->
-      <div v-if="settingsReady" class="flex flex-row gap-3 ml-0 mt-0 md:ml-2 w-full items-center flex-wrap">
+      <div
+        v-if="settingsReady"
+        class="flex flex-row gap-3 ml-0 mt-0 md:ml-2 w-full items-center flex-wrap"
+      >
         <!-- Mass tag mode -->
         <template v-if="massActiveState === 'tag'">
           <AutoCompleteTag
@@ -58,12 +61,13 @@
             input-class="w-full"
             @submit="startMassTagging"
           >
-            <template #submit>
-              Start tagging
-            </template>
+            <template #submit> Start tagging </template>
           </AutoCompleteTag>
 
-          <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="stopMassTagging">
+          <button
+            class="text-sm text-gray-500 hover:brightness-110 cursor-pointer"
+            @click="stopMassTagging"
+          >
             Stop tagging
           </button>
         </template>
@@ -71,7 +75,10 @@
         <!-- Mass safety mode -->
         <template v-else-if="massActiveState === 'safety'">
           <span class="text-sm text-gray-500">Click a safety badge on any post to change it.</span>
-          <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="massActiveState = 'none'">
+          <button
+            class="text-sm text-gray-500 hover:brightness-110 cursor-pointer"
+            @click="massActiveState = 'none'"
+          >
             Stop editing safety
           </button>
         </template>
@@ -87,7 +94,10 @@
           >
             Delete {{ deletionCandidates.size || '' }} selected
           </FlatButton>
-          <button class="text-sm text-gray-500 hover:brightness-110 cursor-pointer" @click="cancelMassDelete">
+          <button
+            class="text-sm text-gray-500 hover:brightness-110 cursor-pointer"
+            @click="cancelMassDelete"
+          >
             Stop deleting
           </button>
         </template>
@@ -144,7 +154,9 @@
         class="relative group cursor-pointer overflow-hidden"
         :class="{
           'ring-2 ring-red-500': massActiveState === 'delete' && deletionCandidates.has(post.id!),
-          'hover:ring-2 hover:ring-cyan-500': !(massActiveState === 'delete' && deletionCandidates.has(post.id!)),
+          'hover:ring-2 hover:ring-cyan-500': !(
+            massActiveState === 'delete' && deletionCandidates.has(post.id!)
+          ),
           'post-flow-item': settingsReady && settings.postFlow,
         }"
         @click="onPostClick(post)"
@@ -163,7 +175,10 @@
           <img
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
-            :class="['object-cover block group-hover:opacity-90 transition-opacity', thumbnailSizeClass]"
+            :class="[
+              'object-cover block group-hover:opacity-90 transition-opacity',
+              thumbnailSizeClass,
+            ]"
             loading="lazy"
           />
           <PostBadges :post="post" />
@@ -174,7 +189,10 @@
           <img
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
-            :class="['object-cover block group-hover:opacity-90 transition-opacity', thumbnailSizeClass]"
+            :class="[
+              'object-cover block group-hover:opacity-90 transition-opacity',
+              thumbnailSizeClass,
+            ]"
             loading="lazy"
           />
           <PostBadges :post="post" />
@@ -202,7 +220,12 @@
               v-for="s in safetyOptions"
               :key="s.value"
               class="w-4 h-4 rounded-full border-2 border-white cursor-pointer"
-              :class="[s.bgClass, post.safety === s.value ? 'ring-2 ring-white scale-125' : 'opacity-75 hover:opacity-100']"
+              :class="[
+                s.bgClass,
+                post.safety === s.value
+                  ? 'ring-2 ring-white scale-125'
+                  : 'opacity-75 hover:opacity-100',
+              ]"
               :title="s.label"
               @click="setSafety(post, s.value)"
             />
@@ -230,12 +253,19 @@
       </template>
     </div>
 
-
     <!-- Endless scroll sentinel — always rendered so the observer can track it -->
-    <div v-if="settingsReady && settings.endlessScroll" ref="sentinelRef" class="h-4 w-full" aria-hidden="true" />
+    <div
+      v-if="settingsReady && settings.endlessScroll"
+      ref="sentinelRef"
+      class="h-4 w-full"
+      aria-hidden="true"
+    />
 
     <!-- Pagination (only in paginated mode) -->
-    <div v-if="settingsReady && !settings.endlessScroll && totalCount > pageSize" class="flex justify-center">
+    <div
+      v-if="settingsReady && !settings.endlessScroll && totalCount > pageSize"
+      class="flex justify-center"
+    >
       <Pagination
         :current-page="currentPage"
         :total-count="totalCount"
@@ -326,7 +356,7 @@ const fullQuery = computed(() => {
 
 // Grid mode: fill each cell completely; flow mode: fill the container height
 const thumbnailSizeClass = computed(() =>
-  settings.postFlow ? 'w-full h-full' : 'w-full aspect-square'
+  settings.postFlow ? 'w-full h-full' : 'w-full aspect-square',
 );
 
 function postHasAllTags(post: PostItem, tags: string[]): boolean {
@@ -408,7 +438,12 @@ async function onPostClick(post: PostItem) {
       deletionCandidates.value = next;
     }
     lastClickedIdx.value = idx;
-  } else if (massActiveState.value === 'tag' && lockedMassTags.value.length > 0 && post.id && post.version) {
+  } else if (
+    massActiveState.value === 'tag' &&
+    lockedMassTags.value.length > 0 &&
+    post.id &&
+    post.version
+  ) {
     const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
     const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
     const newTags = allPresent
@@ -495,7 +530,7 @@ watchEffect((onCleanup) => {
       if (!settings.endlessScroll || loader.loading || loadingMore.value) return;
       loadMorePosts();
     },
-    { threshold: 0 }
+    { threshold: 0 },
   );
   observer.observe(el);
   onCleanup(() => observer.disconnect());

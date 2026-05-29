@@ -35,7 +35,7 @@
       :show-buttons="true"
       :disabled="disabled"
       @on-cancel="isShow = false"
-      @on-change="[derivedRgb = $event]"
+      @on-change="[(derivedRgb = $event)]"
       @on-save="isShow = false"
     />
   </div>
@@ -114,7 +114,7 @@ const derivedRgb = computed({
   },
   set: (value) => {
     emits('update:modelValue', value);
-  }
+  },
 });
 
 const derivedDarkMode = computed(() => {

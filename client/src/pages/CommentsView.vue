@@ -23,16 +23,15 @@
       <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else>
-        <p v-if="!loading && comments.length === 0" class="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          v-if="!loading && comments.length === 0"
+          class="text-sm text-gray-500 dark:text-gray-400"
+        >
           No comments found.
         </p>
 
         <div class="flex flex-col gap-4">
-          <div
-            v-for="comment in comments"
-            :key="comment.id"
-            class="card p-4 flex flex-col gap-2"
-          >
+          <div v-for="comment in comments" :key="comment.id" class="card p-4 flex flex-col gap-2">
             <!-- Post link -->
             <RouterLink
               :to="`/post/${comment.postId}`"
@@ -52,10 +51,10 @@
         <!-- Pagination -->
         <Pagination
           v-if="total > pageSize"
-          :total="total"
-          :offset="offset"
-          :limit="pageSize"
-          @change="(o) => goToPage(o)"
+          :current-page="currentPage"
+          :total-count="total"
+          :page-size="pageSize"
+          @page-change="goToPage"
         />
       </template>
     </template>
@@ -93,6 +92,9 @@ const loading = ref(false);
 const searchInput = ref((route.query.q as string) ?? '');
 const query = computed(() => (route.query.q as string) ?? '');
 const offset = computed(() => Number(route.query.offset ?? 0));
+const currentPage = computed(() => {
+  return Math.floor(offset.value / pageSize) + 1;
+});
 
 async function fetchComments() {
   loader.start();

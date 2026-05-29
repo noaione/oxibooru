@@ -6,7 +6,9 @@
     <div class="flex flex-row items-center mt-8">
       <AutoCompleteTag target="posts" placeholder="enter some tags" />
       <span class="text-gray-500 mx-5">or</span>
-      <RouterLink to="/posts" class="text-cyan-500 hover:brightness-120"> browse all posts </RouterLink>
+      <RouterLink to="/posts" class="text-cyan-500 hover:brightness-120">
+        browse all posts
+      </RouterLink>
     </div>
 
     <!-- Featured post -->
@@ -22,23 +24,31 @@
           v-if="canViewFeatured"
           :to="`/post/${app.config.featuredPost.id}`"
           class="text-cyan-500 hover:underline"
-        >@{{ app.config.featuredPost.id }}</RouterLink>
+          >@{{ app.config.featuredPost.id }}</RouterLink
+        >
         <span v-else>@{{ app.config.featuredPost.id }}</span>
         <template v-if="app.config.featuringTime">
           <span>, posted <RelativeTime :time="app.config.featuringTime" /></span>
         </template>
         <template v-if="app.config.featuredPost.user?.name">
           <span> by </span>
-          <AvatarLink :simple="!canViewUser" :name="app.config.featuredPost.user?.name" :avatar-url="app.config.featuredPost.user.avatarUrl" />
+          <AvatarLink
+            :simple="!canViewUser"
+            :name="app.config.featuredPost.user?.name"
+            :avatar-url="app.config.featuredPost.user.avatarUrl"
+          />
         </template>
       </p>
     </div>
 
     <!-- Footer -->
-    <footer class="text-sm text-gray-500" :class="{
-      'mt-16': !app.config?.featuredPost,
-      'mt-4': app.config?.featuredPost,
-    }">
+    <footer
+      class="text-sm text-gray-500"
+      :class="{
+        'mt-16': !app.config?.featuredPost,
+        'mt-4': app.config?.featuredPost,
+      }"
+    >
       <span>{{ app.config?.postCount ?? 0 }} posts</span>
       <span class="mx-1"> &middot; </span>
       <span>{{ formattedDiskUsage }}</span>

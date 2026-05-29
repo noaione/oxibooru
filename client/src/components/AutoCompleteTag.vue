@@ -41,8 +41,19 @@
       v-for="tag in modelValue"
       :key="tag"
       class="flex items-center gap-1 px-2 py-0.5 text-xs rounded border"
-      :class="chipCategory(tag) ? '' : 'border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400'"
-      :style="chipCategory(tag) ? { color: `var(--tag-cat-${chipCategory(tag)})`, borderColor: `var(--tag-cat-${chipCategory(tag)})` } : {}"
+      :class="
+        chipCategory(tag)
+          ? ''
+          : 'border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400'
+      "
+      :style="
+        chipCategory(tag)
+          ? {
+              color: `var(--tag-cat-${chipCategory(tag)})`,
+              borderColor: `var(--tag-cat-${chipCategory(tag)})`,
+            }
+          : {}
+      "
     >
       {{ displayTag(tag) }}
       <button
@@ -194,7 +205,7 @@ async function fetchSuggestions(query: string) {
     `/api/tags?query=${encodeURIComponent(wrappedQuery)}&limit=15`,
     {
       headers: apiStore.authToken ? { Authorization: apiStore.authToken } : {},
-    }
+    },
   );
   if (!res.success) return;
   suggestions.value = (res.data.results ?? [])
@@ -254,9 +265,8 @@ function selectSuggestion(suggestion: Suggestion) {
       // Strip the partial word fragment from the tail (chars before the next space)
       const cleanSuffix = textAfter.replace(/^[^\s,]*/, '').trimStart();
 
-      const implPart = !negation && suggestion.implications.length
-        ? ' ' + suggestion.implications.join(' ')
-        : '';
+      const implPart =
+        !negation && suggestion.implications.length ? ' ' + suggestion.implications.join(' ') : '';
       const replacement = prefix + negation + suggestion.name + implPart + ' ';
       inputText.value = cleanSuffix ? replacement + cleanSuffix : replacement;
 
@@ -272,7 +282,9 @@ function selectSuggestion(suggestion: Suggestion) {
   } else {
     localCategoryMap.value.set(suggestion.name, suggestion.category);
     const existing = new Set(props.modelValue);
-    const toAdd = [suggestion.name, ...suggestion.implications].filter((t) => t && !existing.has(t));
+    const toAdd = [suggestion.name, ...suggestion.implications].filter(
+      (t) => t && !existing.has(t),
+    );
     if (toAdd.length) {
       emit('update:modelValue', [...props.modelValue, ...toAdd]);
     }

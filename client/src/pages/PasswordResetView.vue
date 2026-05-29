@@ -22,13 +22,7 @@
 
           <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-          <FlatButton
-            type="submit"
-            class="w-fit"
-            :disabled="loading"
-          >
-            Send Reset Link
-          </FlatButton>
+          <FlatButton type="submit" class="w-fit" :disabled="loading"> Send Reset Link </FlatButton>
         </form>
 
         <p v-else class="text-sm text-green-600 dark:text-green-400">
@@ -78,13 +72,7 @@
 
           <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-          <FlatButton
-            type="submit"
-            class="w-fit"
-            :disabled="loading"
-          >
-            Reset Password
-          </FlatButton>
+          <FlatButton type="submit" class="w-fit" :disabled="loading"> Reset Password </FlatButton>
         </form>
 
         <div v-else class="flex flex-col gap-3 text-sm">

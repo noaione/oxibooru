@@ -32,7 +32,11 @@
           <RouterLink
             :to="`/tag/${encodeURIComponent(primaryName)}`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'summary' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="
+              section === 'summary'
+                ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            "
           >
             Summary
           </RouterLink>
@@ -40,7 +44,11 @@
             v-if="canEdit"
             :to="`/tag/${encodeURIComponent(primaryName)}/edit`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'edit' ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="
+              section === 'edit'
+                ? 'border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 font-medium'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            "
           >
             Edit
           </RouterLink>
@@ -48,7 +56,11 @@
             v-if="canDelete"
             :to="`/tag/${encodeURIComponent(primaryName)}/delete`"
             class="px-4 py-2 text-sm transition-colors"
-            :class="section === 'delete' ? 'border-b-2 border-red-500 text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+            :class="
+              section === 'delete'
+                ? 'border-b-2 border-red-500 text-red-600 dark:text-red-400 font-medium'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            "
           >
             Delete
           </RouterLink>
@@ -58,13 +70,19 @@
         <div v-if="section === 'summary'" class="flex flex-col gap-4">
           <!-- Aliases -->
           <div v-if="tag.names && tag.names.length > 1" class="card p-4">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Aliases</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Aliases
+            </p>
             <div class="flex flex-wrap gap-2">
               <span
                 v-for="name in tag.names.slice(1)"
                 :key="name"
                 class="px-2 py-0.5 text-sm border rounded"
-                :style="primaryColor ? { color: primaryColor, borderColor: primaryColor } : { borderColor: 'currentColor' }"
+                :style="
+                  primaryColor
+                    ? { color: primaryColor, borderColor: primaryColor }
+                    : { borderColor: 'currentColor' }
+                "
               >
                 {{ displayTag(name) }}
               </span>
@@ -94,9 +112,14 @@
 
           <!-- Description -->
           <div v-if="tag.description" class="card p-4">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Description</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Description
+            </p>
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <div class="prose prose-sm dark:prose-invert max-w-none text-sm" v-html="renderedDescription" />
+            <div
+              class="prose prose-sm dark:prose-invert max-w-none text-sm"
+              v-html="renderedDescription"
+            />
           </div>
 
           <!-- Implications -->
@@ -139,7 +162,9 @@
 
           <!-- Siblings -->
           <div v-if="siblings.length" class="card p-4">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Related tags</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Related tags
+            </p>
             <div class="flex flex-wrap gap-2">
               <RouterLink
                 v-for="sib in siblings.slice(0, 20)"
@@ -156,7 +181,9 @@
 
           <!-- Merge action -->
           <div v-if="canMerge" class="card p-4">
-            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Merge with another tag</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Merge with another tag
+            </p>
             <form class="flex gap-2" @submit.prevent="goToMerge">
               <FlatInput
                 v-model="mergeTargetInput"
@@ -164,11 +191,7 @@
                 placeholder="Other tag name…"
                 class="flex-1 px-2 py-1 text-sm bg-gray-50! dark:bg-gray-800!"
               />
-              <FlatButton
-                kind="warn"
-                type="submit"
-                :disabled="!mergeTargetInput.trim()"
-              >
+              <FlatButton kind="warn" type="submit" :disabled="!mergeTargetInput.trim()">
                 Merge
               </FlatButton>
             </form>
@@ -184,7 +207,8 @@
             <!-- Names -->
             <div v-if="canEditNames">
               <label class="block text-sm font-medium mb-1">
-                Names <span class="text-gray-400 font-normal">(one per line; first is primary)</span>
+                Names
+                <span class="text-gray-400 font-normal">(one per line; first is primary)</span>
               </label>
               <FlatTextarea
                 v-model="editNames"
@@ -196,10 +220,7 @@
             <!-- Category -->
             <div v-if="canEditCategory">
               <label class="block text-sm font-medium mb-1">Category</label>
-              <FlatSelect
-                v-model="editCategory"
-                class="w-full bg-gray-50! dark:bg-gray-800!"
-              >
+              <FlatSelect v-model="editCategory" class="w-full bg-gray-50! dark:bg-gray-800!">
                 <option v-for="cat in tagCategories" :key="cat.name" :value="cat.name">
                   {{ cat.name }}{{ cat.default ? ' (default)' : '' }}
                 </option>
@@ -253,12 +274,7 @@
             <!-- Error -->
             <p v-if="saveError" class="text-red-500 text-sm">{{ saveError }}</p>
 
-            <FlatButton
-              type="button"
-              class="w-fit"
-              :disabled="saving"
-              @click="saveTag"
-            >
+            <FlatButton type="button" class="w-fit" :disabled="saving" @click="saveTag">
               {{ saving ? 'Saving…' : 'Save changes' }}
             </FlatButton>
           </template>
@@ -272,9 +288,15 @@
           <template v-else>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               You are about to delete tag
-              <strong :style="primaryColor ? { color: primaryColor } : {}">{{ displayTag(primaryName) }}</strong>.
+              <strong :style="primaryColor ? { color: primaryColor } : {}">{{
+                displayTag(primaryName)
+              }}</strong
+              >.
               <template v-if="tag.usages && tag.usages > 0">
-                It is used in <strong class="text-accent-500 dark:text-accent-400">{{ tag.usages.toLocaleString() }}</strong>
+                It is used in
+                <strong class="text-accent-500 dark:text-accent-400">{{
+                  tag.usages.toLocaleString()
+                }}</strong>
                 post{{ tag.usages !== 1 ? 's' : '' }}, which will lose this tag.
               </template>
               This cannot be undone.
@@ -415,8 +437,12 @@ function syncEditFields() {
   editNames.value = (tag.value.names ?? []).join('\n');
   editCategory.value = tag.value.category ?? '';
   editDescription.value = tag.value.description ?? '';
-  editImplications.value = (tag.value.implications ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
-  editSuggestions.value = (tag.value.suggestions ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
+  editImplications.value = (tag.value.implications ?? [])
+    .map((t) => t.names[0] ?? '')
+    .filter(Boolean);
+  editSuggestions.value = (tag.value.suggestions ?? [])
+    .map((t) => t.names[0] ?? '')
+    .filter(Boolean);
 }
 
 async function loadTag() {
@@ -532,7 +558,11 @@ function goToMerge() {
 function formatDate(iso?: string | null): string {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(iso));
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(iso));
   } catch {
     return iso;
   }

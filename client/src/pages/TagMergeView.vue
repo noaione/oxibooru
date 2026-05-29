@@ -33,10 +33,7 @@
             @click="baseTagName = tag.names?.[0] ?? ''"
           >
             <div class="flex items-center justify-between">
-              <span
-                class="font-semibold"
-                :style="tagColor(tag.category)"
-              >
+              <span class="font-semibold" :style="tagColor(tag.category)">
                 {{ displayTag(tag.names?.[0] ?? '') }}
               </span>
               <label class="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -50,12 +47,18 @@
                 Category:
                 <span :style="tagColor(tag.category)">{{ tag.category }}</span>
               </span>
-              <span>{{ (tag.usages ?? 0).toLocaleString() }} post{{ tag.usages !== 1 ? 's' : '' }}</span>
+              <span
+                >{{ (tag.usages ?? 0).toLocaleString() }} post{{
+                  tag.usages !== 1 ? 's' : ''
+                }}</span
+              >
               <span v-if="tag.names && tag.names.length > 1">
                 {{ tag.names.length - 1 }} alias{{ tag.names.length - 1 !== 1 ? 'es' : '' }}
               </span>
               <span v-if="tag.implications && tag.implications.length">
-                {{ tag.implications.length }} implication{{ tag.implications.length !== 1 ? 's' : '' }}
+                {{ tag.implications.length }} implication{{
+                  tag.implications.length !== 1 ? 's' : ''
+                }}
               </span>
               <span v-if="tag.creationTime">Created {{ formatDate(tag.creationTime) }}</span>
             </div>
@@ -65,8 +68,8 @@
         <!-- Info + confirm -->
         <div class="card p-4 flex flex-col gap-3 text-sm">
           <p class="text-gray-600 dark:text-gray-400">
-            All posts, aliases, implications and suggestions from the removed tag will be merged into
-            the surviving tag. The removed tag will be permanently deleted.
+            All posts, aliases, implications and suggestions from the removed tag will be merged
+            into the surviving tag. The removed tag will be permanently deleted.
           </p>
 
           <div v-if="baseTagName && removeTag" class="text-xs text-gray-500">
@@ -185,10 +188,7 @@ async function loadTags() {
   let r1: Awaited<ReturnType<typeof api.getTag>>;
   let r2: Awaited<ReturnType<typeof api.getTag>>;
   try {
-    [r1, r2] = await Promise.all([
-      api.getTag(sourceName.value),
-      api.getTag(otherName.value),
-    ]);
+    [r1, r2] = await Promise.all([api.getTag(sourceName.value), api.getTag(otherName.value)]);
   } catch (e) {
     loadError.value = `Failed to load tags: ${e}`;
     return;
@@ -238,7 +238,9 @@ async function confirmMerge() {
   if (result.success) {
     tagCache.invalidateTag(removeTag.value.names?.[0] ?? '');
     tagCache.setTag(baseTagName.value, result.data);
-    toast.showSuccess(`Tags merged. "${displayTag(removeTag.value.names?.[0] ?? '')}" was deleted.`);
+    toast.showSuccess(
+      `Tags merged. "${displayTag(removeTag.value.names?.[0] ?? '')}" was deleted.`,
+    );
     router.push(`/tag/${encodeURIComponent(baseTagName.value)}`);
   } else {
     mergeError.value = result.description;
@@ -248,7 +250,11 @@ async function confirmMerge() {
 function formatDate(iso?: string | null): string {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(iso));
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(iso));
   } catch {
     return iso;
   }

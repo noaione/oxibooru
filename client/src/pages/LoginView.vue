@@ -34,13 +34,7 @@
 
         <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-        <FlatButton
-          type="submit"
-          class="w-fit"
-          :disabled="loading"
-        >
-          Log In
-        </FlatButton>
+        <FlatButton type="submit" class="w-fit" :disabled="loading"> Log In </FlatButton>
       </form>
 
       <div class="mt-4 text-sm text-center flex flex-col gap-1 w-fit">

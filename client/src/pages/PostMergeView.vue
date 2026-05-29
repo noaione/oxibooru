@@ -2,7 +2,9 @@
   <div class="flex flex-col gap-4 w-full max-w-4xl mx-auto">
     <div class="flex items-center gap-3">
       <h1 class="text-xl font-semibold">Merge Posts</h1>
-      <RouterLink to="/posts" class="text-sm text-cyan-500 hover:underline ml-auto">Back to posts</RouterLink>
+      <RouterLink to="/posts" class="text-sm text-cyan-500 hover:underline ml-auto"
+        >Back to posts</RouterLink
+      >
     </div>
 
     <!-- Privilege guard -->
@@ -20,7 +22,11 @@
           <!-- Post 1 -->
           <div
             class="card p-3 flex flex-col gap-2 cursor-pointer transition-colors"
-            :class="mergeToId === post1.id ? 'ring-2 ring-cyan-500' : 'hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600'"
+            :class="
+              mergeToId === post1.id
+                ? 'ring-2 ring-cyan-500'
+                : 'hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600'
+            "
             @click="mergeToId = post1.id!"
           >
             <div class="flex items-center justify-between">
@@ -46,7 +52,9 @@
             </RouterLink>
             <div class="text-xs text-gray-500 flex flex-col gap-0.5">
               <span>{{ mimeLabel(post1.mimeType) }} · {{ formatFileSize(post1.fileSize) }}</span>
-              <span v-if="post1.canvasWidth && post1.canvasHeight">{{ post1.canvasWidth }}×{{ post1.canvasHeight }}</span>
+              <span v-if="post1.canvasWidth && post1.canvasHeight"
+                >{{ post1.canvasWidth }}×{{ post1.canvasHeight }}</span
+              >
               <span v-if="post1.user?.name">By {{ post1.user.name }}</span>
               <span v-if="post1.creationTime">{{ formatDate(post1.creationTime) }}</span>
               <span>{{ post1.tagCount ?? 0 }} tags · {{ post1.commentCount ?? 0 }} comments</span>
@@ -61,7 +69,11 @@
           <!-- Post 2 -->
           <div
             class="card p-3 flex flex-col gap-2 cursor-pointer transition-colors"
-            :class="mergeToId === post2.id ? 'ring-2 ring-cyan-500' : 'hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600'"
+            :class="
+              mergeToId === post2.id
+                ? 'ring-2 ring-cyan-500'
+                : 'hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600'
+            "
             @click="mergeToId = post2.id!"
           >
             <div class="flex items-center justify-between">
@@ -87,7 +99,9 @@
             </RouterLink>
             <div class="text-xs text-gray-500 flex flex-col gap-0.5">
               <span>{{ mimeLabel(post2.mimeType) }} · {{ formatFileSize(post2.fileSize) }}</span>
-              <span v-if="post2.canvasWidth && post2.canvasHeight">{{ post2.canvasWidth }}×{{ post2.canvasHeight }}</span>
+              <span v-if="post2.canvasWidth && post2.canvasHeight"
+                >{{ post2.canvasWidth }}×{{ post2.canvasHeight }}</span
+              >
               <span v-if="post2.user?.name">By {{ post2.user.name }}</span>
               <span v-if="post2.creationTime">{{ formatDate(post2.creationTime) }}</span>
               <span>{{ post2.tagCount ?? 0 }} tags · {{ post2.commentCount ?? 0 }} comments</span>
@@ -110,9 +124,10 @@
           <!-- Summary -->
           <div v-if="mergeToId" class="text-xs text-gray-500">
             <p>
-              Post #{{ removePost?.id }} will be deleted.
-              Post #{{ mergeToId }} will survive.
-              <template v-if="replaceContent"> The file from Post #{{ removePost?.id }} will be used.</template>
+              Post #{{ removePost?.id }} will be deleted. Post #{{ mergeToId }} will survive.
+              <template v-if="replaceContent">
+                The file from Post #{{ removePost?.id }} will be used.</template
+              >
             </p>
           </div>
 
@@ -206,10 +221,7 @@ async function loadPosts() {
   }
 
   loader.start();
-  const [r1, r2] = await Promise.all([
-    api.getPost(id1.value),
-    api.getPost(id2.value),
-  ]);
+  const [r1, r2] = await Promise.all([api.getPost(id1.value), api.getPost(id2.value)]);
   loader.done();
 
   if (!r1.success) {
@@ -287,15 +299,24 @@ function formatFileSize(bytes?: number): string {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
   let unit = 0;
-  while (size >= 1024 && unit < units.length - 1) { size /= 1024; unit++; }
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit++;
+  }
   return `${size.toFixed(1)} ${units[unit]}`;
 }
 
 function formatDate(iso?: string | null): string {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(iso));
-  } catch { return iso; }
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
 }
 
 onMounted(loadPosts);

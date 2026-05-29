@@ -27,7 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import { ThumbsUp as ThumbsUpIcon, Heart as HeartIcon, MessageCircle as MessageCircleIcon } from '@lucide/vue';
+import {
+  ThumbsUp as ThumbsUpIcon,
+  Heart as HeartIcon,
+  MessageCircle as MessageCircleIcon,
+} from '@lucide/vue';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
 
 defineProps<{

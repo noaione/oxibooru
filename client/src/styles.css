@@ -1,18 +1,19 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @theme {
   /* Neutral grays matching legacy values */
-  --color-gray-50:  oklch(98%   0 0);   /* near-white panels */
-  --color-gray-100: oklch(96%   0 0);   /* #F5F5F5 – legacy nav/panel */
-  --color-gray-200: oklch(90%   0 0);   /* borders, dividers */
-  --color-gray-300: oklch(82%   0 0);
-  --color-gray-400: oklch(70%   0 0);
-  --color-gray-500: oklch(56%   0 0);   /* #888 – inactive links */
-  --color-gray-600: oklch(45%   0 0);
-  --color-gray-700: oklch(35%   0 0);
-  --color-gray-800: oklch(24%   0 0);   /* #333333 – dark nav/panel */
-  --color-gray-900: oklch(14%   0 0);   /* #1a1a1a – dark body */
-  --color-gray-950: oklch(8%    0 0);   /* #111 – near-black text */
+  --color-gray-50: oklch(98% 0 0); /* near-white panels */
+  --color-gray-100: oklch(96% 0 0); /* #F5F5F5 – legacy nav/panel */
+  --color-gray-200: oklch(90% 0 0); /* borders, dividers */
+  --color-gray-300: oklch(82% 0 0);
+  --color-gray-400: oklch(70% 0 0);
+  --color-gray-500: oklch(56% 0 0); /* #888 – inactive links */
+  --color-gray-600: oklch(45% 0 0);
+  --color-gray-700: oklch(35% 0 0);
+  --color-gray-800: oklch(24% 0 0); /* #333333 – dark nav/panel */
+  --color-gray-900: oklch(14% 0 0); /* #1a1a1a – dark body */
+  --color-gray-950: oklch(8% 0 0); /* #111 – near-black text */
 
   /* Legacy accent colour: #24AADD */
   --color-accent-400: oklch(72% 0.12 218);
@@ -20,13 +21,56 @@
   --color-accent-600: oklch(57% 0.13 218);
 
   /* Safety colours */
-  --color-safe:    #88D488;
-  --color-sketchy: #F3D75F;
-  --color-unsafe:  #F3985F;
+  --color-safe: #88d488;
+  --color-sketchy: #f3d75f;
+  --color-unsafe: #f3985f;
 }
 
 /* Dark mode variant: triggered by .darktheme class on <body> */
 @custom-variant dark (&:where(.darktheme, .darktheme *));
+
+/* Some prose styling */
+@utility prose {
+  a {
+    @apply text-accent-500 dark:text-accent-400 no-underline decoration-dashed hover:underline;
+  }
+
+  code {
+    @apply bg-gray-100 dark:bg-gray-700 font-medium rounded;
+    padding-inline: 0.25rem;
+    padding-block: 0.125rem;
+  }
+
+  code::before,
+  code::after {
+    content: none;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  p:has(+ ul),
+  p:has(+ ol) {
+    margin-bottom: 0;
+  }
+
+  ul,
+  ol {
+    @apply my-4;
+  }
+
+  li {
+    margin-top: 0.125em;
+    margin-bottom: 0.125em;
+  }
+
+  ul > li::marker, ol > li::marker {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+}
 
 /* ── Base ─────────────────────────────────────────────────────── */
 body {
@@ -40,10 +84,14 @@ body.darktheme {
 }
 
 @media (max-width: 800px) {
-  body { font-size: 0.875rem; }
+  body {
+    font-size: 0.875rem;
+  }
 }
 @media (max-width: 1200px) {
-  body { font-size: 0.95rem; }
+  body {
+    font-size: 0.95rem;
+  }
 }
 
 /* ── Panel / overlay colour (navbar, inputs) ────────────────────
@@ -51,7 +99,7 @@ body.darktheme {
    Dark:   #333333 bg, #e6e6e6 text
 */
 .overlay-color {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   color: #111111;
 }
 body.darktheme .overlay-color {
@@ -64,7 +112,7 @@ body.darktheme .overlay-color {
    Add padding via Tailwind (e.g. p-4, p-5) at the use site.
 */
 .card {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   color: #111111;
 }
 body.darktheme .card {
@@ -83,10 +131,10 @@ a {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background-color: #FAFAFA;
+  background-color: #fafafa;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #24AADD;
+  background-color: #24aadd;
   border-radius: 4px;
 }
 body.darktheme ::-webkit-scrollbar-track {

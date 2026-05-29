@@ -16,7 +16,9 @@
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="pc-name">
           Name <span class="text-red-500">*</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">(one per line for aliases)</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1"
+            >(one per line for aliases)</span
+          >
         </label>
         <FlatTextarea
           id="pc-name"
@@ -31,8 +33,14 @@
       <!-- Category -->
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="pc-category">Category</label>
-        <FlatSelect id="pc-category" v-model="newCategory" class="w-full max-w-xs bg-gray-50! dark:bg-gray-800!">
-          <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{ cat.name }}</option>
+        <FlatSelect
+          id="pc-category"
+          v-model="newCategory"
+          class="w-full max-w-xs bg-gray-50! dark:bg-gray-800!"
+        >
+          <option v-for="cat in categories" :key="cat.name" :value="cat.name">
+            {{ cat.name }}
+          </option>
         </FlatSelect>
       </div>
 
@@ -40,7 +48,9 @@
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="pc-description">
           Description
-          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">(Markdown, optional)</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1"
+            >(Markdown, optional)</span
+          >
         </label>
         <FlatTextarea
           id="pc-description"
@@ -55,7 +65,9 @@
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="pc-posts">
           Posts
-          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">(space-separated post IDs, optional)</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1"
+            >(space-separated post IDs, optional)</span
+          >
         </label>
         <FlatInput
           id="pc-posts"
@@ -104,7 +116,10 @@ const creating = ref(false);
 const createError = ref('');
 
 async function submitCreate() {
-  const names = newNames.value.split(/[\n\r]+/).map((n) => n.trim()).filter(Boolean);
+  const names = newNames.value
+    .split(/[\n\r]+/)
+    .map((n) => n.trim())
+    .filter(Boolean);
   if (!names.length) return;
 
   const postIds = newPostsRaw.value

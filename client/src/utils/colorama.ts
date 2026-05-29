@@ -1,6 +1,5 @@
 import { oklch, type Oklch } from 'culori';
 
-
 function formatOkLchValue(value: number) {
   const formatted = value.toFixed(2).replace(/\.00$/, '');
   return Object.is(formatted, '-0') ? '0' : formatted;
@@ -20,7 +19,7 @@ export function formatOklch(oklchColor: Oklch) {
   }
 
   const alpha = oklchColor.alpha ?? 1;
-  const alphaPart = alpha < 1 ? ` / ${formatOkLchValue(alpha)}` : "";
+  const alphaPart = alpha < 1 ? ` / ${formatOkLchValue(alpha)}` : '';
 
   return `oklch(${formatOkLchValue(oklchColor.l || 0)} ${formatOkLchValue(oklchColor.c || 0)} ${formatOkLchValue(oklchColor.h || 0)}${alphaPart})`;
 }
@@ -33,7 +32,7 @@ export function formatOklch(oklchColor: Oklch) {
 export function mixinCssColorForDarkTheme(cssColor: string) {
   const okd = oklch(cssColor);
 
-  if (!okd || okd.mode !== "oklch") {
+  if (!okd || okd.mode !== 'oklch') {
     return cssColor;
   }
 
@@ -42,10 +41,7 @@ export function mixinCssColorForDarkTheme(cssColor: string) {
 
   // lift colors in dark mode so they remain readable on dark backgrounds.
   const liftedLightness = Math.min(0.95, baseLightness + 0.18);
-  const targetLightness =
-    baseLightness >= 0.95
-      ? baseLightness
-      : Math.max(0.72, liftedLightness);
+  const targetLightness = baseLightness >= 0.95 ? baseLightness : Math.max(0.72, liftedLightness);
 
   return formatOklch({
     mode: 'oklch',
