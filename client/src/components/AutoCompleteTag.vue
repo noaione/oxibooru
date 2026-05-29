@@ -99,6 +99,7 @@ import { useSettingsStore } from '@/stores/settings';
 import type { PagedResponseTagInfo } from '@/types/oxibooru.gen';
 import SuggestionDropdown from './SuggestionDropdown.vue';
 import FlatButton from './FlatButton.vue';
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts.ts';
 
 interface Suggestion {
   name: string;
@@ -342,6 +343,17 @@ function closeDropdown() {
     activeIndex.value = -1;
   }, 100);
 }
+
+useKeyboardShortcuts({
+  Q: () => {
+    // focus input
+    searchInputEl.value?.focus();
+  },
+  T: () => {
+    // edit mode focus
+    inputModeInputEl.value?.focus();
+  },
+});
 
 // seed category map from prop whenever it changes
 watch(

@@ -7,7 +7,7 @@
       </div>
       <div class="flex items-center mt-2 md:mt-0 gap-2">
         <FlatButton class="ml-0 md:ml-2" type="submit"> Search </FlatButton>
-        <RouterLink to="/help/search?t=users" class="text-sm text-gray-500 hover:brightness-110">
+        <RouterLink to="/help/search/users" class="text-sm text-gray-500 hover:brightness-110">
           Syntax help
         </RouterLink>
       </div>
