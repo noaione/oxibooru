@@ -113,7 +113,9 @@ const navigations = computed<Navigation[]>(() => {
     baseNavs.push({ name: 'Pools', href: '/pools', matcher: /^\/pools?(\/.*)?/ });
   }
   if (apiController.hasPrivilege('user_list')) {
-    const excludeMatcher = apiController.user?.name ? `/user/${apiController.user.name}` : undefined;
+    const excludeMatcher = apiController.user?.name
+      ? `/user/${apiController.user.name}`
+      : undefined;
     baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/, excludeMatcher });
   }
 

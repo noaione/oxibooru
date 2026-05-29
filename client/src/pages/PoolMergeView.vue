@@ -2,10 +2,7 @@
   <div class="flex flex-col gap-4 w-full max-w-3xl mx-auto">
     <div class="flex items-center gap-3">
       <h1 class="text-xl font-semibold">Merge Pools</h1>
-      <RouterLink
-        :to="`/pool/${sourceId}`"
-        class="text-sm text-cyan-500 hover:underline ml-auto"
-      >
+      <RouterLink :to="`/pool/${sourceId}`" class="text-sm text-cyan-500 hover:underline ml-auto">
         Back to pool
       </RouterLink>
     </div>
@@ -37,7 +34,10 @@
               :src="resolveApiUrl(pool.posts[0].thumbnailUrl)"
               class="w-full h-32 object-cover"
             />
-            <div v-else class="w-full h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-sm">
+            <div
+              v-else
+              class="w-full h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-sm"
+            >
               No posts
             </div>
 
@@ -55,7 +55,11 @@
               <span v-if="pool.category">
                 Category: <span :style="poolColor(pool.category)">{{ pool.category }}</span>
               </span>
-              <span>{{ (pool.postCount ?? 0).toLocaleString() }} post{{ pool.postCount !== 1 ? 's' : '' }}</span>
+              <span
+                >{{ (pool.postCount ?? 0).toLocaleString() }} post{{
+                  pool.postCount !== 1 ? 's' : ''
+                }}</span
+              >
               <span v-if="pool.names && pool.names.length > 1">
                 {{ pool.names.length - 1 }} alias{{ pool.names.length - 1 !== 1 ? 'es' : '' }}
               </span>
@@ -72,9 +76,13 @@
 
           <div v-if="basePoolId && removePool" class="text-xs text-gray-500 dark:text-gray-400">
             <p>
-              <strong :style="poolColor(removePool.category)">{{ removePool.names?.[0] ?? `Pool #${removePool.id}` }}</strong>
+              <strong :style="poolColor(removePool.category)">{{
+                removePool.names?.[0] ?? `Pool #${removePool.id}`
+              }}</strong>
               will be deleted.
-              <strong :style="poolColor(basePool?.category)">{{ basePool?.names?.[0] ?? `Pool #${basePoolId}` }}</strong>
+              <strong :style="poolColor(basePool?.category)">{{
+                basePool?.names?.[0] ?? `Pool #${basePoolId}`
+              }}</strong>
               will survive with merged posts.
             </p>
           </div>
@@ -165,10 +173,7 @@ async function loadPools() {
 
   loader.start();
   try {
-    const [r1, r2] = await Promise.all([
-      api.getPool(sourceId.value),
-      api.getPool(otherId.value),
-    ]);
+    const [r1, r2] = await Promise.all([api.getPool(sourceId.value), api.getPool(otherId.value)]);
 
     if (!r1.success) {
       loadError.value = `Pool #${sourceId.value}: ${r1.description}`;

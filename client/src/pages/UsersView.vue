@@ -3,20 +3,11 @@
     <!-- Search header -->
     <form class="flex flex-row gap-2 items-center flex-wrap" @submit.prevent="search">
       <div class="flex flex-col gap-1 items-center w-full max-w-full md:max-w-[30%]">
-        <FlatInput
-          id="users-search"
-          v-model="searchQuery"
-          class="w-full"
-        />
+        <FlatInput id="users-search" v-model="searchQuery" class="w-full" />
       </div>
       <div class="flex items-center mt-2 md:mt-0 gap-2">
-        <FlatButton class="ml-0 md:ml-2" type="submit">
-          Search
-        </FlatButton>
-        <RouterLink
-          to="/help/search?t=users"
-          class="text-sm text-gray-500 hover:brightness-110"
-        >
+        <FlatButton class="ml-0 md:ml-2" type="submit"> Search </FlatButton>
+        <RouterLink to="/help/search?t=users" class="text-sm text-gray-500 hover:brightness-110">
           Syntax help
         </RouterLink>
       </div>
@@ -32,12 +23,12 @@
 
     <!-- User grid -->
     <div v-else class="flex flex-wrap gap-4">
-      <div
-        v-for="u in users"
-        :key="u.name"
-        class="flex flex-col items-center gap-2 w-48 card p-3"
-      >
-        <RouterLink v-if="canViewUsers" :to="`/user/${u.name}`" class="flex flex-col items-center gap-2">
+      <div v-for="u in users" :key="u.name" class="flex flex-col items-center gap-2 w-48 card p-3">
+        <RouterLink
+          v-if="canViewUsers"
+          :to="`/user/${u.name}`"
+          class="flex flex-col items-center gap-2"
+        >
           <img
             v-if="u.avatarUrl"
             :src="resolveApiUrl(u.avatarUrl)"

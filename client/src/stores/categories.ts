@@ -13,10 +13,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   const api = useTokenStore();
 
   async function init() {
-    const promises = await Promise.all([
-      api.listTagCategories(),
-      api.listPoolCategories(),
-    ]);
+    const promises = await Promise.all([api.listTagCategories(), api.listPoolCategories()]);
 
     tags.value = promises[0].success ? promises[0].data : [];
     pools.value = promises[1].success ? promises[1].data : [];
@@ -50,8 +47,14 @@ export const useCategoriesStore = defineStore('categories', () => {
     });
 
     const fullText = [
-      ':root {', ...tagSheets, ...poolSheets, '}',
-      ':root:has(.darktheme), :root:has(.dark) {', ...darkTagSheets, ...darkPoolSheets, '}',
+      ':root {',
+      ...tagSheets,
+      ...poolSheets,
+      '}',
+      ':root:has(.darktheme), :root:has(.dark) {',
+      ...darkTagSheets,
+      ...darkPoolSheets,
+      '}',
     ].join('\n');
 
     let styleEl = document.getElementById('colorama-tag-pools-theme') as HTMLStyleElement | null;

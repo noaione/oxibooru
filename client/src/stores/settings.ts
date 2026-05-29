@@ -44,26 +44,26 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // on app start, load settings from localStorage if they exist
   function init() {
-    const savedSettings = localStorage.getItem('settings')
+    const savedSettings = localStorage.getItem('settings');
 
     if (savedSettings) {
       try {
-        const parsedJson = JSON.parse(savedSettings)
+        const parsedJson = JSON.parse(savedSettings);
 
         settings.value = {
           ...settings.value,
           ...parsedJson,
-        }
+        };
 
-        isNew.value = false
+        isNew.value = false;
       } catch (e) {
-        console.error('Failed to parse settings from localStorage:', e)
+        console.error('Failed to parse settings from localStorage:', e);
       }
     }
 
-    console.log('Settings loaded:', settings.value)
+    console.log('Settings loaded:', settings.value);
 
-    ready.value = true
+    ready.value = true;
   }
 
   // Watch for changes to settings and save to localStorage

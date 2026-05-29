@@ -44,16 +44,15 @@
         {{ totalCount.toLocaleString() }} pool{{ totalCount !== 1 ? 's' : '' }}
       </div>
 
-      <div v-if="!loader.loading && pools.length === 0" class="card p-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+      <div
+        v-if="!loader.loading && pools.length === 0"
+        class="card p-8 text-center text-gray-500 dark:text-gray-400 text-sm"
+      >
         No pools found.
       </div>
 
       <div v-else class="flex flex-col gap-2">
-        <div
-          v-for="pool in pools"
-          :key="pool.id"
-          class="card p-3 flex items-center gap-3"
-        >
+        <div v-for="pool in pools" :key="pool.id" class="card p-3 flex items-center gap-3">
           <!-- Thumbnail -->
           <RouterLink :to="`/pool/${pool.id}`" class="shrink-0">
             <img
@@ -87,7 +86,11 @@
               >
                 {{ pool.category }}
               </span>
-              <span>{{ (pool.postCount ?? 0).toLocaleString() }} post{{ pool.postCount !== 1 ? 's' : '' }}</span>
+              <span
+                >{{ (pool.postCount ?? 0).toLocaleString() }} post{{
+                  pool.postCount !== 1 ? 's' : ''
+                }}</span
+              >
             </div>
           </div>
 
@@ -190,11 +193,14 @@ function goToPage(page: number) {
   router.push({ name: 'pools', query: { ...route.query, page } });
 }
 
-watch(() => route.query, (q) => {
-  searchInput.value = (q.query as string) || '';
-  sortBy.value = (q.sort as string) || 'sort:name';
-  fetchPools();
-});
+watch(
+  () => route.query,
+  (q) => {
+    searchInput.value = (q.query as string) || '';
+    sortBy.value = (q.sort as string) || 'sort:name';
+    fetchPools();
+  },
+);
 
 onMounted(fetchPools);
 </script>

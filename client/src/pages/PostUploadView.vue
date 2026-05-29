@@ -11,9 +11,11 @@
       <!-- Drop zone -->
       <div
         class="card border-2 border-dashed p-8 text-center cursor-pointer transition-colors"
-        :class="isDragging
-          ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/20'
-          : 'border-gray-300 dark:border-gray-600 hover:border-cyan-400'"
+        :class="
+          isDragging
+            ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/20'
+            : 'border-gray-300 dark:border-gray-600 hover:border-cyan-400'
+        "
         @click="fileInputRef?.click()"
         @dragenter.prevent="isDragging = true"
         @dragover.prevent="isDragging = true"
@@ -45,13 +47,7 @@
           placeholder="Or paste a URL…"
           @keydown.enter.prevent="addUrl"
         />
-        <FlatButton
-          type="button"
-          :disabled="!urlInput.trim()"
-          @click="addUrl"
-        >
-          Add
-        </FlatButton>
+        <FlatButton type="button" :disabled="!urlInput.trim()" @click="addUrl"> Add </FlatButton>
       </div>
 
       <!-- Queue -->
@@ -76,17 +72,14 @@
         <div class="flex gap-2">
           <FlatButton
             type="button"
-            :disabled="isSubmitting || items.every(i => i.state === 'done' || i.state === 'skipped')"
+            :disabled="
+              isSubmitting || items.every((i) => i.state === 'done' || i.state === 'skipped')
+            "
             @click="submitAll"
           >
             {{ isSubmitting ? 'Uploading…' : 'Upload all' }}
           </FlatButton>
-          <FlatButton
-            v-if="isSubmitting"
-            type="button"
-            kind="neutral"
-            @click="cancelUpload"
-          >
+          <FlatButton v-if="isSubmitting" type="button" kind="neutral" @click="cancelUpload">
             Cancel
           </FlatButton>
         </div>
@@ -104,7 +97,9 @@
             }"
           >
             <!-- Preview -->
-            <div class="shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden flex items-center justify-center">
+            <div
+              class="shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden flex items-center justify-center"
+            >
               <img
                 v-if="item.previewUrl && item.type === 'file'"
                 :src="item.previewUrl"
@@ -131,7 +126,8 @@
                     v-if="item.state !== 'idle'"
                     class="text-xs px-1.5 py-0.5 rounded"
                     :class="stateBadgeClass(item.state)"
-                  >{{ stateLabel(item.state) }}</span>
+                    >{{ stateLabel(item.state) }}</span
+                  >
                   <!-- Remove (only when idle or error) -->
                   <button
                     v-if="item.state === 'idle' || item.state === 'error'"
@@ -151,9 +147,17 @@
                   v-for="s in safetyOptions"
                   :key="s.value"
                   class="flex items-center gap-1 cursor-pointer"
-                  :class="item.safety === s.value ? s.activeClass : 'text-gray-500 dark:text-gray-400'"
+                  :class="
+                    item.safety === s.value ? s.activeClass : 'text-gray-500 dark:text-gray-400'
+                  "
                 >
-                  <input v-model="item.safety" type="radio" :value="s.value" :disabled="item.state !== 'idle'" class="sr-only" />
+                  <input
+                    v-model="item.safety"
+                    type="radio"
+                    :value="s.value"
+                    :disabled="item.state !== 'idle'"
+                    class="sr-only"
+                  />
                   <span class="w-2 h-2 rounded-full" :class="s.dotClass" />
                   {{ s.label }}
                 </label>
@@ -181,10 +185,15 @@
               />
 
               <!-- Error message -->
-              <p v-if="item.state === 'error' && item.error" class="text-xs text-red-500">{{ item.error }}</p>
+              <p v-if="item.state === 'error' && item.error" class="text-xs text-red-500">
+                {{ item.error }}
+              </p>
 
               <!-- Needs-confirm: exact duplicate -->
-              <div v-if="item.state === 'needs-confirm' && item.exactPost" class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700">
+              <div
+                v-if="item.state === 'needs-confirm' && item.exactPost"
+                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700"
+              >
                 <p class="text-xs font-medium text-yellow-800 dark:text-yellow-300">
                   Exact duplicate: Post #{{ item.exactPost.id }}
                 </p>
@@ -216,9 +225,13 @@
               </div>
 
               <!-- Needs-confirm: similar posts -->
-              <div v-else-if="item.state === 'needs-confirm' && item.similar.length" class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700">
+              <div
+                v-else-if="item.state === 'needs-confirm' && item.similar.length"
+                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700"
+              >
                 <p class="text-xs font-medium text-yellow-800 dark:text-yellow-300">
-                  {{ item.similar.length }} similar {{ item.similar.length === 1 ? 'post' : 'posts' }} found
+                  {{ item.similar.length }} similar
+                  {{ item.similar.length === 1 ? 'post' : 'posts' }} found
                 </p>
                 <div class="flex gap-1 flex-wrap">
                   <RouterLink
@@ -284,7 +297,15 @@ import { resolveApiUrl } from '@/utils/url';
 import FlatButton from '@/components/FlatButton.vue';
 import FlatInput from '@/components/FlatInput.vue';
 
-type ItemState = 'idle' | 'uploading' | 'searching' | 'needs-confirm' | 'creating' | 'done' | 'skipped' | 'error';
+type ItemState =
+  | 'idle'
+  | 'uploading'
+  | 'searching'
+  | 'needs-confirm'
+  | 'creating'
+  | 'done'
+  | 'skipped'
+  | 'error';
 
 interface UploadItem {
   key: string;
@@ -330,9 +351,24 @@ const canUpload = computed(() => api.hasPrivilege('post_create'));
 const enableSafety = computed(() => api.config?.config.enableSafety ?? false);
 
 const safetyOptions = [
-  { value: 'safe' as const, label: 'Safe', dotClass: 'bg-green-500', activeClass: 'text-green-600 dark:text-green-400' },
-  { value: 'sketchy' as const, label: 'Sketchy', dotClass: 'bg-yellow-400', activeClass: 'text-yellow-600 dark:text-yellow-400' },
-  { value: 'unsafe' as const, label: 'Unsafe', dotClass: 'bg-red-500', activeClass: 'text-red-600 dark:text-red-400' },
+  {
+    value: 'safe' as const,
+    label: 'Safe',
+    dotClass: 'bg-green-500',
+    activeClass: 'text-green-600 dark:text-green-400',
+  },
+  {
+    value: 'sketchy' as const,
+    label: 'Sketchy',
+    dotClass: 'bg-yellow-400',
+    activeClass: 'text-yellow-600 dark:text-yellow-400',
+  },
+  {
+    value: 'unsafe' as const,
+    label: 'Unsafe',
+    dotClass: 'bg-red-500',
+    activeClass: 'text-red-600 dark:text-red-400',
+  },
 ];
 
 function makeKey(name: string, extra?: number): string {
@@ -342,7 +378,7 @@ function makeKey(name: string, extra?: number): string {
 function addFiles(files: FileList | File[]) {
   for (const file of Array.from(files)) {
     const key = makeKey(file.name, file.size);
-    if (items.value.some(i => i.key === key)) continue;
+    if (items.value.some((i) => i.key === key)) continue;
     const previewUrl = URL.createObjectURL(file);
     items.value.push({
       key,
@@ -364,7 +400,7 @@ function addUrl() {
   const url = urlInput.value.trim();
   if (!url) return;
   const key = makeKey(url);
-  if (!items.value.some(i => i.key === key)) {
+  if (!items.value.some((i) => i.key === key)) {
     items.value.push({
       key,
       type: 'url',
@@ -394,7 +430,7 @@ function onFileDrop(e: DragEvent) {
 }
 
 function removeItem(key: string) {
-  const idx = items.value.findIndex(i => i.key === key);
+  const idx = items.value.findIndex((i) => i.key === key);
   if (idx === -1) return;
   const item = items.value[idx]!;
   if (item.type === 'file' && item.previewUrl) URL.revokeObjectURL(item.previewUrl);
@@ -439,14 +475,22 @@ function stateBadgeClass(state: ItemState): string {
 
 function stateLabel(state: ItemState): string {
   switch (state) {
-    case 'uploading': return 'Uploading…';
-    case 'searching': return 'Checking…';
-    case 'needs-confirm': return 'Needs review';
-    case 'creating': return 'Creating…';
-    case 'done': return 'Done';
-    case 'skipped': return 'Skipped';
-    case 'error': return 'Error';
-    default: return '';
+    case 'uploading':
+      return 'Uploading…';
+    case 'searching':
+      return 'Checking…';
+    case 'needs-confirm':
+      return 'Needs review';
+    case 'creating':
+      return 'Creating…';
+    case 'done':
+      return 'Done';
+    case 'skipped':
+      return 'Skipped';
+    case 'error':
+      return 'Error';
+    default:
+      return '';
   }
 }
 
@@ -549,7 +593,11 @@ async function submitAll() {
 
   isSubmitting.value = false;
 
-  if (!anyFailures && !cancelled && items.value.every(i => i.state === 'done' || i.state === 'skipped')) {
+  if (
+    !anyFailures &&
+    !cancelled &&
+    items.value.every((i) => i.state === 'done' || i.state === 'skipped')
+  ) {
     toast.showSuccess('All posts uploaded!');
     router.push('/posts');
   }

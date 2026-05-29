@@ -10,11 +10,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 const props = withDefaults(
-  defineProps<{ kind?: 'info' | 'warn' | 'danger' | 'success' | 'neutral', class?: string; }>(),
+  defineProps<{ kind?: 'info' | 'warn' | 'danger' | 'success' | 'neutral'; class?: string }>(),
   {
     kind: 'info',
     class: '',
-  }
+  },
 );
 
 defineEmits<{
@@ -44,7 +44,6 @@ const computedStyles = computed(() => {
 </script>
 
 <style lang="postcss" scoped>
-
 .btn-info {
   color: white;
   background-color: oklch(71.5% 0.143 215.221);
@@ -83,7 +82,7 @@ const computedStyles = computed(() => {
 
 .btn-neutral {
   color: black;
-  background-color: oklch(90%   0 0);
+  background-color: oklch(90% 0 0);
 
   &:focus {
     background-color: oklch(82% 0 0);
@@ -91,10 +90,10 @@ const computedStyles = computed(() => {
 
   &:where(.darktheme, .darktheme *) {
     color: white;
-    background-color: oklch(38%   0 0);
+    background-color: oklch(38% 0 0);
 
     &:focus {
-      background-color: oklch(30%   0 0);
+      background-color: oklch(30% 0 0);
     }
   }
 }

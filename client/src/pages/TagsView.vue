@@ -38,13 +38,18 @@
         {{ totalCount.toLocaleString() }} tag{{ totalCount !== 1 ? 's' : '' }}
       </div>
 
-      <div v-if="tags.length === 0" class="card p-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+      <div
+        v-if="tags.length === 0"
+        class="card p-8 text-center text-gray-500 dark:text-gray-400 text-sm"
+      >
         No tags found.
       </div>
 
       <table v-else class="w-full text-sm border-collapse">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <tr
+            class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+          >
             <th class="pb-2 font-medium">Name</th>
             <th class="pb-2 font-medium">Category</th>
             <th class="pb-2 font-medium text-right">Posts</th>
@@ -66,10 +71,7 @@
               >
                 {{ displayTag(tag.names?.[0] ?? '') }}
               </RouterLink>
-              <span
-                v-if="tag.names && tag.names.length > 1"
-                class="ml-2 text-xs text-gray-400"
-              >
+              <span v-if="tag.names && tag.names.length > 1" class="ml-2 text-xs text-gray-400">
                 +{{ tag.names.length - 1 }} alias{{ tag.names.length - 1 !== 1 ? 'es' : '' }}
               </span>
             </td>
@@ -92,7 +94,7 @@
               </RouterLink>
             </td>
             <td class="py-2 pr-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
-              {{ (tag.implications?.length ?? 0) }}
+              {{ tag.implications?.length ?? 0 }}
             </td>
             <td v-if="canEditTags" class="py-2 text-right">
               <RouterLink
@@ -169,10 +171,7 @@ async function fetchTags() {
   loader.start();
   error.value = '';
 
-  const query = [
-    searchInput.value.trim() ? `*${searchInput.value.trim()}*` : '',
-    sortBy.value,
-  ]
+  const query = [searchInput.value.trim() ? `*${searchInput.value.trim()}*` : '', sortBy.value]
     .filter(Boolean)
     .join(' ');
 
@@ -200,7 +199,7 @@ async function fetchTags() {
 
 // The model-value prop for AutoCompleteTag — wraps the URL query as a single-element array
 // so AutoCompleteTag's watcher initializes its inputText from it.
-const searchModelValue = computed(() => searchInput.value ? [searchInput.value] : []);
+const searchModelValue = computed(() => (searchInput.value ? [searchInput.value] : []));
 
 function onSearchSubmit(query: string) {
   searchInput.value = query;

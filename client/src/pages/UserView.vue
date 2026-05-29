@@ -14,7 +14,11 @@
           <RouterLink
             :to="`/user/${userName}`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'summary' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'summary'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Summary
           </RouterLink>
@@ -22,7 +26,11 @@
             v-if="canEditAnything"
             :to="`/user/${userName}/edit`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'edit' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'edit'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Settings
           </RouterLink>
@@ -30,7 +38,11 @@
             v-if="canListTokens"
             :to="`/user/${userName}/tokens`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'tokens' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'tokens'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Login tokens
           </RouterLink>
@@ -38,7 +50,11 @@
             v-if="canDelete"
             :to="`/user/${userName}/delete`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'delete' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'delete'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Delete
           </RouterLink>
@@ -67,9 +83,18 @@
       <!-- Info + links -->
       <div class="flex flex-col gap-4">
         <ul class="text-sm flex flex-col gap-1">
-          <li><span class="text-gray-500 dark:text-gray-400">Registered:</span> {{ formatDate(userData.creationTime) }}</li>
-          <li><span class="text-gray-500 dark:text-gray-400">Last seen:</span> {{ formatDate(userData.lastLoginTime) }}</li>
-          <li><span class="text-gray-500 dark:text-gray-400">Rank:</span> {{ rankNames.get(userData.rank ?? '') ?? userData.rank }}</li>
+          <li>
+            <span class="text-gray-500 dark:text-gray-400">Registered:</span>
+            {{ formatDate(userData.creationTime) }}
+          </li>
+          <li>
+            <span class="text-gray-500 dark:text-gray-400">Last seen:</span>
+            {{ formatDate(userData.lastLoginTime) }}
+          </li>
+          <li>
+            <span class="text-gray-500 dark:text-gray-400">Rank:</span>
+            {{ rankNames.get(userData.rank ?? '') ?? userData.rank }}
+          </li>
         </ul>
 
         <div class="flex flex-col gap-3">
@@ -77,17 +102,26 @@
             <p class="text-sm font-medium mb-1">Quick links</p>
             <ul class="text-sm flex flex-col gap-0.5">
               <li>
-                <RouterLink :to="`/posts?query=submit:${userName}`" class="text-cyan-500 hover:underline">
+                <RouterLink
+                  :to="`/posts?query=submit:${userName}`"
+                  class="text-cyan-500 hover:underline"
+                >
                   {{ userData.uploadedPostCount ?? 0 }} uploads
                 </RouterLink>
               </li>
               <li>
-                <RouterLink :to="`/posts?query=fav:${userName}`" class="text-cyan-500 hover:underline">
+                <RouterLink
+                  :to="`/posts?query=fav:${userName}`"
+                  class="text-cyan-500 hover:underline"
+                >
                   {{ userData.favoritePostCount ?? 0 }} favorites
                 </RouterLink>
               </li>
               <li>
-                <RouterLink :to="`/posts?query=comment:${userName}`" class="text-cyan-500 hover:underline">
+                <RouterLink
+                  :to="`/posts?query=comment:${userName}`"
+                  class="text-cyan-500 hover:underline"
+                >
                   {{ userData.commentCount ?? 0 }} comments
                 </RouterLink>
               </li>
@@ -95,7 +129,9 @@
           </div>
 
           <div v-if="isOwnProfile && typeof userData.likedPostCount === 'number'">
-            <p class="text-sm font-medium mb-1 text-gray-500 dark:text-gray-400">Only visible to you</p>
+            <p class="text-sm font-medium mb-1 text-gray-500 dark:text-gray-400">
+              Only visible to you
+            </p>
             <ul class="text-sm flex flex-col gap-0.5">
               <li>
                 <RouterLink to="/posts?query=special:liked" class="text-cyan-500 hover:underline">
@@ -103,7 +139,10 @@
                 </RouterLink>
               </li>
               <li>
-                <RouterLink to="/posts?query=special:disliked" class="text-cyan-500 hover:underline">
+                <RouterLink
+                  to="/posts?query=special:disliked"
+                  class="text-cyan-500 hover:underline"
+                >
                   {{ userData.dislikedPostCount }} disliked posts
                 </RouterLink>
               </li>
@@ -121,7 +160,12 @@
 
         <div v-if="canEditName" class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="ue-name">Username</label>
-          <FlatInput id="ue-name" v-model="editName" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="off" />
+          <FlatInput
+            id="ue-name"
+            v-model="editName"
+            class="w-full bg-gray-50! dark:bg-gray-800!"
+            autocomplete="off"
+          />
         </div>
 
         <div v-if="canEditPassword" class="flex flex-col gap-1">
@@ -129,12 +173,24 @@
             Password
             <span class="text-gray-400 font-normal ml-1 text-xs">leave blank to keep current</span>
           </label>
-          <FlatInput id="ue-password" v-model="editPassword" type="password" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="new-password" />
+          <FlatInput
+            id="ue-password"
+            v-model="editPassword"
+            type="password"
+            class="w-full bg-gray-50! dark:bg-gray-800!"
+            autocomplete="new-password"
+          />
         </div>
 
         <div v-if="canEditEmail" class="flex flex-col gap-1">
           <label class="text-sm font-medium" for="ue-email">Email</label>
-          <FlatInput id="ue-email" v-model="editEmail" type="email" class="w-full bg-gray-50! dark:bg-gray-800!" autocomplete="off" />
+          <FlatInput
+            id="ue-email"
+            v-model="editEmail"
+            type="email"
+            class="w-full bg-gray-50! dark:bg-gray-800!"
+            autocomplete="off"
+          />
         </div>
 
         <div v-if="canEditRank" class="flex flex-col gap-1">
@@ -144,7 +200,9 @@
             v-model="editRank"
             class="px-2 py-1 bg-gray-50! dark:bg-gray-800!"
           >
-            <option v-for="[key, label] in availableRanks" :key="key" :value="key">{{ label }}</option>
+            <option v-for="[key, label] in availableRanks" :key="key" :value="key">
+              {{ label }}
+            </option>
           </FlatSelect>
         </div>
 
@@ -152,11 +210,21 @@
           <span class="text-sm font-medium">Avatar</span>
           <div class="flex flex-col gap-2">
             <label class="flex items-center gap-2 text-sm cursor-pointer">
-              <input v-model="editAvatarStyle" type="radio" value="gravatar" class="accent-cyan-500" />
+              <input
+                v-model="editAvatarStyle"
+                type="radio"
+                value="gravatar"
+                class="accent-cyan-500"
+              />
               Gravatar
             </label>
             <label class="flex items-center gap-2 text-sm cursor-pointer">
-              <input v-model="editAvatarStyle" type="radio" value="manual" class="accent-cyan-500" />
+              <input
+                v-model="editAvatarStyle"
+                type="radio"
+                value="manual"
+                class="accent-cyan-500"
+              />
               Manual avatar
             </label>
             <input
@@ -164,14 +232,16 @@
               ref="avatarFileInput"
               type="file"
               accept="image/*"
-              class="text-sm "
+              class="text-sm"
               @change="onAvatarFile"
             />
           </div>
         </div>
 
         <p v-if="editError" class="text-sm text-red-500">{{ editError }}</p>
-        <p v-if="editSuccess" class="text-sm text-green-600 dark:text-green-400">{{ editSuccess }}</p>
+        <p v-if="editSuccess" class="text-sm text-green-600 dark:text-green-400">
+          {{ editSuccess }}
+        </p>
 
         <FlatButton
           type="submit"
@@ -187,20 +257,30 @@
     <div v-else-if="section === 'tokens'" class="flex flex-col gap-6 w-full max-w-2xl">
       <!-- Token list -->
       <div v-if="tokens.length > 0" class="flex flex-col gap-4">
-        <div
-          v-for="(tok, idx) in tokens"
-          :key="tok.token"
-          class="flex flex-col gap-2 card p-3"
-        >
+        <div v-for="(tok, idx) in tokens" :key="tok.token" class="flex flex-col gap-2 card p-3">
           <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <span class="text-gray-500 dark:text-gray-400">Token:</span>
             <span class="font-mono break-all">{{ tok.token }}</span>
             <span class="text-gray-500 dark:text-gray-400">Note:</span>
             <div class="flex items-center gap-2">
               <template v-if="editingNoteIdx === idx">
-                <FlatInput v-model="editingNoteValue" class="flex-1 text-sm bg-gray-50! dark:bg-gray-800!" @submit="saveNote(idx)" />
-                <button class="text-sm text-cyan-500 hover:underline cursor-pointer" @click="saveNote(idx)">Save</button>
-                <button class="text-sm opacity-60 hover:opacity-100 cursor-pointer" @click="editingNoteIdx = -1">Cancel</button>
+                <FlatInput
+                  v-model="editingNoteValue"
+                  class="flex-1 text-sm bg-gray-50! dark:bg-gray-800!"
+                  @submit="saveNote(idx)"
+                />
+                <button
+                  class="text-sm text-cyan-500 hover:underline cursor-pointer"
+                  @click="saveNote(idx)"
+                >
+                  Save
+                </button>
+                <button
+                  class="text-sm opacity-60 hover:opacity-100 cursor-pointer"
+                  @click="editingNoteIdx = -1"
+                >
+                  Cancel
+                </button>
               </template>
               <template v-else>
                 <span>{{ tok.note ?? 'No note' }}</span>
@@ -235,7 +315,9 @@
       <p v-else class="text-sm text-gray-500">No registered tokens.</p>
 
       <p v-if="tokenError" class="text-sm text-red-500">{{ tokenError }}</p>
-      <p v-if="tokenSuccess" class="text-sm text-green-600 dark:text-green-400">{{ tokenSuccess }}</p>
+      <p v-if="tokenSuccess" class="text-sm text-green-600 dark:text-green-400">
+        {{ tokenSuccess }}
+      </p>
 
       <!-- Create token form -->
       <div v-if="canCreateToken" class="border-t border-gray-300 dark:border-gray-600 pt-4">
@@ -250,7 +332,12 @@
               Expires
               <span class="text-gray-400 font-normal ml-1 text-xs">optional, YYYY-MM-DD</span>
             </label>
-            <FlatInput id="tok-expiry" v-model="newTokenExpiry" class="w-full" placeholder="never" />
+            <FlatInput
+              id="tok-expiry"
+              v-model="newTokenExpiry"
+              class="w-full"
+              placeholder="never"
+            />
           </div>
           <FlatButton
             type="submit"
@@ -536,7 +623,11 @@ async function saveNote(idx: number | string) {
     tokenError.value = result.description;
     return;
   }
-  tokens.value[i] = { ...tok, note: editingNoteValue.value || undefined, version: result.data.version };
+  tokens.value[i] = {
+    ...tok,
+    note: editingNoteValue.value || undefined,
+    version: result.data.version,
+  };
   userCache.setTokens(userName.value, [...tokens.value]);
   editingNoteIdx.value = -1;
   tokenSuccess.value = 'Token updated.';
@@ -577,7 +668,11 @@ async function submitCreateToken() {
     expiry = d.toISOString();
   }
   tokenCreateLoading.value = true;
-  const result = await api.createUserToken(userName.value, newTokenNote.value.trim() || undefined, expiry);
+  const result = await api.createUserToken(
+    userName.value,
+    newTokenNote.value.trim() || undefined,
+    expiry,
+  );
   tokenCreateLoading.value = false;
   if (!result.success) {
     tokenError.value = result.description;

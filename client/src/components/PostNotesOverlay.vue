@@ -77,7 +77,9 @@ function computeBounds() {
   const naturalW =
     imgEl instanceof HTMLImageElement ? imgEl.naturalWidth : (imgEl as HTMLVideoElement).videoWidth;
   const naturalH =
-    imgEl instanceof HTMLImageElement ? imgEl.naturalHeight : (imgEl as HTMLVideoElement).videoHeight;
+    imgEl instanceof HTMLImageElement
+      ? imgEl.naturalHeight
+      : (imgEl as HTMLVideoElement).videoHeight;
 
   if (naturalW && naturalH && rW > 0 && rH > 0) {
     const containerAspect = rW / rH;

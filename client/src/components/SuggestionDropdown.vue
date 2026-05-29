@@ -10,11 +10,15 @@
       role="option"
       :aria-selected="i === activeIndex"
       class="flex items-center justify-between px-3 py-1.5 text-sm cursor-pointer"
-      :class="i === activeIndex ? 'bg-cyan-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-600'"
+      :class="
+        i === activeIndex ? 'bg-cyan-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+      "
       @mousedown.prevent="emit('select', suggestion)"
     >
       <span
-        :style="suggestion.category !== 'default' ? `color: var(--tag-cat-${suggestion.category})` : ''"
+        :style="
+          suggestion.category !== 'default' ? `color: var(--tag-cat-${suggestion.category})` : ''
+        "
         :class="i === activeIndex ? 'text-white!' : ''"
       >
         {{ underscoreAsSpaces ? suggestion.name.replace(/_/g, ' ') : suggestion.name }}
@@ -29,6 +33,7 @@ interface Suggestion {
   name: string;
   category: string;
   usages: number;
+  implications: string[];
 }
 
 defineProps<{

@@ -9,7 +9,10 @@
           :alt="comment.user.name"
           class="w-9 h-9 object-cover"
         />
-        <div v-else class="w-9 h-9 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
+        <div
+          v-else
+          class="w-9 h-9 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300"
+        >
           {{ comment.user.name[0]?.toUpperCase() }}
         </div>
       </RouterLink>
@@ -28,8 +31,16 @@
           {{ comment.user.name }}
         </RouterLink>
         <span v-else class="text-sm font-medium text-gray-400">anonymous</span>
-        <RelativeTime :time="comment.creationTime" class="text-xs text-gray-400" />
-        <span v-if="comment.lastEditTime && comment.lastEditTime !== comment.creationTime" class="text-xs text-gray-400">(edited)</span>
+        <RelativeTime
+          v-if="comment.creationTime"
+          :time="comment.creationTime"
+          class="text-xs text-gray-400"
+        />
+        <span
+          v-if="comment.lastEditTime && comment.lastEditTime !== comment.creationTime"
+          class="text-xs text-gray-400"
+          >(edited)</span
+        >
       </div>
 
       <!-- Edit mode -->
@@ -40,10 +51,19 @@
           class="w-full text-sm bg-gray-50! dark:bg-gray-800!"
         />
         <div class="flex items-center gap-2">
-          <FlatButton type="button" class="px-2 py-0.5 text-xs" :disabled="saving" @click="saveEdit">
+          <FlatButton
+            type="button"
+            class="px-2 py-0.5 text-xs"
+            :disabled="saving"
+            @click="saveEdit"
+          >
             {{ saving ? 'Saving…' : 'Save' }}
           </FlatButton>
-          <button type="button" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 cursor-pointer" @click="cancelEdit">
+          <button
+            type="button"
+            class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 cursor-pointer"
+            @click="cancelEdit"
+          >
             Cancel
           </button>
           <span v-if="editError" class="text-xs text-red-500">{{ editError }}</span>
@@ -67,8 +87,15 @@
             :class="localOwnScore === 1 ? 'text-green-500' : 'text-gray-400 hover:text-green-500'"
             :disabled="!canScore"
             @click="vote(1)"
-          >▲</button>
-          <span class="tabular-nums font-medium" :class="localScore > 0 ? 'text-green-500' : localScore < 0 ? 'text-red-500' : 'text-gray-400'">
+          >
+            ▲
+          </button>
+          <span
+            class="tabular-nums font-medium"
+            :class="
+              localScore > 0 ? 'text-green-500' : localScore < 0 ? 'text-red-500' : 'text-gray-400'
+            "
+          >
             {{ localScore }}
           </span>
           <button
@@ -76,7 +103,9 @@
             :class="localOwnScore === -1 ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
             :disabled="!canScore"
             @click="vote(-1)"
-          >▼</button>
+          >
+            ▼
+          </button>
         </div>
 
         <!-- Edit / delete -->
@@ -86,13 +115,17 @@
             type="button"
             class="text-xs text-gray-400 hover:text-cyan-500 cursor-pointer"
             @click="startEdit"
-          >Edit</button>
+          >
+            Edit
+          </button>
           <button
             v-if="canDelete"
             type="button"
             class="text-xs text-gray-400 hover:text-red-500 cursor-pointer"
             @click="doDelete"
-          >Delete</button>
+          >
+            Delete
+          </button>
         </template>
       </div>
     </div>
@@ -127,27 +160,25 @@ const editText = ref('');
 const saving = ref(false);
 const editError = ref('');
 
-const canScore = computed(() =>
-  !!api.userToken && api.hasPrivilege('comment_score'),
-);
+const canScore = computed(() => !!api.userToken && api.hasPrivilege('comment_score'));
 
 const canEdit = computed(() => {
   if (!api.userToken) return false;
   if (api.hasPrivilege('comment_edit_any')) return true;
-  if (api.hasPrivilege('comment_edit_own') && props.comment.user?.name === api.user?.name) return true;
+  if (api.hasPrivilege('comment_edit_own') && props.comment.user?.name === api.user?.name)
+    return true;
   return false;
 });
 
 const canDelete = computed(() => {
   if (!api.userToken) return false;
   if (api.hasPrivilege('comment_delete_any')) return true;
-  if (api.hasPrivilege('comment_delete_own') && props.comment.user?.name === api.user?.name) return true;
+  if (api.hasPrivilege('comment_delete_own') && props.comment.user?.name === api.user?.name)
+    return true;
   return false;
 });
 
-const renderedText = computed(() =>
-  props.comment.text ? renderMarkdown(props.comment.text) : '',
-);
+const renderedText = computed(() => (props.comment.text ? renderMarkdown(props.comment.text) : ''));
 
 function startEdit() {
   editText.value = props.comment.text ?? '';

@@ -16,8 +16,8 @@
   "dependencies": {
     "@cyhnkckali/vue3-color-picker": "^2.1.7",
     "@lucide/vue": "^1.16.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
-    "@types/dompurify": "^3.2.0",
     "@unhead/vue": "^3.0.4",
     "@vueuse/core": "^14.3.0",
     "culori": "^4.0.2",

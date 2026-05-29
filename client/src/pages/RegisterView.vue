@@ -80,11 +80,7 @@
 
             <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
-            <FlatButton
-              type="submit"
-              class="w-full"
-              :disabled="loading"
-            >
+            <FlatButton type="submit" class="w-full" :disabled="loading">
               Create an account
             </FlatButton>
           </form>
@@ -116,7 +112,9 @@
           <hr class="border-gray-300 dark:border-gray-600 mb-4" />
           <p class="text-gray-500 dark:text-gray-400">
             By creating an account you agree to the
-            <RouterLink to="/help/tos" class="text-cyan-500 hover:underline">Terms of Service</RouterLink>.
+            <RouterLink to="/help/tos" class="text-cyan-500 hover:underline"
+              >Terms of Service</RouterLink
+            >.
           </p>
         </div>
       </div>
