@@ -40,7 +40,7 @@
         />
 
         <RouterLink
-          to="/help/search?t=posts"
+          to="/help/search/posts"
           class="self-center ml-2 text-sm text-gray-500 hover:brightness-110 w-max"
         >
           Syntax help
@@ -151,10 +151,11 @@
       <div
         v-for="post in posts"
         :key="post.id"
-        class="relative group cursor-pointer overflow-hidden"
+        data-testid="post-item"
+        class="relative cursor-pointer overflow-hidden group"
         :class="{
           'ring-2 ring-red-500': massActiveState === 'delete' && deletionCandidates.has(post.id!),
-          'hover:ring-2 hover:ring-cyan-500': !(
+          'hover:ring-2 hover:ring-cyan-500 focus:ring-cyan-500': !(
             massActiveState === 'delete' && deletionCandidates.has(post.id!)
           ),
           'post-flow-item': settingsReady && settings.postFlow,
@@ -176,7 +177,7 @@
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
             :class="[
-              'object-cover block group-hover:opacity-90 transition-opacity',
+              'object-cover block group-hover:opacity-90 group-focus:opacity-90 transition-opacity',
               thumbnailSizeClass,
             ]"
             loading="lazy"
@@ -190,7 +191,7 @@
             :src="resolveApiUrl(post.thumbnailUrl)"
             :alt="`Post #${post.id}`"
             :class="[
-              'object-cover block group-hover:opacity-90 transition-opacity',
+              'object-cover block group-hover:opacity-90 group-focus:opacity-90 transition-opacity',
               thumbnailSizeClass,
             ]"
             loading="lazy"
@@ -590,15 +591,30 @@ watch(
   },
 );
 
+const navigationLeft = () => {
+  if (!settings.endlessScroll && currentPage.value > 1) goToPage(currentPage.value - 1);
+};
+const navigationRight = () => {
+  if (!settings.endlessScroll) {
+    const totalPages = Math.ceil(totalCount.value / pageSize.value);
+    if (currentPage.value < totalPages) goToPage(currentPage.value + 1);
+  }
+};
+
 useKeyboardShortcuts({
-  ArrowLeft: () => {
-    if (!settings.endlessScroll && currentPage.value > 1) goToPage(currentPage.value - 1);
-  },
-  ArrowRight: () => {
-    if (!settings.endlessScroll) {
-      const totalPages = Math.ceil(totalCount.value / pageSize.value);
-      if (currentPage.value < totalPages) goToPage(currentPage.value + 1);
-    }
+  ArrowLeft: navigationLeft,
+  ArrowRight: navigationRight,
+  a: navigationLeft,
+  d: navigationRight,
+  A: navigationLeft,
+  D: navigationRight,
+  P: () => {
+    // focus first post in the post list
+    const firstPost = document.querySelector(
+      '[data-testid="post-item"] a',
+    ) as HTMLDivElement | null;
+    console.log('chort', firstPost);
+    if (firstPost) firstPost.focus();
   },
 });
 </script>

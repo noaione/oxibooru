@@ -1,14 +1,22 @@
 <template>
   <div class="flex flex-col gap-4 w-full">
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-xl font-semibold">Tags</h1>
-      <RouterLink
-        v-if="canEditCategories"
-        to="/tag-categories"
-        class="text-sm text-cyan-500 hover:underline ml-auto"
-      >
-        Manage categories
-      </RouterLink>
+      <div class="flex flex-row gap-2">
+        <RouterLink
+          to="/help/search/tags"
+          class="text-sm text-gray-500 dark:text-gray-400 hover:underline"
+        >
+          Syntax help
+        </RouterLink>
+        <RouterLink
+          v-if="canEditCategories"
+          to="/tag-categories"
+          class="text-sm text-cyan-500 hover:underline"
+        >
+          Manage categories
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Search + Sort -->

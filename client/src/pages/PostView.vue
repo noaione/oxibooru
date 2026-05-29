@@ -695,15 +695,20 @@
             v-html="newCommentPreviewHtml"
           />
 
-          <div class="flex items-center gap-2">
-            <FlatButton
-              type="button"
-              class="w-fit"
-              :disabled="!newCommentText.trim() || submittingComment"
-              @click="submitComment"
-            >
-              {{ submittingComment ? 'Posting…' : 'Post comment' }}
-            </FlatButton>
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-row items-center gap-2">
+              <FlatButton
+                type="button"
+                class="w-fit"
+                :disabled="!newCommentText.trim() || submittingComment"
+                @click="submitComment"
+              >
+                {{ submittingComment ? 'Posting…' : 'Post comment' }}
+              </FlatButton>
+              <RouterLink to="/help/comments" class="text-cyan-500 hover:underline text-sm">
+                Help
+              </RouterLink>
+            </div>
             <span v-if="commentError" class="text-xs text-red-500">{{ commentError }}</span>
           </div>
         </div>
@@ -922,7 +927,9 @@ const fitClass = computed(() => {
       return 'w-full h-auto object-contain';
     default:
       // fit-both: upscale forces full container width so small images stretch
-      return upscale ? 'w-full max-h-screen object-contain' : 'max-w-full max-h-screen object-contain';
+      return upscale
+        ? 'w-full max-h-screen object-contain'
+        : 'max-w-full max-h-screen object-contain';
   }
 });
 
@@ -1303,6 +1310,17 @@ useKeyboardShortcuts({
   },
   ArrowRight: () => {
     if (nextPost.value?.id != null) router.push(neighborUrl(nextPost.value.id));
+  },
+  F: () => {
+    if (!isEditMode.value) {
+      // cycle post fit
+      const current = settings.fitMode;
+      const findIndex = fitModes.findIndex((mode) => mode.value === current);
+      const next = fitModes[(findIndex + 1) % fitModes.length]?.value;
+      if (next) {
+        settings.fitMode = next;
+      }
+    }
   },
   f: () => {
     if (!isEditMode.value) toggleFavorite();

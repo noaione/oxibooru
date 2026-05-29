@@ -1,8 +1,14 @@
 <template>
   <div class="flex flex-col gap-4 w-full">
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-xl font-semibold">Pools</h1>
-      <div class="ml-auto flex items-center gap-3">
+      <div class="flex items-center gap-3">
+        <RouterLink
+          to="/help/search/pools"
+          class="text-sm text-gray-500 dark:text-gray-400 hover:underline"
+        >
+          Syntax help
+        </RouterLink>
         <RouterLink
           v-if="canCreate"
           to="/pools/create"

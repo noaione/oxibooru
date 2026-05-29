@@ -85,22 +85,29 @@
           v-html="editPreviewHtml"
         />
 
-        <div class="flex items-center gap-2">
-          <FlatButton
-            type="button"
-            class="px-2 py-0.5 text-xs"
-            :disabled="saving"
-            @click="saveEdit"
-          >
-            {{ saving ? 'Saving…' : 'Save' }}
-          </FlatButton>
-          <button
-            type="button"
-            class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 cursor-pointer"
-            @click="cancelEdit"
-          >
-            Cancel
-          </button>
+        <div class="flex flex-col gap-2 mt-2">
+          <div class="flex flex-row items-center gap-2">
+            <FlatButton
+              type="button"
+              class="px-2 py-0.5 text-xs"
+              :disabled="saving"
+              @click="saveEdit"
+            >
+              {{ saving ? 'Saving…' : 'Save' }}
+            </FlatButton>
+            <FlatButton
+              type="button"
+              class="px-2! py-0.5 text-xs"
+              kind="neutral"
+              :disabled="saving"
+              @click="cancelEdit"
+            >
+              Cancel
+            </FlatButton>
+            <RouterLink to="/help/comments" class="text-cyan-500 hover:underline text-sm">
+              Help
+            </RouterLink>
+          </div>
           <span v-if="editError" class="text-xs text-red-500">{{ editError }}</span>
         </div>
       </template>
@@ -197,7 +204,6 @@ const saving = ref(false);
 const editError = ref('');
 
 const editPreviewHtml = computed(() => (editText.value ? renderMarkdown(editText.value) : ''));
-
 const canScore = computed(() => !!api.userToken && api.hasPrivilege('comment_score'));
 
 const canEdit = computed(() => {
