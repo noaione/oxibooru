@@ -76,15 +76,15 @@
           </RouterLink>
 
           <!-- Info -->
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 w-fit">
             <RouterLink
               :to="`/pool/${pool.id}`"
-              class="font-medium hover:underline block truncate"
+              class="font-medium hover:underline block truncate w-fit"
               :style="poolColor(pool.category)"
             >
               {{ pool.names?.[0] ?? `Pool #${pool.id}` }}
             </RouterLink>
-            <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400 w-fit">
               <span
                 v-if="pool.category"
                 class="px-1.5 py-0.5 rounded border"
@@ -92,16 +92,16 @@
               >
                 {{ pool.category }}
               </span>
-              <span
-                >{{ (pool.postCount ?? 0).toLocaleString() }} post{{
+              <span>
+                {{ (pool.postCount ?? 0).toLocaleString() }} post{{
                   pool.postCount !== 1 ? 's' : ''
-                }}</span
-              >
+                }}
+              </span>
             </div>
           </div>
 
           <!-- Edit link -->
-          <div v-if="canEdit" class="shrink-0">
+          <div v-if="canEdit" class="shrink-0 mr-2">
             <RouterLink :to="`/pool/${pool.id}/edit`" class="text-xs text-cyan-500 hover:underline">
               Edit
             </RouterLink>
