@@ -163,7 +163,7 @@ function displayTag(raw: string) {
 }
 
 function tagColor(category?: string): Record<string, string> {
-  if (!category || category === 'default') return {};
+  if (!category) return {};
   return { color: `var(--tag-cat-${category})` };
 }
 

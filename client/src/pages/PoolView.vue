@@ -380,7 +380,7 @@ const deleteLoading = ref(false);
 
 // ── Helpers ───────────────────────────────────────────────────
 function poolColor(category?: string): Record<string, string> {
-  if (!category || category === 'default') return {};
+  if (!category) return {};
   return { color: `var(--pool-cat-${category})` };
 }
 

@@ -150,13 +150,13 @@ const baseTag = computed(() => {
 
 const removeTagColor = computed(() => {
   const cat = removeTag.value?.category;
-  if (!cat || cat === 'default') return {};
+  if (!cat) return {};
   return { color: `var(--tag-cat-${cat})` };
 });
 
 const baseTagColor = computed(() => {
   const cat = baseTag.value?.category;
-  if (!cat || cat === 'default') return {};
+  if (!cat) return {};
   return { color: `var(--tag-cat-${cat})` };
 });
 
