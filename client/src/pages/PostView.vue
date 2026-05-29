@@ -761,7 +761,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
+import { ref, computed, watch, toRaw, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import {
@@ -878,7 +878,7 @@ function syncEditFields() {
   editLoopFlag.value = post.value.flags?.includes('loop') ?? false;
   editSoundFlag.value = post.value.flags?.includes('sound') ?? false;
   editDescription.value = post.value.description ?? '';
-  editNotes.value = structuredClone(post.value.notes ?? []);
+  editNotes.value = structuredClone(toRaw(post.value.notes ?? []));
   editNewContent.value = null;
   editNewThumbnail.value = null;
   editError.value = '';
