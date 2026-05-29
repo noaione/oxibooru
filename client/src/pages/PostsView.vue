@@ -281,6 +281,7 @@ import { ref, computed, watch, watchEffect, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useKeyModifier } from '@vueuse/core';
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
 import { Check as CheckIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
@@ -588,6 +589,18 @@ watch(
     fetchPosts(0);
   },
 );
+
+useKeyboardShortcuts({
+  ArrowLeft: () => {
+    if (!settings.endlessScroll && currentPage.value > 1) goToPage(currentPage.value - 1);
+  },
+  ArrowRight: () => {
+    if (!settings.endlessScroll) {
+      const totalPages = Math.ceil(totalCount.value / pageSize.value);
+      if (currentPage.value < totalPages) goToPage(currentPage.value + 1);
+    }
+  },
+});
 </script>
 
 <style lang="css">

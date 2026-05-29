@@ -560,7 +560,7 @@
         <div
           v-if="post.type === 'image' || post.type === 'animation'"
           class="relative"
-          :class="mediaWrapperClass"
+          :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
           :style="{
             aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
           }"
@@ -586,7 +586,7 @@
         <div
           v-else-if="post.type === 'video'"
           class="relative"
-          :class="mediaWrapperClass"
+          :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
           :style="{
             aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
           }"
@@ -705,6 +705,7 @@ import { usePostCacheStore } from '@/stores/cache';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
 import type {
   CommentInfo,
   PostInfo,
@@ -876,6 +877,7 @@ const fitModes = [
 ];
 
 const fitClass = computed(() => {
+  const upscale = settings.upscaleSmallPosts;
   switch (settings.fitMode) {
     case 'fit-original':
       return 'max-w-none max-h-none pr-4';
@@ -884,7 +886,8 @@ const fitClass = computed(() => {
     case 'fit-width':
       return 'w-full h-auto object-contain';
     default:
-      return 'max-w-full max-h-screen object-contain'; // fit-both
+      // fit-both: upscale forces full container width so small images stretch
+      return upscale ? 'w-full max-h-screen object-contain' : 'max-w-full max-h-screen object-contain';
   }
 });
 
@@ -1251,5 +1254,28 @@ useHeadSafe(() => ({
 onDeactivated(() => {
   // we keep the local cache, but remove the post value
   post.value = null;
+});
+
+useKeyboardShortcuts({
+  ArrowLeft: () => {
+    if (prevPost.value?.id != null) router.push(neighborUrl(prevPost.value.id));
+  },
+  ArrowRight: () => {
+    if (nextPost.value?.id != null) router.push(neighborUrl(nextPost.value.id));
+  },
+  f: () => {
+    if (!isEditMode.value) toggleFavorite();
+  },
+  e: () => {
+    if (!post.value) return;
+    if (isEditMode.value) router.push(`/post/${post.value.id}`);
+    else if (canEditPost.value) router.push(`/post/${post.value.id}/edit`);
+  },
+  a: () => {
+    if (videoRef.value) {
+      if (videoRef.value.paused) videoRef.value.play();
+      else videoRef.value.pause();
+    }
+  },
 });
 </script>
