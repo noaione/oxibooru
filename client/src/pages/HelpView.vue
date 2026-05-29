@@ -115,6 +115,8 @@ Sort style tokens can be appended with \`,asc\` or \`,desc\` to control the sort
 
 Escape special characters like \`:\` and \`-\` with a backslash: \`\\\`.
 
+String literals are supported using double quotes (\`"\`). Inside a string literal, only the \`"\` character can be escaped with \`\\\`.
+
 ## Example
 
 \`\`\`
@@ -232,7 +234,7 @@ Oh, and you can delete your account at any time. Posts you uploaded will stay, u
 | \`liked\` | posts liked by the current user |
 | \`disliked\` | posts disliked by the current user |
 | \`fav\` | posts in the current user's favorites |
-| \`tumbleweed\` | posts with score 0, no comments, and no favorites |
+| \`tumbleweed\` | posts without ratings, comments, or favorites |
 `,
   ),
 
