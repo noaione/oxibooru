@@ -28,12 +28,7 @@
       </h2>
       <div class="flex flex-col gap-2">
         <label class="flex items-center gap-3 cursor-pointer">
-          <input
-            v-model="s.darkTheme"
-            type="checkbox"
-            class="w-4 h-4 accent-cyan-500"
-            @change="settingsStore.updateTheme(s.darkTheme)"
-          />
+          <input v-model="isDark" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Dark theme</span>
         </label>
         <label class="flex items-center gap-3 cursor-pointer">
@@ -135,12 +130,15 @@
 import FlatInput from '@/components/FlatInput.vue';
 import FlatSelect from '@/components/FlatSelect.vue';
 import { useTokenStore } from '@/stores/api';
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore, useDarkTheme } from '@/stores/settings';
 import { useHeadSafe } from '@unhead/vue';
+import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
 const api = useTokenStore();
 const settingsStore = useSettingsStore();
+const darkTheme = useDarkTheme();
+const { isDark } = storeToRefs(darkTheme);
 const s = computed(() => settingsStore.settings);
 
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');

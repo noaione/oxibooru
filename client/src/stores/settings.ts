@@ -4,7 +4,6 @@ import { ref, watch } from 'vue';
 interface Settings {
   keyboardShortcuts: boolean;
   postsPerPage: number;
-  darkTheme: boolean;
   upscaleSmallPosts: boolean;
   endlessScroll: boolean;
   postFlow: boolean;
@@ -36,7 +35,6 @@ export const useSettingsStore = defineStore('settings', () => {
     autoplayVideos: false,
     postsPerPage: 42,
     tagUnderscoresAsSpaces: false,
-    darkTheme: false,
     postFlow: false,
   });
   const ready = ref(false);
@@ -83,22 +81,11 @@ export const useSettingsStore = defineStore('settings', () => {
     { immediate: true, deep: true },
   );
 
-  const updateTheme = (dark: boolean) => {
-    const body = document.body;
-    if (dark) {
-      body.classList.add('darktheme');
-    } else {
-      body.classList.remove('darktheme');
-    }
-    settings.value.darkTheme = dark;
-  };
-
   return {
     ready,
     isNew,
     settings,
     init,
-    updateTheme,
   };
 });
 
