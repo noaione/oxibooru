@@ -96,11 +96,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { useTagCacheStore } from '@/stores/cache';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
@@ -111,6 +112,7 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
+const tagCache = useTagCacheStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
 const toast = useToast();
@@ -165,9 +167,21 @@ function tagColor(category?: string): Record<string, string> {
 }
 
 async function loadTags() {
-  loader.start();
+  if (!sourceName.value || !otherName.value) return; // nan/invalid
+
   loadError.value = '';
 
+  const cachedTag1 = tagCache.getTag(sourceName.value);
+  const cachedTag2 = tagCache.getTag(otherName.value);
+
+  if (cachedTag1 && cachedTag2) {
+    tag1.value = cachedTag1;
+    tag2.value = cachedTag2;
+    baseTagName.value = cachedTag1.names?.[0] ?? '';
+    return;
+  }
+
+  loader.start();
   let r1: Awaited<ReturnType<typeof api.getTag>>;
   let r2: Awaited<ReturnType<typeof api.getTag>>;
   try {
@@ -193,6 +207,8 @@ async function loadTags() {
 
   tag1.value = r1.data;
   tag2.value = r2.data;
+  tagCache.setTag(sourceName.value, r1.data);
+  tagCache.setTag(otherName.value, r2.data);
   baseTagName.value = r1.data.names?.[0] ?? '';
 }
 
@@ -220,6 +236,8 @@ async function confirmMerge() {
   merging.value = false;
 
   if (result.success) {
+    tagCache.invalidateTag(removeTag.value.names?.[0] ?? '');
+    tagCache.setTag(baseTagName.value, result.data);
     toast.showSuccess(`Tags merged. "${displayTag(removeTag.value.names?.[0] ?? '')}" was deleted.`);
     router.push(`/tag/${encodeURIComponent(baseTagName.value)}`);
   } else {
@@ -237,4 +255,10 @@ function formatDate(iso?: string | null): string {
 }
 
 onMounted(loadTags);
+
+onDeactivated(() => {
+  tag1.value = null;
+  tag2.value = null;
+  loadError.value = '';
+});
 </script>

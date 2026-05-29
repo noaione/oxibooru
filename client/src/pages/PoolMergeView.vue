@@ -97,11 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { usePoolCacheStore } from '@/stores/cache';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { PoolInfo } from '@/types/oxibooru.gen';
@@ -112,6 +113,7 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
+const poolCache = usePoolCacheStore();
 const confirm = useConfirm();
 const toast = useToast();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
@@ -147,9 +149,21 @@ function poolColor(category?: string): Record<string, string> {
 }
 
 async function loadPools() {
-  loader.start();
+  if (!sourceId.value || !otherId.value) return; // nan/invalid
+
   loadError.value = '';
 
+  const cachedPool1 = poolCache.getPool(sourceId.value);
+  const cachedPool2 = poolCache.getPool(otherId.value);
+
+  if (cachedPool1 && cachedPool2) {
+    pool1.value = cachedPool1;
+    pool2.value = cachedPool2;
+    basePoolId.value = cachedPool1.id ?? null;
+    return;
+  }
+
+  loader.start();
   try {
     const [r1, r2] = await Promise.all([
       api.getPool(sourceId.value),
@@ -168,6 +182,8 @@ async function loadPools() {
 
     pool1.value = r1.data;
     pool2.value = r2.data;
+    poolCache.setPool(sourceId.value, r1.data);
+    poolCache.setPool(otherId.value, r2.data);
     basePoolId.value = r1.data.id ?? null;
   } finally {
     loader.done();
@@ -198,6 +214,8 @@ async function confirmMerge() {
   merging.value = false;
 
   if (result.success) {
+    poolCache.invalidatePool(removePool.value.id!);
+    poolCache.setPool(basePool.value.id!, result.data);
     toast.showSuccess(`Pools merged. Pool #${removePool.value.id} was deleted.`);
     router.push(`/pool/${basePool.value.id}`);
   } else {
@@ -206,4 +224,10 @@ async function confirmMerge() {
 }
 
 onMounted(loadPools);
+
+onDeactivated(() => {
+  pool1.value = null;
+  pool2.value = null;
+  loadError.value = '';
+});
 </script>

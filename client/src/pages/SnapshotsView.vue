@@ -12,7 +12,10 @@
       <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else>
-        <p v-if="!loading && snapshots.length === 0" class="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          v-if="!loading && snapshots.length === 0"
+          class="text-sm text-gray-500 dark:text-gray-400"
+        >
           No snapshots found.
         </p>
 
@@ -33,7 +36,9 @@
             <!-- Resource + user + time -->
             <div class="flex-1 min-w-0 flex flex-col gap-0.5">
               <div class="flex items-center flex-wrap">
-                <span class="text-gray-500 dark:text-gray-400 capitalize">{{ formatType(snap.type) }}&nbsp;</span>
+                <span class="text-gray-500 dark:text-gray-400 capitalize"
+                  >{{ formatType(snap.type) }}&nbsp;</span
+                >
                 <component
                   :is="resourceLink(snap) ? 'RouterLink' : 'span'"
                   :to="resourceLink(snap)"
@@ -50,7 +55,7 @@
                   <AvatarLink :name="snap.user.name" :avatar-url="snap.user.avatarUrl" />
                 </span>
                 <span v-else>by anonymous</span>
-                &nbsp;<RelativeTime :time="snap.time" />
+                &nbsp;<RelativeTime v-if="snap.time" :time="snap.time" />
               </div>
             </div>
           </div>
@@ -131,16 +136,21 @@ async function fetchSnapshots() {
 
 function goToPage(page: number) {
   const offset = (page - 1) * pageSize;
-  router.push({ query: { ...route.query, offset: offset > 0 ? String(offset) : undefined }, });
+  router.push({ query: { ...route.query, offset: offset > 0 ? String(offset) : undefined } });
 }
 
 function operationClass(op?: ResourceOperation): string {
   switch (op) {
-    case 'created': return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
-    case 'modified': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
-    case 'deleted': return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
-    case 'merged': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
-    default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+    case 'created':
+      return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+    case 'modified':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
+    case 'deleted':
+      return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+    case 'merged':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
+    default:
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
   }
 }
 
@@ -151,25 +161,39 @@ function formatType(type?: ResourceType): string {
 function resourceLink(snap: SnapshotInfo): string | null {
   if (!snap.id) return null;
   switch (snap.type) {
-    case 'post': return `/post/${snap.id}`;
-    case 'tag': return `/tag/${encodeURIComponent(snap.id)}`;
-    case 'pool': return `/pool/${snap.id}`;
-    case 'user': return `/user/${encodeURIComponent(snap.id)}`;
-    case 'tag_category': return `/tag-categories`;
-    case 'pool_category': return `/pool-categories`;
-    default: return null;
+    case 'post':
+      return `/post/${snap.id}`;
+    case 'tag':
+      return `/tag/${encodeURIComponent(snap.id)}`;
+    case 'pool':
+      return `/pool/${snap.id}`;
+    case 'user':
+      return `/user/${encodeURIComponent(snap.id)}`;
+    case 'tag_category':
+      return `/tag-categories`;
+    case 'pool_category':
+      return `/pool-categories`;
+    default:
+      return null;
   }
 }
 function formatResourceId(snap: SnapshotInfo): string {
   if (!snap.id) return '';
   switch (snap.type) {
-    case 'post': return `@${snap.id}`;
-    case 'tag': return `#${snap.id}`;
-    case 'pool': return `$${snap.id}`;
-    case 'user': return `+${snap.id}`;
-    case 'tag_category': return snap.id;
-    case 'pool_category': return snap.id;
-    default: return '';
+    case 'post':
+      return `@${snap.id}`;
+    case 'tag':
+      return `#${snap.id}`;
+    case 'pool':
+      return `$${snap.id}`;
+    case 'user':
+      return `+${snap.id}`;
+    case 'tag_category':
+      return snap.id;
+    case 'pool_category':
+      return snap.id;
+    default:
+      return '';
   }
 }
 

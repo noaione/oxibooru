@@ -5,20 +5,29 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps<{ time?: string | null }>();
+const props = defineProps<{ time: string }>();
 
 const now = ref(Date.now());
 let timer: ReturnType<typeof setInterval> | null = null;
 
-onMounted(() => { timer = setInterval(() => { now.value = Date.now(); }, 60_000); });
-onUnmounted(() => { if (timer) clearInterval(timer); });
+onMounted(() => {
+  timer = setInterval(() => {
+    now.value = Date.now();
+  }, 60_000);
+});
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
 
 const absolute = computed(() => {
   if (!props.time) return '';
   try {
     return new Intl.DateTimeFormat(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(new Date(props.time));
   } catch {
     return props.time ?? '';
@@ -31,7 +40,7 @@ const relative = computed(() => {
   const difference = Math.abs(now.value - then) / 1000.0;
   const future = now.value < then;
 
-  const descriptions: [number, string, number?][] = [
+  const descriptions: [number, string, number | null][] = [
     [60, 'a few seconds', null],
     [60 * 2, 'a minute', null],
     [60 * 60, '% minutes', 60],
@@ -48,7 +57,11 @@ const relative = computed(() => {
   let text: string | null = null;
   for (const [multiplier, template, divider] of descriptions) {
     if (difference < multiplier) {
-      text = template.replace(/%/, Math.round(difference / divider));
+      if (divider === null) {
+        text = template;
+        break;
+      }
+      text = template.replace(/%/, Math.round(difference / divider).toString());
       break;
     }
   }

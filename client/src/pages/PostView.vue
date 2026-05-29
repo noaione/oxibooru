@@ -69,7 +69,10 @@
 
           <!-- Tags -->
           <section v-if="canEditPostTags" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Tags</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Tags</label
+            >
             <AutoCompleteTag
               mode="input"
               v-model="editTags"
@@ -83,7 +86,10 @@
 
           <!-- Safety -->
           <section v-if="enableSafety && canEditPostSafety" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Safety</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Safety</label
+            >
             <div class="flex gap-3">
               <label
                 v-for="s in safetyOptions"
@@ -100,7 +106,10 @@
 
           <!-- Source -->
           <section v-if="canEditPostSource" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Source</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Source</label
+            >
             <FlatTextarea
               v-model="editSource"
               rows="3"
@@ -111,7 +120,10 @@
 
           <!-- Relations -->
           <section v-if="canEditPostRelations" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Relations</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Relations</label
+            >
             <FlatInput
               v-model="editRelations"
               type="text"
@@ -122,7 +134,10 @@
 
           <!-- Flags (video only) -->
           <section v-if="post.type === 'video' && canEditPostFlags" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Flags</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Flags</label
+            >
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input v-model="editLoopFlag" type="checkbox" />
               Loop video
@@ -135,7 +150,10 @@
 
           <!-- Description -->
           <section v-if="canEditPostDescription" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Description</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Description</label
+            >
             <FlatTextarea
               v-model="editDescription"
               rows="4"
@@ -146,18 +164,30 @@
 
           <!-- Content replacement -->
           <section v-if="canEditPostContent" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Replace content</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Replace content</label
+            >
             <div
               class="border border-dashed bg-gray-50 dark:bg-gray-800 border-gray-400 dark:border-gray-600 p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
               @click="contentInputRef?.click()"
               @dragover.prevent
-              @drop.prevent="(e) => { editNewContent = (e as DragEvent).dataTransfer?.files[0] ?? null }"
+              @drop.prevent="
+                (e) => {
+                  editNewContent = (e as DragEvent).dataTransfer?.files[0] ?? null;
+                }
+              "
             >
               <input
                 ref="contentInputRef"
                 type="file"
                 class="hidden"
-                @change="(e) => { editNewContent = (e.target as HTMLInputElement).files?.[0] ?? null; (e.target as HTMLInputElement).value = '' }"
+                @change="
+                  (e) => {
+                    editNewContent = (e.target as HTMLInputElement).files?.[0] ?? null;
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                "
               />
               {{ editNewContent?.name || 'Click or drop to replace file' }}
             </div>
@@ -173,19 +203,31 @@
 
           <!-- Thumbnail replacement -->
           <section v-if="canEditPostThumbnail" class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Replace thumbnail</label>
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Replace thumbnail</label
+            >
             <div
               class="border border-dashed bg-gray-50 dark:bg-gray-800 border-gray-400 dark:border-gray-600 p-2 text-center text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:border-cyan-500 hover:text-cyan-500 transition-colors"
               @click="thumbnailInputRef?.click()"
               @dragover.prevent
-              @drop.prevent="(e) => { editNewThumbnail = (e as DragEvent).dataTransfer?.files[0] ?? null }"
+              @drop.prevent="
+                (e) => {
+                  editNewThumbnail = (e as DragEvent).dataTransfer?.files[0] ?? null;
+                }
+              "
             >
               <input
                 ref="thumbnailInputRef"
                 type="file"
                 accept="image/*"
                 class="hidden"
-                @change="(e) => { editNewThumbnail = (e.target as HTMLInputElement).files?.[0] ?? null; (e.target as HTMLInputElement).value = '' }"
+                @change="
+                  (e) => {
+                    editNewThumbnail = (e.target as HTMLInputElement).files?.[0] ?? null;
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                "
               />
               {{ editNewThumbnail?.name || 'Click or drop to replace thumbnail' }}
             </div>
@@ -209,8 +251,14 @@
           </FlatButton>
 
           <!-- Management -->
-          <section v-if="canDeletePost || canMergePost || canFeaturePost" class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700">
-            <label class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">Management</label>
+          <section
+            v-if="canDeletePost || canMergePost || canFeaturePost"
+            class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700"
+          >
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+              >Management</label
+            >
 
             <button
               v-if="canFeaturePost"
@@ -233,11 +281,7 @@
                   placeholder="Post ID"
                   @keydown.enter.prevent="goToMerge"
                 />
-                <FlatButton
-                  type="button"
-                  kind="warn"
-                  class="px-2! py-0! text-black! text-xs"
-                >
+                <FlatButton type="button" kind="warn" class="px-2! py-0! text-black! text-xs">
                   Go
                 </FlatButton>
               </div>
@@ -270,10 +314,17 @@
               {{ formatFileSize(post.fileSize) }}
               {{ mimeLabel(post.mimeType) }}
             </a>
-            <span v-if="post.canvasWidth && post.canvasHeight" class="text-gray-500 dark:text-gray-400 text-xs">
+            <span
+              v-if="post.canvasWidth && post.canvasHeight"
+              class="text-gray-500 dark:text-gray-400 text-xs"
+            >
               {{ post.canvasWidth }}×{{ post.canvasHeight }}
-              <span v-if="post.flags?.includes('loop')" title="Loops"><RepeatIcon :size="11" class="inline" /></span>
-              <span v-if="post.flags?.includes('sound')" title="Has audio"><Volume2Icon :size="11" class="inline" /></span>
+              <span v-if="post.flags?.includes('loop')" title="Loops"
+                ><RepeatIcon :size="11" class="inline"
+              /></span>
+              <span v-if="post.flags?.includes('sound')" title="Has audio"
+                ><Volume2Icon :size="11" class="inline"
+              /></span>
             </span>
           </section>
 
@@ -281,17 +332,18 @@
           <section class="text-gray-500 dark:text-gray-400 text-xs">
             <span>
               Uploaded by
-              <AvatarLink :simple="!canViewUsers" :name="post.user?.name ?? 'anonymous'" :avatar-url="post.user?.avatarUrl" />
+              <AvatarLink
+                :simple="!canViewUsers"
+                :name="post.user?.name ?? 'anonymous'"
+                :avatar-url="post.user?.avatarUrl"
+              />
             </span>
             <span v-if="post.creationTime">, <RelativeTime :time="post.creationTime" /></span>
           </section>
 
           <!-- Safety -->
           <section v-if="enableSafety" class="flex items-center gap-1.5">
-            <span
-              class="w-2.5 h-2.5 rounded-full"
-              :class="safetyColor(post.safety)"
-            />
+            <span class="w-2.5 h-2.5 rounded-full" :class="safetyColor(post.safety)" />
             <span class="capitalize">{{ post.safety }}</span>
           </section>
 
@@ -301,7 +353,11 @@
               v-for="mode in fitModes"
               :key="mode.value"
               class="cursor-pointer hover:text-cyan-500 transition-colors"
-              :class="settings.fitMode === mode.value ? 'text-cyan-500 font-medium' : 'text-gray-500 dark:text-gray-400'"
+              :class="
+                settings.fitMode === mode.value
+                  ? 'text-cyan-500 font-medium'
+                  : 'text-gray-500 dark:text-gray-400'
+              "
               @click="settings.fitMode = mode.value"
             >
               {{ mode.label }}
@@ -335,7 +391,8 @@
               target="_blank"
               rel="noopener noreferrer"
               class="text-cyan-500 hover:underline"
-            >IQDB</a>
+              >IQDB</a
+            >
             <span>·</span>
             <a
               v-if="post.checksumMD5"
@@ -343,14 +400,16 @@
               target="_blank"
               rel="noopener noreferrer"
               class="text-cyan-500 hover:underline"
-            >Danbooru</a>
+              >Danbooru</a
+            >
             <span v-if="post.checksumMD5">·</span>
             <a
               :href="`https://lens.google.com/uploadbyurl?url=${encodeURIComponent(fullContentUrl)}`"
               target="_blank"
               rel="noopener noreferrer"
               class="text-cyan-500 hover:underline"
-            >Google</a>
+              >Google</a
+            >
           </section>
 
           <!-- Score + Favorite -->
@@ -359,7 +418,9 @@
             <div class="flex items-center gap-1.5">
               <button
                 class="cursor-pointer transition-colors"
-                :class="localOwnScore === 1 ? 'text-green-500' : 'text-gray-400 hover:text-green-500'"
+                :class="
+                  localOwnScore === 1 ? 'text-green-500' : 'text-gray-400 hover:text-green-500'
+                "
                 :disabled="!canScore"
                 :title="canScore ? 'Upvote' : ''"
                 @click="vote(1)"
@@ -383,7 +444,9 @@
               class="flex items-center gap-1 cursor-pointer transition-colors"
               :class="localOwnFavorite ? 'text-red-400' : 'text-gray-400 hover:text-red-400'"
               :disabled="!canFavorite"
-              :title="canFavorite ? (localOwnFavorite ? 'Remove from favorites' : 'Add to favorites') : ''"
+              :title="
+                canFavorite ? (localOwnFavorite ? 'Remove from favorites' : 'Add to favorites') : ''
+              "
               @click="toggleFavorite"
             >
               <HeartIcon :size="15" :fill="localOwnFavorite ? 'currentColor' : 'none'" />
@@ -394,7 +457,9 @@
 
         <!-- Relations -->
         <div v-if="post.relations?.length" class="card p-3 flex flex-col gap-2">
-          <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+          <h2
+            class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+          >
             Relations ({{ post.relations.length }})
           </h2>
           <div class="flex flex-wrap gap-1">
@@ -416,7 +481,9 @@
 
         <!-- Tags -->
         <div class="card p-3 flex flex-col gap-2">
-          <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+          <h2
+            class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+          >
             Tags ({{ post.tags?.length ?? 0 }})
           </h2>
           <ul v-if="post.tags?.length" class="flex flex-col gap-1">
@@ -449,7 +516,11 @@
           </ul>
           <p v-else class="text-xs text-gray-500 dark:text-gray-400">
             No tags yet.
-            <RouterLink v-if="canEditPost" :to="`/post/${post.id}/edit`" class="text-cyan-500 hover:underline">
+            <RouterLink
+              v-if="canEditPost"
+              :to="`/post/${post.id}/edit`"
+              class="text-cyan-500 hover:underline"
+            >
               Add some.
             </RouterLink>
           </p>
@@ -457,7 +528,9 @@
 
         <!-- Pools -->
         <div v-if="post.pools?.length" class="card p-3 flex flex-col gap-2">
-          <h2 class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+          <h2
+            class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+          >
             Pools ({{ post.pools.length }})
           </h2>
           <ul class="flex flex-col gap-1 text-sm">
@@ -477,16 +550,19 @@
     <!-- ── Main content ───────────────────────────────────────────── -->
     <main class="flex-1 min-w-0 flex flex-col gap-4 order-1 lg:order-2">
       <!-- Content viewer -->
-      <div class="flex items-start w-full" :class="{
-        'overflow-hidden': settings.fitMode !== 'fit-original',
-      }">
+      <div
+        class="flex items-start w-full"
+        :class="{
+          'overflow-hidden': settings.fitMode !== 'fit-original',
+        }"
+      >
         <!-- Image / Animation -->
         <div
           v-if="post.type === 'image' || post.type === 'animation'"
           class="relative"
           :class="mediaWrapperClass"
           :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
           }"
         >
           <img
@@ -499,7 +575,7 @@
             class="block"
             :class="fitClass"
             :style="{
-              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
             }"
             draggable="false"
           />
@@ -512,7 +588,7 @@
           class="relative"
           :class="mediaWrapperClass"
           :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
           }"
         >
           <video
@@ -522,7 +598,7 @@
             :height="post.canvasHeight || undefined"
             :class="fitClass"
             :style="{
-              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight / 1}`
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
             }"
             controls
             playsinline
@@ -549,7 +625,10 @@
       <div v-if="renderedDescription && !isEditMode" class="text-sm">
         <details open>
           <summary class="cursor-pointer font-medium mb-2">Description</summary>
-          <p class="whitespace-pre-wrap text-gray-700 dark:text-gray-300" v-html="renderedDescription" />
+          <p
+            class="whitespace-pre-wrap text-gray-700 dark:text-gray-300"
+            v-html="renderedDescription"
+          />
         </details>
       </div>
 
@@ -571,7 +650,10 @@
         <p v-else class="text-sm text-gray-500 dark:text-gray-400">No comments yet.</p>
 
         <!-- Create comment -->
-        <div v-if="canCreateComment" class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700">
+        <div
+          v-if="canCreateComment"
+          class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700"
+        >
           <FlatTextarea
             v-model="newCommentText"
             rows="3"
@@ -591,7 +673,8 @@
           </div>
         </div>
         <p v-else-if="!api.userToken" class="text-sm text-gray-500 dark:text-gray-400">
-          <RouterLink to="/login" class="text-cyan-500 hover:underline">Log in</RouterLink> to comment.
+          <RouterLink to="/login" class="text-cyan-500 hover:underline">Log in</RouterLink> to
+          comment.
         </p>
       </section>
     </main>
@@ -599,7 +682,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onDeactivated, reactive } from 'vue';
+import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import {
@@ -618,10 +701,18 @@ import {
 } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { usePostCacheStore } from '@/stores/cache';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
-import type { CommentInfo, PostInfo, PostNeighbors, PostSafety, PostFlag, PostUpdateBody } from '@/types/oxibooru.gen';
+import type {
+  CommentInfo,
+  PostInfo,
+  PostNeighbors,
+  PostSafety,
+  PostFlag,
+  PostUpdateBody,
+} from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
@@ -659,8 +750,7 @@ const localScore = ref(0);
 const localOwnScore = ref(0);
 const localOwnFavorite = ref(false);
 const localFavoriteCount = ref(0);
-const localCachedPages = reactive(new Map<number, PostInfo>());
-const localCachedNeighbors = reactive(new Map<number, PostNeighbors>());
+const postCache = usePostCacheStore();
 
 // ── Edit state ────────────────────────────────────────────────
 const editTags = ref<string[]>([]);
@@ -689,10 +779,10 @@ const editTagCategories = computed(() => {
 
 function syncEditFields() {
   if (!post.value) return;
-  editTags.value = post.value.tags?.map(t => t.names[0] ?? '').filter(Boolean) ?? [];
+  editTags.value = post.value.tags?.map((t) => t.names[0] ?? '').filter(Boolean) ?? [];
   editSafety.value = post.value.safety ?? 'safe';
   editSource.value = post.value.source ?? '';
-  editRelations.value = post.value.relations?.map(r => r.id).join(' ') ?? '';
+  editRelations.value = post.value.relations?.map((r) => r.id).join(' ') ?? '';
   editLoopFlag.value = post.value.flags?.includes('loop') ?? false;
   editSoundFlag.value = post.value.flags?.includes('sound') ?? false;
   editDescription.value = post.value.description ?? '';
@@ -701,7 +791,9 @@ function syncEditFields() {
   editError.value = '';
 }
 
-watch(post, (p) => { if (p) syncEditFields(); });
+watch(post, (p) => {
+  if (p) syncEditFields();
+});
 
 // ── Privileges ────────────────────────────────────────────────
 const canViewUsers = computed(() => api.hasPrivilege('user_view'));
@@ -726,9 +818,24 @@ const enableSafety = computed(() => api.config?.config.enableSafety ?? false);
 
 // ── Safety options ────────────────────────────────────────────
 const safetyOptions = [
-  { value: 'safe' as const, label: 'Safe', dotClass: 'bg-green-500', activeClass: 'text-green-600 dark:text-green-400' },
-  { value: 'sketchy' as const, label: 'Sketchy', dotClass: 'bg-yellow-400', activeClass: 'text-yellow-600 dark:text-yellow-400' },
-  { value: 'unsafe' as const, label: 'Unsafe', dotClass: 'bg-red-500', activeClass: 'text-red-600 dark:text-red-400' },
+  {
+    value: 'safe' as const,
+    label: 'Safe',
+    dotClass: 'bg-green-500',
+    activeClass: 'text-green-600 dark:text-green-400',
+  },
+  {
+    value: 'sketchy' as const,
+    label: 'Sketchy',
+    dotClass: 'bg-yellow-400',
+    activeClass: 'text-yellow-600 dark:text-yellow-400',
+  },
+  {
+    value: 'unsafe' as const,
+    label: 'Unsafe',
+    dotClass: 'bg-red-500',
+    activeClass: 'text-red-600 dark:text-red-400',
+  },
 ];
 
 // ── Derived data ──────────────────────────────────────────────
@@ -770,19 +877,27 @@ const fitModes = [
 
 const fitClass = computed(() => {
   switch (settings.fitMode) {
-    case 'fit-original': return 'max-w-none max-h-none pr-4';
-    case 'fit-height': return 'max-h-screen h-screen max-w-fit object-contain';
-    case 'fit-width': return 'w-full h-auto object-contain';
-    default: return 'max-w-full max-h-screen object-contain'; // fit-both
+    case 'fit-original':
+      return 'max-w-none max-h-none pr-4';
+    case 'fit-height':
+      return 'max-h-screen h-screen max-w-fit object-contain';
+    case 'fit-width':
+      return 'w-full h-auto object-contain';
+    default:
+      return 'max-w-full max-h-screen object-contain'; // fit-both
   }
 });
 
 const mediaWrapperClass = computed(() => {
   switch (settings.fitMode) {
-    case 'fit-original': return 'self-start';
-    case 'fit-height': return 'self-start';
-    case 'fit-width': return 'w-full';
-    default: return 'w-full'; // fit-both: fill width, let aspect-ratio constrain height
+    case 'fit-original':
+      return 'self-start';
+    case 'fit-height':
+      return 'self-start';
+    case 'fit-width':
+      return 'w-full';
+    default:
+      return 'w-full'; // fit-both: fill width, let aspect-ratio constrain height
   }
 });
 
@@ -792,7 +907,7 @@ const renderedDescription = computed(() => {
     return renderMarkdown(desc);
   }
   return null;
-})
+});
 
 // ── Helpers ───────────────────────────────────────────────────
 function formatFileSize(bytes?: number): string {
@@ -910,6 +1025,7 @@ async function savePost() {
   editSaving.value = false;
 
   if (result.success) {
+    postCache.setPost(result.data.id!, result.data);
     post.value = result.data;
     syncEditFields();
     toast.showSuccess('Post saved.');
@@ -929,6 +1045,7 @@ async function confirmDeletePost() {
 
   const result = await api.deletePost(post.value.id, post.value.version);
   if (result.success) {
+    postCache.invalidatePost(post.value.id!);
     toast.showSuccess(`Post #${post.value.id} deleted.`);
     router.push('/posts');
   } else {
@@ -958,9 +1075,7 @@ const newCommentText = ref('');
 const submittingComment = ref(false);
 const commentError = ref('');
 
-const canCreateComment = computed(() =>
-  !!api.userToken && api.hasPrivilege('comment_create'),
-);
+const canCreateComment = computed(() => !!api.userToken && api.hasPrivilege('comment_create'));
 
 function updateComment(updated: CommentInfo) {
   const idx = localComments.value.findIndex((c) => c.id === updated.id);
@@ -996,16 +1111,16 @@ async function submitComment() {
 async function refreshNeighborsOnly(id: number, force = false) {
   const result = await api.getPostNeighbors(id, contextQuery.value || undefined);
   if (result.success) {
-    localCachedNeighbors.set(id, result.data);
+    postCache.setNeighbors(id, result.data);
     if (force) {
       neighbors.value = result.data;
     }
 
     if (result.data.next?.id) {
-      localCachedPages.set(result.data.next.id, result.data.next);
+      postCache.setPost(result.data.next.id, result.data.next);
     }
     if (result.data.prev?.id) {
-      localCachedPages.set(result.data.prev.id, result.data.prev);
+      postCache.setPost(result.data.prev.id, result.data.prev);
     }
   }
 }
@@ -1013,20 +1128,19 @@ async function refreshNeighborsOnly(id: number, force = false) {
 async function lazyloadNeighbors(id: number) {
   const prevId = id + 1;
   const nextId = id - 1;
-  const cached = localCachedNeighbors.get(id);
+  const cached = postCache.getNeighbors(id);
   if (cached) {
     neighbors.value = cached;
     return;
   }
-  const prevCache = localCachedPages.get(prevId);
-  const nextCache = localCachedPages.get(nextId);
+  const prevCache = postCache.getPost(prevId);
+  const nextCache = postCache.getPost(nextId);
   if (prevCache && nextCache) {
-    // make it
     const neigh = {
       prev: prevCache,
       next: nextCache,
     };
-    localCachedNeighbors.set(id, neigh);
+    postCache.setNeighbors(id, neigh);
     neighbors.value = neigh;
     return;
   }
@@ -1034,10 +1148,12 @@ async function lazyloadNeighbors(id: number) {
 }
 
 async function loadPost(id: number) {
+  if (Number.isNaN(id) || id <= 0) return;
+
   loadError.value = '';
   localLoaded.value = id;
 
-  const cachedPage = localCachedPages.get(id);
+  const cachedPage = postCache.getPost(id);
   if (cachedPage) {
     post.value = cachedPage;
     localScore.value = cachedPage.score ?? 0;
@@ -1090,7 +1206,7 @@ async function loadPost(id: number) {
     return;
   }
 
-  localCachedPages.set(id, postResult.data); // cache
+  postCache.setPost(id, postResult.data);
   post.value = postResult.data;
   localScore.value = postResult.data.score ?? 0;
   localOwnScore.value = postResult.data.ownScore ?? 0;
@@ -1100,14 +1216,14 @@ async function loadPost(id: number) {
 
   if (neighborsResult.success) {
     neighbors.value = neighborsResult.data;
-    localCachedNeighbors.set(id, neighborsResult.data);
+    postCache.setNeighbors(id, neighborsResult.data);
 
     if (neighborsResult.data.next?.id) {
-      localCachedPages.set(neighborsResult.data.next.id, neighborsResult.data.next);
+      postCache.setPost(neighborsResult.data.next.id, neighborsResult.data.next);
       await refreshNeighborsOnly(neighborsResult.data.next.id);
     }
     if (neighborsResult.data.prev?.id) {
-      localCachedPages.set(neighborsResult.data.prev.id, neighborsResult.data.prev);
+      postCache.setPost(neighborsResult.data.prev.id, neighborsResult.data.prev);
       await refreshNeighborsOnly(neighborsResult.data.prev.id);
     }
   }
@@ -1125,9 +1241,7 @@ watch(
 );
 
 useHeadSafe(() => ({
-  title: post.value
-    ? `${serverName.value} - Post #${post.value.id}`
-    : serverName.value + ' - Post',
+  title: post.value ? `${serverName.value} - Post #${post.value.id}` : serverName.value + ' - Post',
 }));
 
 onDeactivated(() => {
