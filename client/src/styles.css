@@ -24,6 +24,8 @@
   --color-safe: #88d488;
   --color-sketchy: #f3d75f;
   --color-unsafe: #f3985f;
+
+  --breakpoint-xs: 30rem;
 }
 
 /* Dark mode variant: triggered by .darktheme class on <body> */
