@@ -16,3 +16,6 @@ overrides:
 peerDependencyRules:
   allowAny:
     - 'vue'
+
+allowBuilds:
+  esbuild: true
