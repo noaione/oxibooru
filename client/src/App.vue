@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
-import { RouterView } from 'vue-router';
+import { RouterView, useRouter } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 import ToastNotification from './components/ToastNotification.vue';
 import PageLoader from './components/PageLoader.vue';
@@ -20,11 +20,20 @@ const app = useTokenStore();
 const darkMode = useDarkTheme();
 const settings = useSettingsStore();
 const categories = useCategoriesStore();
+const router = useRouter();
 
 const cachePost = usePostCacheStore();
 const cacheTag = useTagCacheStore();
 const cachePool = usePoolCacheStore();
 const cacheUser = useUserCacheStore();
+
+function onUnauthorized() {
+  if (!app.userToken) return; // only redirect if was logged in
+  app.logout().catch(() => {});
+  if (router.currentRoute.value.name !== 'login') {
+    router.push('/login');
+  }
+}
 
 onMounted(() => {
   darkMode.init();
@@ -35,10 +44,13 @@ onMounted(() => {
       categories.applyColors(results.tags, results.pools);
     });
   });
+
+  window.addEventListener('auth:unauthorized', onUnauthorized);
 });
 
 // when unmounting, flush all caches
 onUnmounted(() => {
+  window.removeEventListener('auth:unauthorized', onUnauthorized);
   cachePost.flushPosts();
   cacheTag.flushTags();
   cachePool.flushPools();

@@ -97,6 +97,9 @@ export async function doFetch<T>(urlPath: string, options?: RequestInit): Promis
 
   if (!response.ok) {
     const errorJson = await response.json().catch(() => null);
+    if (response.status === 401) {
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
     return {
       success: false,
       code: errorJson?.name || 'UnknownError',
