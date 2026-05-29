@@ -185,7 +185,7 @@ function formatResourceId(snap: SnapshotInfo): string {
     case 'tag':
       return `#${snap.id}`;
     case 'pool':
-      return `$${snap.id}`;
+      return `%${snap.id}`;
     case 'user':
       return `+${snap.id}`;
     case 'tag_category':

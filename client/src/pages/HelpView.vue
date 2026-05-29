@@ -362,6 +362,7 @@ Comments support standard Markdown syntax, plus these extensions:
 | \`@426\` | links to post #426 |
 | \`#Dragon_Ball\` | links to tag "Dragon_Ball" |
 | \`+Pirate\` | links to user "Pirate" |
+| \`%123\` | links to pool #123 |
 | \`~~strikethrough~~\` | ~~strikethrough~~ text |
 | \`[spoiler]text[/spoiler]\` | hides text as a spoiler |
 
