@@ -45,11 +45,46 @@
 
       <!-- Edit mode -->
       <template v-if="isEditing">
+        <!-- Write / Preview tabs -->
+        <div class="flex gap-2 text-xs border-b border-gray-200 dark:border-gray-600">
+          <button
+            type="button"
+            class="px-2 py-1 cursor-pointer transition-colors"
+            :class="
+              !editPreview
+                ? 'border-b-2 border-accent-500 text-accent-500 -mb-px'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            "
+            @click="editPreview = false"
+          >
+            Write
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 cursor-pointer transition-colors"
+            :class="
+              editPreview
+                ? 'border-b-2 border-accent-500 text-accent-500 -mb-px'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            "
+            @click="editPreview = true"
+          >
+            Preview
+          </button>
+        </div>
+
         <FlatTextarea
+          v-if="!editPreview"
           v-model="editText"
           rows="4"
           class="w-full text-sm bg-gray-50! dark:bg-gray-800!"
         />
+        <div
+          v-else
+          class="prose prose-sm dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 min-h-16 px-2 py-1.5 wrap-break-word"
+          v-html="editPreviewHtml"
+        />
+
         <div class="flex items-center gap-2">
           <FlatButton
             type="button"
@@ -157,8 +192,11 @@ const localOwnScore = ref(props.comment.ownScore ?? 0);
 
 const isEditing = ref(false);
 const editText = ref('');
+const editPreview = ref(false);
 const saving = ref(false);
 const editError = ref('');
+
+const editPreviewHtml = computed(() => (editText.value ? renderMarkdown(editText.value) : ''));
 
 const canScore = computed(() => !!api.userToken && api.hasPrivilege('comment_score'));
 
@@ -183,10 +221,12 @@ const renderedText = computed(() => (props.comment.text ? renderMarkdown(props.c
 function startEdit() {
   editText.value = props.comment.text ?? '';
   editError.value = '';
+  editPreview.value = false;
   isEditing.value = true;
 }
 
 function cancelEdit() {
+  editPreview.value = false;
   isEditing.value = false;
 }
 

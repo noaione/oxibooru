@@ -654,12 +654,47 @@
           v-if="canCreateComment"
           class="flex flex-col gap-2 pt-1 border-t border-gray-200 dark:border-gray-700"
         >
+          <!-- Write / Preview tabs -->
+          <div class="flex gap-2 text-xs border-b border-gray-200 dark:border-gray-600">
+            <button
+              type="button"
+              class="px-2 py-1 cursor-pointer transition-colors"
+              :class="
+                !newCommentPreview
+                  ? 'border-b-2 border-accent-500 text-accent-500 -mb-px'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              "
+              @click="newCommentPreview = false"
+            >
+              Write
+            </button>
+            <button
+              type="button"
+              class="px-2 py-1 cursor-pointer transition-colors"
+              :class="
+                newCommentPreview
+                  ? 'border-b-2 border-accent-500 text-accent-500 -mb-px'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              "
+              @click="newCommentPreview = true"
+            >
+              Preview
+            </button>
+          </div>
+
           <FlatTextarea
+            v-if="!newCommentPreview"
             v-model="newCommentText"
             rows="3"
             placeholder="Write a comment… (Markdown supported)"
             class="w-full text-sm"
           />
+          <div
+            v-else
+            class="prose prose-sm dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 min-h-16 px-2 py-1.5 wrap-break-word"
+            v-html="newCommentPreviewHtml"
+          />
+
           <div class="flex items-center gap-2">
             <FlatButton
               type="button"
@@ -1079,8 +1114,13 @@ function goToMerge() {
 // ── Comments ───────────────────────────────────────────────────
 const localComments = ref<CommentInfo[]>([]);
 const newCommentText = ref('');
+const newCommentPreview = ref(false);
 const submittingComment = ref(false);
 const commentError = ref('');
+
+const newCommentPreviewHtml = computed(() =>
+  newCommentText.value ? renderMarkdown(newCommentText.value) : '',
+);
 
 const canCreateComment = computed(() => !!api.userToken && api.hasPrivilege('comment_create'));
 
@@ -1112,6 +1152,7 @@ async function submitComment() {
 
   localComments.value.push(result.data);
   newCommentText.value = '';
+  newCommentPreview.value = false;
 }
 
 // ── Data loading ──────────────────────────────────────────────
