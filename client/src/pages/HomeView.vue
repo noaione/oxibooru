@@ -53,10 +53,21 @@
       <span class="mx-1"> &middot; </span>
       <span>{{ formattedDiskUsage }}</span>
       <span class="mx-1"> &middot; </span>
-      <span>build latest from XXX</span>
+      <span>
+        Build
+        <a
+          :href="buildGitLink"
+          class="text-cyan-500 hover:underline"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          {{ buildVersion }}
+        </a>
+        from <RelativeTime :time="buildTime" />
+      </span>
       <span v-if="canListHistory" class="mx-1"> &middot; </span>
       <RouterLink v-if="canListHistory" to="/history" class="text-cyan-500 hover:underline">
-        history
+        History
       </RouterLink>
     </footer>
   </div>
@@ -72,6 +83,11 @@ import RelativeTime from '@/components/RelativeTime.vue';
 import AvatarLink from '@/components/AvatarLink.vue';
 
 const app = useTokenStore();
+
+const buildVersion = import.meta.env.VITE_BUILD_VERSION;
+const buildTime = import.meta.env.VITE_BUILD_TIME;
+const buildGitLink = import.meta.env.VITE_BUILD_GIT_LINK;
+console.log(buildGitLink);
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
 
 const canListPosts = computed(() => app.hasPrivilege('post_list'));
