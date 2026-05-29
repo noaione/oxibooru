@@ -41,6 +41,7 @@ export default defineConfig({
     },
   },
   define: {
+    'import.meta.env.VITE_BUILD_BASE_URL': JSON.stringify(process.env.BASE_URL || '/'),
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),
     'import.meta.env.VITE_BUILD_VERSION': JSON.stringify(getBuildVersion()),
     'import.meta.env.VITE_BUILD_GIT_LINK': JSON.stringify(getBuildGitHub()),
