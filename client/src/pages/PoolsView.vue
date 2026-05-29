@@ -152,7 +152,7 @@ const canEdit = computed(() => api.hasPrivilege('pool_edit'));
 const canEditCategories = computed(() => api.hasPrivilege('pool_category_edit'));
 
 function poolColor(category?: string): Record<string, string> {
-  if (!category || category === 'default') return {};
+  if (!category) return {};
   return { color: `var(--pool-cat-${category})`, borderColor: `var(--pool-cat-${category})` };
 }
 

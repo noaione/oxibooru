@@ -379,7 +379,7 @@ const primaryName = computed(() => tag.value?.names?.[0] ?? tagName.value);
 
 const primaryColor = computed(() => {
   const cat = tag.value?.category;
-  if (!cat || cat === 'default') return null;
+  if (!cat) return null;
   return `var(--tag-cat-${cat})`;
 });
 
@@ -425,7 +425,7 @@ function displayTag(raw: string) {
 }
 
 function microTagStyle(category?: string): Record<string, string> {
-  if (!category || category === 'default') {
+  if (!category) {
     return { borderColor: 'currentColor' };
   }
   const v = `var(--tag-cat-${category})`;
