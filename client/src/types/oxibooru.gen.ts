@@ -484,11 +484,13 @@ export type MimeType =
   | 'image/jpeg'
   | 'image/png'
   | 'image/webp'
+  | 'image/avif'
+  | 'image/jxl'
   | 'video/mp4'
   | 'video/quicktime'
   | 'video/webm'
   | 'application/x-shockwave-flash'
-  | 'image/avif';
+  | 'application/pdf';
 
 /**
  * Multipart form for file uploads.
@@ -1533,7 +1535,7 @@ export type PostNeighbors = {
 
 export type PostSafety = 'safe' | 'sketchy' | 'unsafe';
 
-export type PostType = 'image' | 'animation' | 'video' | 'flash';
+export type PostType = 'image' | 'animation' | 'video' | 'flash' | 'document';
 
 /**
  * Request body for updating a post.

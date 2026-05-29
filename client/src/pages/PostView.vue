@@ -403,7 +403,7 @@
           </section>
 
           <!-- External search -->
-          <section class="flex flex-wrap gap-1 text-xs text-gray-500 dark:text-gray-400">
+          <section v-if="post.type !== 'document'" class="flex flex-wrap gap-1 text-xs text-gray-500 dark:text-gray-400">
             <span>Search on:</span>
             <a
               :href="`http://iqdb.org/?url=${encodeURIComponent(fullContentUrl)}`"
@@ -648,6 +648,29 @@
         >
           Flash content is not supported in modern browsers.
         </div>
+
+        <!-- PDF document -->
+        <div
+          v-else-if="post.type === 'document' && post.mimeType === 'application/pdf'"
+          :key="`pdf-${post.id}`"
+          class="relative"
+          :class="mediaWrapperClass"
+          :style="{
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
+          }"
+        >
+          <object
+            :data="resolveApiUrl(post.contentUrl)"
+            type="application/pdf"
+            :width="post.canvasWidth || undefined"
+            :height="post.canvasHeight || undefined"
+            :class="fitClass"
+            :style="{
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
+            }"
+          />
+        </div>
+
       </div>
 
       <!-- Notes editor (edit mode only) -->
@@ -970,7 +993,7 @@ const fitModes = [
 ];
 
 const fitClass = computed(() => {
-  const upscale = settings.upscaleSmallPosts;
+  const upscale = settings.upscaleSmallPosts || post.value?.type === 'document';
   switch (settings.fitMode) {
     case 'fit-original':
       return 'max-w-none max-h-none pr-4';
@@ -1029,9 +1052,11 @@ const MIME_LABELS: Record<string, string> = {
   'image/avif': 'AVIF',
   'image/heif': 'HEIF',
   'image/heic': 'HEIC',
+  'image/jxl': 'JXL',
   'video/webm': 'WEBM',
   'video/mp4': 'MPEG-4',
   'video/quicktime': 'MOV',
+  'application/pdf': 'PDF',
 };
 
 function mimeLabel(mime?: string): string {
