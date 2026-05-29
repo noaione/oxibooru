@@ -14,11 +14,11 @@ defineOptions({ inheritAttrs: false });
 
 defineProps<{
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
-  modelValue?: string;
+  modelValue?: string | number;
 }>();
 
 defineEmits<{
-  'update:modelValue': [value: string];
+  'update:modelValue': [value: string | number];
   submit: [];
 }>();
 </script>

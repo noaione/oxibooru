@@ -2,7 +2,10 @@
   <component
     :is="simple ? 'span' : 'RouterLink'"
     :to="`/user/${name}`"
-    class="text-cyan-500 inline-block"
+    class="inline-block"
+    :class="{
+      'text-cyan-500': !simple,
+    }"
   >
     <img
       v-if="avatarUrl"
@@ -10,7 +13,9 @@
       :alt="name"
       class="size-4 object-contain inline-block mr-1"
     />
-    <span class="inline-block hover:underline decoration-dashed">{{ name }}</span>
+    <span class="inline-block decoration-dashed" :class="{ 'hover:underline': !simple }">
+      {{ name }}
+    </span>
   </component>
 </template>
 

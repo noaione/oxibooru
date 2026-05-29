@@ -1,6 +1,6 @@
 <template>
   <ul
-    class="absolute left-0 top-full mt-0.5 z-40 w-full min-w-48 overlay-color border border-gray-300 dark:border-gray-600 rounded shadow-lg max-h-60 overflow-y-auto"
+    class="absolute left-0 top-full mt-0.5 z-40 w-full min-w-48 overlay-color border border-gray-300 dark:border-gray-600 shadow-lg max-h-60 overflow-y-auto"
     :class="wrapperClass"
     role="listbox"
   >

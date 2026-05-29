@@ -98,7 +98,7 @@
           >
             <!-- Preview -->
             <div
-              class="shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden flex items-center justify-center"
+              class="shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center"
             >
               <img
                 v-if="item.previewUrl && item.type === 'file'"
@@ -124,7 +124,7 @@
                   <!-- State badge -->
                   <span
                     v-if="item.state !== 'idle'"
-                    class="text-xs px-1.5 py-0.5 rounded"
+                    class="text-xs px-1.5 py-0.5"
                     :class="stateBadgeClass(item.state)"
                     >{{ stateLabel(item.state) }}</span
                   >
@@ -192,7 +192,7 @@
               <!-- Needs-confirm: exact duplicate -->
               <div
                 v-if="item.state === 'needs-confirm' && item.exactPost"
-                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700"
+                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700"
               >
                 <p class="text-xs font-medium text-yellow-800 dark:text-yellow-300">
                   Exact duplicate: Post #{{ item.exactPost.id }}
@@ -227,7 +227,7 @@
               <!-- Needs-confirm: similar posts -->
               <div
                 v-else-if="item.state === 'needs-confirm' && item.similar.length"
-                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700"
+                class="flex flex-col gap-1.5 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700"
               >
                 <p class="text-xs font-medium text-yellow-800 dark:text-yellow-300">
                   {{ item.similar.length }} similar

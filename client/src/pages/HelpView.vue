@@ -365,6 +365,11 @@ Comments support standard Markdown syntax, plus these extensions:
 | \`~~strikethrough~~\` | ~~strikethrough~~ text |
 | \`[spoiler]text[/spoiler]\` | hides text as a spoiler |
 
+You can also specify the size of embedded images like this:
+- \`![alt](href =WIDTHx "title")\`
+- \`![alt](href =xHEIGHT "title")\`
+- \`![alt](href =WIDTHxHEIGHT "title")\`
+
 ## Markdown basics
 
 \`\`\`

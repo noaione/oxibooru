@@ -46,14 +46,11 @@
         </label>
         <div class="flex items-center gap-3">
           <span class="text-sm">Image fit mode</span>
-          <select
-            v-model="s.fitMode"
-            class="text-sm px-2 py-1 rounded overlay-color border border-gray-300 dark:border-gray-600"
-          >
+          <FlatSelect v-model="s.fitMode" class="text-sm px-2 py-1">
             <option value="fit-both">Fit to window</option>
             <option value="fit-height">Fit height</option>
             <option value="fit-original">Original size</option>
-          </select>
+          </FlatSelect>
         </div>
       </div>
     </section>
@@ -73,12 +70,12 @@
         </label>
         <div class="flex items-center gap-3">
           <span class="text-sm">Posts per page</span>
-          <input
+          <FlatInput
             v-model.number="s.postsPerPage"
             type="number"
             min="1"
             max="200"
-            class="w-20 text-sm px-2 py-1 rounded overlay-color border border-gray-300 dark:border-gray-600"
+            class="w-20 text-sm px-2 py-1"
           />
         </div>
       </div>
@@ -128,11 +125,15 @@
       </div>
     </section>
 
-    <p class="text-xs text-gray-500">Settings are saved automatically to your browser.</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      Settings are saved automatically to your browser.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
+import FlatInput from '@/components/FlatInput.vue';
+import FlatSelect from '@/components/FlatSelect.vue';
 import { useTokenStore } from '@/stores/api';
 import { useSettingsStore } from '@/stores/settings';
 import { useHeadSafe } from '@unhead/vue';
