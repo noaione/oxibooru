@@ -41,6 +41,7 @@ import type {
   UserInfo,
   UserUpdateBody,
   UserRank,
+  OIDCAuthorizeResponse,
 } from '@/types/oxibooru.gen';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -259,6 +260,25 @@ export const useTokenStore = defineStore('api', () => {
     const userResp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(username)}`, {
       headers: { Authorization: authToken.value! },
     });
+    if (userResp.success) user.value = userResp.data;
+
+    await refreshInfo();
+    return { success: true };
+  };
+
+  const loginWithToken = async (
+    username: string,
+    token: string,
+    doRemember = false,
+  ): Promise<{ success: true } | { success: false; description: string }> => {
+    userToken.value = { user: username, token };
+    setCookieAuth(username, token, doRemember);
+    const userResp = await doFetch<UserInfo>(
+      `/api/user/${encodeURIComponent(username)}?bump-login=true`,
+      {
+        headers: { Authorization: authToken.value! },
+      },
+    );
     if (userResp.success) user.value = userResp.data;
 
     await refreshInfo();
@@ -1304,6 +1324,45 @@ export const useTokenStore = defineStore('api', () => {
     return { success: true, data: resp.data };
   };
 
+  // ── OIDC actions ───────────────────────────────────────────
+
+  const oidcAuthorize = async (
+    provider: string,
+  ): Promise<
+    { success: true; data: OIDCAuthorizeResponse } | { success: false; description: string }
+  > => {
+    const resp = await doFetch<OIDCAuthorizeResponse>(`/api/oidc/${provider}/authorize`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!resp.success) {
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
+    }
+    return { success: true, data: resp.data };
+  };
+
+  const oidcCallback = async (
+    provider: string,
+    code: string,
+    state: string,
+  ): Promise<{ success: true; data: UserTokenData } | { success: false; description: string }> => {
+    const resp = await doFetch<UserTokenData>(`/api/oidc/${provider}/callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, state }),
+    });
+    if (!resp.success) {
+      return {
+        success: false,
+        description: (resp as ErrorResponse).description || (resp as ErrorResponse).title,
+      };
+    }
+    return { success: true, data: resp.data };
+  };
+
   return {
     userToken,
     authToken,
@@ -1316,6 +1375,7 @@ export const useTokenStore = defineStore('api', () => {
     canAccess,
     doFetch,
     login,
+    loginWithToken,
     logout,
     register,
     requestPasswordReset,
@@ -1371,6 +1431,8 @@ export const useTokenStore = defineStore('api', () => {
     deleteComment,
     rateComment,
     listSnapshots,
+    oidcAuthorize,
+    oidcCallback,
   };
 });
 
