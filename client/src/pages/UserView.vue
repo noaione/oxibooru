@@ -292,11 +292,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore, allRanks, rankNames } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { useUserCacheStore } from '@/stores/cache';
 import type { UserInfo, AvatarStyle, UserRank, UserTokenInfo } from '@/types/oxibooru.gen';
 import FlatInput from '@/components/FlatInput.vue';
 import { resolveApiUrl } from '@/utils/url';
@@ -307,6 +308,7 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
+const userCache = useUserCacheStore();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 const userName = computed(() => route.params.name as string);
@@ -385,7 +387,25 @@ const deleteError = ref('');
 const deleteLoading = ref(false);
 
 // ── Load user data ────────────────────────────────────────────────
+function syncEditFields(data: UserInfo) {
+  editName.value = data.name ?? '';
+  editEmail.value = typeof data.email === 'string' ? data.email : '';
+  editRank.value = (data.rank ?? 'regular') as UserRank;
+  editAvatarStyle.value = (data.avatarStyle ?? 'gravatar') as AvatarStyle;
+}
+
 async function loadUser() {
+  if (!userName.value) return; // nan/invalid
+
+  const cached = userCache.getUser(userName.value);
+  if (cached) {
+    userData.value = cached;
+    loadError.value = '';
+    syncEditFields(cached);
+    return;
+  }
+
+  userData.value = null;
   loader.start();
   loadError.value = '';
   let result: Awaited<ReturnType<typeof api.getUser>>;
@@ -404,13 +424,18 @@ async function loadUser() {
     return;
   }
   userData.value = result.data;
-  editName.value = result.data.name ?? '';
-  editEmail.value = typeof result.data.email === 'string' ? result.data.email : '';
-  editRank.value = (result.data.rank ?? 'regular') as UserRank;
-  editAvatarStyle.value = (result.data.avatarStyle ?? 'gravatar') as AvatarStyle;
+  userCache.setUser(userName.value, result.data);
+  syncEditFields(result.data);
 }
 
 async function loadTokens() {
+  const cached = userCache.getTokens(userName.value);
+  if (cached) {
+    tokens.value = cached;
+    tokenError.value = '';
+    return;
+  }
+
   tokenError.value = '';
   const result = await api.getUserTokens(userName.value);
   if (!result.success) {
@@ -418,6 +443,7 @@ async function loadTokens() {
     return;
   }
   tokens.value = result.data as typeof tokens.value;
+  userCache.setTokens(userName.value, [...tokens.value]);
 }
 
 onMounted(async () => {
@@ -434,9 +460,9 @@ watch(section, async (s) => {
 });
 
 watch(userName, async () => {
-  userData.value = null;
   tokens.value = [];
   await loadUser();
+  if (section.value === 'tokens') await loadTokens();
 });
 
 // ── Edit submit ──────────────────────────────────────────────────
@@ -477,12 +503,14 @@ async function submitEdit() {
   }
 
   userData.value = result.data;
+  userCache.setUser(userName.value, result.data);
   editPassword.value = '';
   editAvatarFile.value = null;
   if (avatarFileInput.value) avatarFileInput.value.value = '';
 
   // If own username changed, navigate to new URL
   if (isOwnProfile.value && result.data.name && result.data.name !== userName.value) {
+    userCache.invalidateUser(userName.value);
     router.replace(`/user/${result.data.name}/edit`);
   } else {
     editSuccess.value = 'Settings updated.';
@@ -509,6 +537,7 @@ async function saveNote(idx: number | string) {
     return;
   }
   tokens.value[i] = { ...tok, note: editingNoteValue.value || undefined, version: result.data.version };
+  userCache.setTokens(userName.value, [...tokens.value]);
   editingNoteIdx.value = -1;
   tokenSuccess.value = 'Token updated.';
 }
@@ -531,6 +560,7 @@ async function deleteToken(idx: number | string) {
     return;
   }
   tokens.value.splice(i, 1);
+  userCache.setTokens(userName.value, [...tokens.value]);
   tokenSuccess.value = `Token deleted.`;
 }
 
@@ -571,6 +601,7 @@ async function submitDelete() {
     deleteError.value = result.description;
     return;
   }
+  userCache.invalidateUser(userName.value);
   if (wasOwnProfile) {
     await api.logout();
     router.push('/');
@@ -580,6 +611,12 @@ async function submitDelete() {
     router.push('/');
   }
 }
+
+onDeactivated(() => {
+  userData.value = null;
+  tokens.value = [];
+  loadError.value = '';
+});
 
 // ── Helpers ──────────────────────────────────────────────────────
 function formatDate(iso?: string | null) {

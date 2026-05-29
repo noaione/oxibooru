@@ -299,13 +299,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { useTagCacheStore } from '@/stores/cache';
 import { useCategoriesStore } from '@/stores/categories';
 import { useSettingsStore } from '@/stores/settings';
 import { useConfirm } from '@/composables/useConfirm';
@@ -321,6 +322,7 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
+const tagCache = useTagCacheStore();
 const categoriesStore = useCategoriesStore();
 const settings = useSettingsStore();
 const confirm = useConfirm();
@@ -418,6 +420,17 @@ function syncEditFields() {
 }
 
 async function loadTag() {
+  if (!tagName.value) return; // nan/invalid
+
+  const cachedTag = tagCache.getTag(tagName.value);
+  if (cachedTag) {
+    tag.value = cachedTag;
+    siblings.value = tagCache.getSiblings(tagName.value) ?? [];
+    loadError.value = '';
+    syncEditFields();
+    return;
+  }
+
   loader.start();
   loadError.value = '';
 
@@ -434,6 +447,8 @@ async function loadTag() {
 
     tag.value = tagResult.data;
     siblings.value = siblingsResult.success ? (siblingsResult.data.results ?? []) : [];
+    tagCache.setTag(tagName.value, tagResult.data);
+    tagCache.setSiblings(tagName.value, siblings.value);
     syncEditFields();
   } catch (e) {
     loadError.value = `Failed to load tag: ${e}`;
@@ -469,10 +484,14 @@ async function saveTag() {
   }
 
   tag.value = result.data;
+  const newPrimary = result.data.names?.[0];
+  if (newPrimary && newPrimary !== tagName.value) {
+    tagCache.invalidateTag(tagName.value);
+  }
+  tagCache.setTag(newPrimary ?? tagName.value, result.data);
   syncEditFields();
   toast.showSuccess('Tag saved.');
 
-  const newPrimary = result.data.names?.[0];
   if (newPrimary && newPrimary !== tagName.value) {
     router.replace(`/tag/${encodeURIComponent(newPrimary)}/edit`);
   }
@@ -499,6 +518,7 @@ async function confirmDelete() {
     return;
   }
 
+  tagCache.invalidateTag(tagName.value);
   toast.showSuccess('Tag deleted.');
   router.push('/tags');
 }
@@ -520,4 +540,9 @@ function formatDate(iso?: string | null): string {
 
 watch(tagName, loadTag);
 onMounted(loadTag);
+
+onDeactivated(() => {
+  tag.value = null;
+  loadError.value = '';
+});
 </script>

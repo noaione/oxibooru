@@ -135,11 +135,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
+import { usePostCacheStore } from '@/stores/cache';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import type { PostInfo } from '@/types/oxibooru.gen';
@@ -150,6 +151,7 @@ const route = useRoute();
 const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
+const postCache = usePostCacheStore();
 const confirm = useConfirm();
 const toast = useToast();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
@@ -188,14 +190,26 @@ const replaceContent = computed(() => {
 });
 
 async function loadPosts() {
-  loader.start();
+  if (!id1.value || !id2.value) return; // nan/invalid
+
   loadError.value = '';
 
+  const cachedPost1 = postCache.getPost(id1.value);
+  const cachedPost2 = postCache.getPost(id2.value);
+
+  if (cachedPost1 && cachedPost2) {
+    post1.value = cachedPost1;
+    post2.value = cachedPost2;
+    mergeToId.value = cachedPost1.id ?? null;
+    useContentFromId.value = cachedPost1.id ?? null;
+    return;
+  }
+
+  loader.start();
   const [r1, r2] = await Promise.all([
     api.getPost(id1.value),
     api.getPost(id2.value),
   ]);
-
   loader.done();
 
   if (!r1.success) {
@@ -209,6 +223,8 @@ async function loadPosts() {
 
   post1.value = r1.data;
   post2.value = r2.data;
+  postCache.setPost(id1.value, r1.data);
+  postCache.setPost(id2.value, r2.data);
   mergeToId.value = r1.data.id ?? null;
   useContentFromId.value = r1.data.id ?? null;
 }
@@ -238,6 +254,8 @@ async function confirmMerge() {
   merging.value = false;
 
   if (result.success) {
+    postCache.invalidatePost(removePost.value.id!);
+    postCache.setPost(mergeToId.value!, result.data);
     toast.showSuccess(`Posts merged. Post #${removePost.value.id} was deleted.`);
     router.push(`/post/${mergeToId.value}`);
   } else {
@@ -281,4 +299,10 @@ function formatDate(iso?: string | null): string {
 }
 
 onMounted(loadPosts);
+
+onDeactivated(() => {
+  post1.value = null;
+  post2.value = null;
+  loadError.value = '';
+});
 </script>

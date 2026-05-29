@@ -16,7 +16,11 @@
           <RouterLink
             :to="`/pool/${pool.id}`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'summary' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'summary'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Summary
           </RouterLink>
@@ -24,7 +28,11 @@
             v-if="canEdit"
             :to="`/pool/${pool.id}/edit`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'edit' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'edit'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Edit
           </RouterLink>
@@ -39,7 +47,11 @@
             v-if="canDelete"
             :to="`/pool/${pool.id}/delete`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-            :class="section === 'delete' ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400' : 'border-transparent opacity-70 hover:opacity-100'"
+            :class="
+              section === 'delete'
+                ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                : 'border-transparent opacity-70 hover:opacity-100'
+            "
           >
             Delete
           </RouterLink>
@@ -53,7 +65,12 @@
       <div class="card p-4 flex flex-col gap-2 text-sm">
         <div v-if="pool.names && pool.names.length > 1" class="flex flex-wrap gap-1">
           <span class="text-gray-500 dark:text-gray-400">Aliases:</span>
-          <span v-for="alias in pool.names.slice(1)" :key="alias" class="text-gray-700 dark:text-gray-300">{{ alias }}</span>
+          <span
+            v-for="alias in pool.names.slice(1)"
+            :key="alias"
+            class="text-gray-700 dark:text-gray-300"
+            >{{ alias }}</span
+          >
         </div>
         <div class="flex items-center gap-2">
           <span class="text-gray-500 dark:text-gray-400">Category:</span>
@@ -67,7 +84,10 @@
 
       <!-- Description -->
       <div v-if="renderedDescription" class="card p-4 text-sm">
-        <p class="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-gray-700 dark:text-gray-300" v-html="renderedDescription" />
+        <p
+          class="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-gray-700 dark:text-gray-300"
+          v-html="renderedDescription"
+        />
       </div>
 
       <!-- Post grid -->
@@ -75,7 +95,9 @@
         <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           Posts ({{ pool.postCount ?? pool.posts.length }})
         </h2>
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1">
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1"
+        >
           <RouterLink
             v-for="(post, idx) in pool.posts"
             :key="post.id"
@@ -88,7 +110,9 @@
               class="w-full aspect-square object-cover group-hover:opacity-90 transition-opacity"
               loading="lazy"
             />
-            <span class="absolute bottom-0 right-0 bg-black/60 text-white text-xs px-1 leading-5 select-none">
+            <span
+              class="absolute bottom-0 right-0 bg-black/60 text-white text-xs px-1 leading-5 select-none"
+            >
               {{ idx + 1 }}
             </span>
           </RouterLink>
@@ -103,7 +127,12 @@
 
       <!-- Names -->
       <div v-if="canEditName" class="flex flex-col gap-1">
-        <label class="text-sm font-medium">Names <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(one per line; first is primary)</span></label>
+        <label class="text-sm font-medium"
+          >Names
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal"
+            >(one per line; first is primary)</span
+          ></label
+        >
         <FlatTextarea
           v-model="editNames"
           rows="3"
@@ -116,13 +145,20 @@
       <div v-if="canEditCategory" class="flex flex-col gap-1">
         <label class="text-sm font-medium">Category</label>
         <FlatSelect v-model="editCategory" class="w-full max-w-xs">
-          <option v-for="cat in categories" :key="cat.name" :value="cat.name">{{ cat.name }}</option>
+          <option v-for="cat in categories" :key="cat.name" :value="cat.name">
+            {{ cat.name }}
+          </option>
         </FlatSelect>
       </div>
 
       <!-- Description -->
       <div v-if="canEditDescription" class="flex flex-col gap-1">
-        <label class="text-sm font-medium">Description <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(Markdown)</span></label>
+        <label class="text-sm font-medium"
+          >Description
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal"
+            >(Markdown)</span
+          ></label
+        >
         <FlatTextarea
           v-model="editDescription"
           rows="5"
@@ -133,7 +169,12 @@
 
       <!-- Post order editor -->
       <div v-if="canEditPosts" class="flex flex-col gap-2">
-        <label class="text-sm font-medium">Posts <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(drag order matters)</span></label>
+        <label class="text-sm font-medium"
+          >Posts
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal"
+            >(drag order matters)</span
+          ></label
+        >
 
         <div v-if="editPosts.length > 0" ref="listRef" class="flex flex-col gap-1">
           <div
@@ -142,9 +183,18 @@
             class="card flex items-center gap-2 p-2"
             :draggable="true"
             :class="{
-              'opacity-25 outline-2 outline-dashed outline-gray-400 dark:outline-gray-500': dragIndex === idx,
-              'border-t-4 border-cyan-500': insertBefore !== null && insertBefore === idx && dragIndex !== null && dragIndex !== idx,
-              'border-b-4 border-cyan-500': insertBefore !== null && insertBefore === editPosts.length && idx === editPosts.length - 1 && dragIndex !== null,
+              'opacity-25 outline-2 outline-dashed outline-gray-400 dark:outline-gray-500':
+                dragIndex === idx,
+              'border-t-4 border-cyan-500':
+                insertBefore !== null &&
+                insertBefore === idx &&
+                dragIndex !== null &&
+                dragIndex !== idx,
+              'border-b-4 border-cyan-500':
+                insertBefore !== null &&
+                insertBefore === editPosts.length &&
+                idx === editPosts.length - 1 &&
+                dragIndex !== null,
             }"
           >
             <!-- Drag handle -->
@@ -155,8 +205,11 @@
               @pointermove="onDragMove($event)"
               @pointerup="endDrag"
               @pointercancel="cancelDrag"
-            >⠿</span>
-            <span class="text-xs text-gray-400 tabular-nums text-right shrink-0">{{ idx + 1 }}</span>
+              >⠿</span
+            >
+            <span class="text-xs text-gray-400 tabular-nums text-right shrink-0">{{
+              idx + 1
+            }}</span>
             <img
               v-if="ep.thumbnailUrl"
               :src="resolveApiUrl(ep.thumbnailUrl)"
@@ -175,7 +228,9 @@
               class="text-red-400 hover:text-red-600 px-1 cursor-pointer shrink-0"
               title="Remove from pool"
               @click="removePost(idx)"
-            >✕</button>
+            >
+              ✕
+            </button>
           </div>
         </div>
         <p v-else class="text-sm text-gray-500 dark:text-gray-400">No posts yet.</p>
@@ -206,8 +261,9 @@
     <div v-else-if="section === 'delete'" class="w-full max-w-sm card p-5">
       <form class="flex flex-col gap-4" @submit.prevent="submitDelete">
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Delete <strong>{{ pool.names?.[0] ?? `Pool #${pool.id}` }}</strong>?
-          The {{ pool.postCount ?? 0 }} post{{ pool.postCount !== 1 ? 's' : '' }} will not be deleted.
+          Delete <strong>{{ pool.names?.[0] ?? `Pool #${pool.id}` }}</strong
+          >? The {{ pool.postCount ?? 0 }} post{{ pool.postCount !== 1 ? 's' : '' }} will not be
+          deleted.
         </p>
 
         <label class="flex items-start gap-2 text-sm cursor-pointer">
@@ -236,12 +292,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
 import { useCategoriesStore } from '@/stores/categories';
+import { usePoolCacheStore } from '@/stores/cache';
 import { useToast } from '@/composables/useToast';
 import type { PoolInfo } from '@/types/oxibooru.gen';
 import FlatButton from '@/components/FlatButton.vue';
@@ -256,6 +313,7 @@ const router = useRouter();
 const api = useTokenStore();
 const loader = useLoaderStore();
 const categoriesStore = useCategoriesStore();
+const poolCache = usePoolCacheStore();
 const toast = useToast();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
@@ -283,7 +341,10 @@ const canDelete = computed(() => api.hasPrivilege('pool_delete'));
 const categories = computed(() => categoriesStore.pools);
 
 // ── Edit state ─────────────────────────────────────────────────
-interface EditPost { id: number; thumbnailUrl: string; }
+interface EditPost {
+  id: number;
+  thumbnailUrl: string;
+}
 
 const editNames = ref('');
 const editCategory = ref('');
@@ -297,7 +358,7 @@ const addPostError = ref('');
 function syncEditFields() {
   if (!pool.value) return;
   editNames.value = (pool.value.names ?? []).join('\n');
-  editCategory.value = pool.value.category ?? (categories.value[0]?.name ?? '');
+  editCategory.value = pool.value.category ?? categories.value[0]?.name ?? '';
   editDescription.value = pool.value.description ?? '';
   editPosts.value = (pool.value.posts ?? []).map((p) => ({
     id: p.id,
@@ -308,7 +369,9 @@ function syncEditFields() {
   addPostError.value = '';
 }
 
-watch(pool, (p) => { if (p) syncEditFields(); });
+watch(pool, (p) => {
+  if (p) syncEditFields();
+});
 
 // ── Delete state ───────────────────────────────────────────────
 const deleteConfirm = ref(false);
@@ -365,7 +428,7 @@ function onDragMove(e: PointerEvent) {
   const items = Array.from(listRef.value.children) as HTMLElement[];
   let ib = items.length;
   for (let i = 0; i < items.length; i++) {
-    const rect = items[i].getBoundingClientRect();
+    const rect = items[i]!.getBoundingClientRect();
     if (e.clientY < rect.top + rect.height / 2) {
       ib = i;
       break;
@@ -381,6 +444,7 @@ function endDrag() {
     if (ib !== di && ib !== di + 1) {
       const arr = [...editPosts.value];
       const [item] = arr.splice(di, 1);
+      if (!item) return;
       arr.splice(ib > di ? ib - 1 : ib, 0, item);
       editPosts.value = arr;
     }
@@ -400,12 +464,15 @@ async function savePool() {
   editSaving.value = true;
   editError.value = '';
 
-  const names = editNames.value.split(/[\n\r]+/).map((n) => n.trim()).filter(Boolean);
+  const names = editNames.value
+    .split(/[\n\r]+/)
+    .map((n) => n.trim())
+    .filter(Boolean);
   const result = await api.updatePool(pool.value.id, {
     version: pool.value.version,
     names: canEditName.value ? (names.length ? names : undefined) : undefined,
     category: canEditCategory.value ? editCategory.value || undefined : undefined,
-    description: canEditDescription.value ? (editDescription.value.trim() || null) : undefined,
+    description: canEditDescription.value ? editDescription.value.trim() || null : undefined,
     posts: canEditPosts.value ? editPosts.value.map((p) => p.id) : undefined,
   });
 
@@ -417,6 +484,7 @@ async function savePool() {
   }
 
   pool.value = result.data;
+  poolCache.setPool(pool.value.id!, result.data);
   toast.showSuccess('Pool saved.');
 }
 
@@ -433,15 +501,25 @@ async function submitDelete() {
     return;
   }
 
+  poolCache.invalidatePool(pool.value.id!);
   toast.showSuccess('Pool deleted.');
   router.push('/pools');
 }
 
 // ── Data loading ───────────────────────────────────────────────
 async function loadPool(id: number) {
+  if (!id) return; // nan/invalid
+
+  const cached = poolCache.getPool(id);
+  if (cached) {
+    pool.value = cached;
+    loadError.value = '';
+    return;
+  }
+
+  pool.value = null;
   loader.start();
   loadError.value = '';
-  pool.value = null;
 
   const result = await api.getPool(id);
   loader.done();
@@ -452,15 +530,19 @@ async function loadPool(id: number) {
   }
 
   pool.value = result.data;
+  poolCache.setPool(id, result.data);
 }
 
 useHeadSafe(() => ({
-  title: pool.value
-    ? `${serverName.value} - Pool #${pool.value.id}`
-    : serverName.value + ' - Pool',
+  title: pool.value ? `${serverName.value} - Pool #${pool.value.id}` : serverName.value + ' - Pool',
 }));
 
 onMounted(() => loadPool(poolId.value));
 
 watch(poolId, (id) => loadPool(id));
+
+onDeactivated(() => {
+  pool.value = null;
+  loadError.value = '';
+});
 </script>
