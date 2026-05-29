@@ -29,24 +29,6 @@
             @click.stop="onNoteClick(idx, $event)"
           />
 
-          <!-- Centroid ✕ button (idle mode only) -->
-          <text
-            v-if="mode === 'idle'"
-            :x="centroid(note.polygon)[0]"
-            :y="centroid(note.polygon)[1]"
-            text-anchor="middle"
-            dominant-baseline="middle"
-            font-size="0.04"
-            fill="oklch(0.95 0 0 / 0.9)"
-            stroke="oklch(0.2 0 0 / 0.5)"
-            stroke-width="0.003"
-            vector-effect="non-scaling-stroke"
-            style="cursor: pointer; user-select: none; pointer-events: all"
-            @click.stop="deleteNote(idx)"
-          >
-            ✕
-          </text>
-
           <!-- Vertex handles (active editing note only) -->
           <template v-if="mode === 'editing' && editingIdx === idx">
             <circle
@@ -54,8 +36,8 @@
               :key="ptIdx"
               :cx="pt[0]"
               :cy="pt[1]"
-              r="0.012"
-              fill="oklch(0.65 0.20 218)"
+              r="0.008"
+              fill="oklch(0.78 0.1438 51.89)"
               stroke="white"
               stroke-width="0.004"
               vector-effect="non-scaling-stroke"
@@ -71,7 +53,7 @@
             v-if="draftPoints.length > 1"
             :points="toPoints(draftPoints)"
             fill="none"
-            stroke="oklch(0.72 0.18 218 / 0.9)"
+            stroke="oklch(0.78 0.1438 51.89 / 0.9)"
             stroke-width="1.5"
             stroke-dasharray="4 3"
             vector-effect="non-scaling-stroke"
@@ -79,11 +61,11 @@
           <!-- Ghost line to cursor -->
           <line
             v-if="cursorNorm && draftPoints.length >= 1"
-            :x1="draftPoints[draftPoints.length - 1][0]"
-            :y1="draftPoints[draftPoints.length - 1][1]"
+            :x1="draftPoints[draftPoints.length - 1]![0]"
+            :y1="draftPoints[draftPoints.length - 1]![1]"
             :x2="cursorNorm[0]"
             :y2="cursorNorm[1]"
-            stroke="oklch(0.72 0.18 218 / 0.5)"
+            stroke="oklch(0.78 0.1438 51.89 / 0.9)"
             stroke-width="1"
             stroke-dasharray="3 3"
             vector-effect="non-scaling-stroke"
@@ -94,8 +76,8 @@
             :key="i"
             :cx="pt[0]"
             :cy="pt[1]"
-            :r="i === 0 ? 0.016 : 0.009"
-            :fill="i === 0 ? 'oklch(0.72 0.18 218)' : 'oklch(0.72 0.18 218 / 0.8)'"
+            :r="i === 0 ? 0.012 : 0.009"
+            :fill="i === 0 ? 'oklch(0.78 0.1438 51.89)' : 'oklch(0.78 0.1438 51.89 / 0.8)'"
             stroke="white"
             stroke-width="0.004"
             vector-effect="non-scaling-stroke"
@@ -156,16 +138,28 @@
       v-html="editPreviewHtml"
     />
 
-    <div class="flex items-center gap-2">
-      <FlatButton type="button" @click="commitEdit">Save note</FlatButton>
-      <FlatButton type="button" kind="neutral" @click="cancelEdit">Cancel</FlatButton>
-      <button
-        type="button"
-        class="text-xs text-red-500 hover:text-red-600 cursor-pointer ml-auto"
-        @click="deleteEditing"
-      >
-        Delete note
-      </button>
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex flex-row gap-2">
+        <FlatButton type="button" @click="commitEdit">Save note</FlatButton>
+        <FlatButton type="button" kind="neutral" @click="cancelEdit">Cancel</FlatButton>
+      </div>
+      <div class="flex flex-row gap-2 items-center">
+        <RouterLink
+          to="/help/comments"
+          class="text-cyan-500 hover:underline text-xs"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Help
+        </RouterLink>
+        <button
+          type="button"
+          class="text-xs text-red-500 hover:text-red-600 cursor-pointer ml-auto"
+          @click="deleteEditing"
+        >
+          Delete note
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -189,6 +183,17 @@ const emit = defineEmits<{
   (e: 'update', notes: Note[]): void;
 }>();
 
+function deepToRaw<T>(obj: T): T {
+  const raw = toRaw(obj);
+  if (Array.isArray(raw)) {
+    return raw.map(deepToRaw) as T;
+  }
+  if (typeof raw === 'object' && raw !== null) {
+    return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, deepToRaw(v)])) as T;
+  }
+  return raw;
+}
+
 // ── SVG overlay bounds ──────────────────────────────────────────
 const overlayRef = ref<HTMLDivElement | null>(null);
 const svgEl = ref<SVGSVGElement | null>(null);
@@ -196,13 +201,13 @@ const imgElRef = computed(() => props.imgEl);
 const { svgStyle, svgReady } = useNotesBounds(imgElRef, overlayRef);
 
 // ── Working copy ────────────────────────────────────────────────
-const localNotes = ref<Note[]>(structuredClone(toRaw(props.notes)));
+const localNotes = ref<Note[]>(structuredClone(deepToRaw(props.notes)));
 
 watch(
   () => props.notes,
   (n) => {
     if (mode.value === 'idle') {
-      localNotes.value = structuredClone(n);
+      localNotes.value = structuredClone(deepToRaw(n));
     }
   },
 );
@@ -227,7 +232,7 @@ const editPreviewHtml = computed(() =>
 function notePolygonFill(idx: number): string {
   if (mode.value === 'editing') {
     return editingIdx.value === idx
-      ? 'oklch(0.72 0.18 218 / 0.35)'
+      ? 'oklch(0.78 0.1438 51.89 / 0.35)'
       : 'oklch(0.85 0.18 85 / 0.08)';
   }
   return 'oklch(0.85 0.18 85 / 0.25)';
@@ -236,8 +241,8 @@ function notePolygonFill(idx: number): string {
 function notePolygonStroke(idx: number): string {
   if (mode.value === 'editing') {
     return editingIdx.value === idx
-      ? 'oklch(0.65 0.20 218 / 0.9)'
-      : 'oklch(0.78 0.20 85 / 0.3)';
+      ? 'oklch(0.78 0.1438 51.89 / 0.9)'
+      : 'oklch(0.78 0.20 85 / 0.9)';
   }
   return 'oklch(0.78 0.20 85 / 0.9)';
 }
@@ -245,15 +250,6 @@ function notePolygonStroke(idx: number): string {
 // ── Coordinate helpers ──────────────────────────────────────────
 function toPoints(polygon: number[][]): string {
   return polygon.map(([x, y]) => `${x},${y}`).join(' ');
-}
-
-function centroid(polygon: number[][]): [number, number] {
-  const n = polygon.length;
-  if (n === 0) return [0.5, 0.5];
-  return [
-    polygon.reduce((s, p) => s + p[0], 0) / n,
-    polygon.reduce((s, p) => s + p[1], 0) / n,
-  ];
 }
 
 function svgPoint(e: MouseEvent | PointerEvent): [number, number] {
@@ -285,7 +281,7 @@ function onSvgClick(e: MouseEvent) {
 function addPoint(e: MouseEvent) {
   if (!svgEl.value) return;
   const pt = svgPoint(e);
-  if (draftPoints.value.length >= 3 && dist(pt, draftPoints.value[0]) < 0.03) {
+  if (draftPoints.value.length >= 3 && dist(pt, draftPoints.value[0]!) < 0.03) {
     closePolygon();
     return;
   }
@@ -299,7 +295,7 @@ function closePolygon() {
   draftPoints.value = [];
   cursorNorm.value = null;
   openEdit(localNotes.value.length - 1);
-  emit('update', structuredClone(toRaw(localNotes.value)));
+  emit('update', structuredClone(deepToRaw(localNotes.value)));
 }
 
 // ── Note click ──────────────────────────────────────────────────
@@ -313,8 +309,10 @@ function onNoteClick(idx: number, e: MouseEvent) {
 
 // ── Editing ─────────────────────────────────────────────────────
 function openEdit(idx: number) {
+  const value = localNotes.value[idx];
+  if (!value) return;
   editingIdx.value = idx;
-  editingText.value = localNotes.value[idx].text;
+  editingText.value = value.text;
   editPreview.value = false;
   mode.value = 'editing';
 }
@@ -325,15 +323,18 @@ function commitEdit() {
     i === editingIdx.value ? { ...n, text: editingText.value } : n,
   );
   localNotes.value = updated;
-  emit('update', structuredClone(toRaw(localNotes.value)));
+  emit('update', structuredClone(deepToRaw(localNotes.value)));
   resetEdit();
 }
 
 function cancelEdit() {
   // Remove the note if it was just drawn and still has no text
-  if (editingIdx.value !== null && !localNotes.value[editingIdx.value].text) {
+  if (editingIdx.value === null) return;
+  const value = localNotes.value[editingIdx.value];
+  if (!value) return;
+  if (editingIdx.value !== null && !value.text) {
     localNotes.value = localNotes.value.filter((_, i) => i !== editingIdx.value);
-    emit('update', structuredClone(toRaw(localNotes.value)));
+    emit('update', structuredClone(deepToRaw(localNotes.value)));
   }
   resetEdit();
 }
@@ -341,13 +342,8 @@ function cancelEdit() {
 function deleteEditing() {
   if (editingIdx.value === null) return;
   localNotes.value = localNotes.value.filter((_, i) => i !== editingIdx.value);
-  emit('update', structuredClone(toRaw(localNotes.value)));
+  emit('update', structuredClone(deepToRaw(localNotes.value)));
   resetEdit();
-}
-
-function deleteNote(idx: number) {
-  localNotes.value = localNotes.value.filter((_, i) => i !== idx);
-  emit('update', structuredClone(toRaw(localNotes.value)));
 }
 
 function resetEdit() {
@@ -385,7 +381,7 @@ function onPointerMove(e: PointerEvent) {
 
 function onPointerUp() {
   if (dragging.value) {
-    emit('update', structuredClone(toRaw(localNotes.value)));
+    emit('update', structuredClone(deepToRaw(localNotes.value)));
     dragging.value = null;
   }
 }
