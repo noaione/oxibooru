@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, toRaw } from 'vue';
 import type { Note } from '@/types/oxibooru.gen';
 import { renderMarkdown } from '@/utils/markdown';
 import { useNotesBounds } from '@/composables/useNotesBounds';
@@ -196,7 +196,7 @@ const imgElRef = computed(() => props.imgEl);
 const { svgStyle, svgReady } = useNotesBounds(imgElRef, overlayRef);
 
 // ── Working copy ────────────────────────────────────────────────
-const localNotes = ref<Note[]>(structuredClone(props.notes));
+const localNotes = ref<Note[]>(structuredClone(toRaw(props.notes)));
 
 watch(
   () => props.notes,
@@ -299,7 +299,7 @@ function closePolygon() {
   draftPoints.value = [];
   cursorNorm.value = null;
   openEdit(localNotes.value.length - 1);
-  emit('update', structuredClone(localNotes.value));
+  emit('update', structuredClone(toRaw(localNotes.value)));
 }
 
 // ── Note click ──────────────────────────────────────────────────
@@ -325,7 +325,7 @@ function commitEdit() {
     i === editingIdx.value ? { ...n, text: editingText.value } : n,
   );
   localNotes.value = updated;
-  emit('update', structuredClone(localNotes.value));
+  emit('update', structuredClone(toRaw(localNotes.value)));
   resetEdit();
 }
 
@@ -333,7 +333,7 @@ function cancelEdit() {
   // Remove the note if it was just drawn and still has no text
   if (editingIdx.value !== null && !localNotes.value[editingIdx.value].text) {
     localNotes.value = localNotes.value.filter((_, i) => i !== editingIdx.value);
-    emit('update', structuredClone(localNotes.value));
+    emit('update', structuredClone(toRaw(localNotes.value)));
   }
   resetEdit();
 }
@@ -341,13 +341,13 @@ function cancelEdit() {
 function deleteEditing() {
   if (editingIdx.value === null) return;
   localNotes.value = localNotes.value.filter((_, i) => i !== editingIdx.value);
-  emit('update', structuredClone(localNotes.value));
+  emit('update', structuredClone(toRaw(localNotes.value)));
   resetEdit();
 }
 
 function deleteNote(idx: number) {
   localNotes.value = localNotes.value.filter((_, i) => i !== idx);
-  emit('update', structuredClone(localNotes.value));
+  emit('update', structuredClone(toRaw(localNotes.value)));
 }
 
 function resetEdit() {
@@ -385,7 +385,7 @@ function onPointerMove(e: PointerEvent) {
 
 function onPointerUp() {
   if (dragging.value) {
-    emit('update', structuredClone(localNotes.value));
+    emit('update', structuredClone(toRaw(localNotes.value)));
     dragging.value = null;
   }
 }
