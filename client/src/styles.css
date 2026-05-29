@@ -57,6 +57,11 @@
     line-height: 1.5;
   }
 
+  /* on p last child, we ddon't add any margin bottom */
+  p:last-child {
+    margin-bottom: 0;
+  }
+
   p:has(+ ul),
   p:has(+ ol) {
     margin-bottom: 0;
@@ -173,11 +178,8 @@ body.darktheme ::-webkit-scrollbar-track {
   font-family: 'MS PGothic', 'IPAPGothic', monospace;
   font-size: 0.75rem;
   line-height: 1.2;
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
   white-space: pre;
   display: inline-block;
-  @apply px-1.5 py-1;
 }
 
 .link-with-icons {

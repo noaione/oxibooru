@@ -77,8 +77,8 @@
 
       <!-- Description -->
       <div v-if="renderedDescription" class="card p-4 text-sm">
-        <p
-          class="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-gray-700 dark:text-gray-300"
+        <div
+          class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
           v-html="renderedDescription"
         />
       </div>

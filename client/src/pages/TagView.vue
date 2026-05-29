@@ -324,8 +324,8 @@
 import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import { renderMarkdown } from '@/utils/markdown';
+
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
 import { useTagCacheStore } from '@/stores/cache';
@@ -412,8 +412,7 @@ const canMerge = computed(() => api.hasPrivilege('tag_merge'));
 
 const renderedDescription = computed(() => {
   if (!tag.value?.description) return '';
-  const html = marked.parse(tag.value.description, { async: false }) as string;
-  return DOMPurify.sanitize(html);
+  return renderMarkdown(tag.value.description);
 });
 
 useHeadSafe(() => ({
