@@ -30,7 +30,7 @@ export const useSettingsStore = defineStore('settings', () => {
     endlessScroll: false,
     keyboardShortcuts: true,
     transparencyGrid: true,
-    fitMode: 'fit-both',
+    fitMode: 'fit-height',
     tagSuggestions: true,
     autoplayVideos: false,
     postsPerPage: 42,
