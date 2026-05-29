@@ -365,11 +365,13 @@ Comments support standard Markdown syntax, plus these extensions:
 | \`%123\` | links to pool #123 |
 | \`~~strikethrough~~\` | ~~strikethrough~~ text |
 | \`[spoiler]text[/spoiler]\` | hides text as a spoiler |
+| \`[icon]https://youtube.com[/icon]\` | add a link with an icon |
+| \`\`[sjis](´･ω･\`)[/sjis]\`\` | adds SJIS art |
 
 You can also specify the size of embedded images like this:
-- \`![alt](href =WIDTHx "title")\`
-- \`![alt](href =xHEIGHT "title")\`
-- \`![alt](href =WIDTHxHEIGHT "title")\`
+- \`![alt](href "title"){WIDTHx}\`
+- \`![alt](href "title"){xHEIGHT}\`
+- \`![alt](href "title"){WIDTHxHEIGHT}\`
 
 ## Markdown basics
 

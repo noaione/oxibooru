@@ -664,8 +664,8 @@
       <div v-if="renderedDescription && !isEditMode" class="text-sm">
         <details open>
           <summary class="cursor-pointer font-medium mb-2">Description</summary>
-          <p
-            class="whitespace-pre-wrap text-gray-700 dark:text-gray-300"
+          <div
+            class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
             v-html="renderedDescription"
           />
         </details>
