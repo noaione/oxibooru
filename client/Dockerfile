@@ -10,7 +10,8 @@ COPY . ./
 
 ARG BUILD_INFO="docker-latest"
 ARG BASE_URL="/"
-RUN BUILD_INFO="${BUILD_INFO}" BASE_URL="${BASE_URL}" pnpm run build
+ARG GIT_LINK=""
+RUN BUILD_INFO="${BUILD_INFO}" BASE_URL="${BASE_URL}" GIT_LINK="${GIT_LINK}" pnpm run build
 
 
 FROM nginx:alpine AS release

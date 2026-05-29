@@ -22,18 +22,6 @@
         color: oklch(90% 0 0);
       }
     </style>
-    <script>
-      /* quick script to avoid FoUC */
-      (function () {
-        var t = localStorage.getItem('theme');
-        if (
-          t === 'dark' ||
-          (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-          document.body.classList.add('darktheme');
-        }
-      })();
-    </script>
     <link
       rel="apple-touch-startup-image"
       href="/img/apple-touch-startup-image-640x1136.png"
@@ -72,6 +60,18 @@
     <link rel="manifest" href="/manifest.json" />
   </head>
   <body>
+    <script>
+      /* quick script to avoid FoUC */
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (
+          t === 'dark' ||
+          (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.body.classList.add('darktheme');
+        }
+      })();
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
