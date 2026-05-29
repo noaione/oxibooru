@@ -929,9 +929,13 @@ export const useTokenStore = defineStore('api', () => {
   const featurePost = async (
     id: number,
   ): Promise<{ success: true; data: PostInfo } | { success: false; description: string }> => {
-    const resp = await doFetch<PostInfo>(`/api/post/${id}/featured`, {
+    const resp = await doFetch<PostInfo>(`/api/featured-post`, {
       method: 'POST',
-      headers: { Authorization: authToken.value! },
+      body: JSON.stringify({ id }),
+      headers: {
+        Authorization: authToken.value!,
+        'Content-Type': 'application/json',
+      },
     });
     if (!resp.success) {
       return {

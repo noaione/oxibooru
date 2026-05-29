@@ -263,7 +263,7 @@
             <button
               v-if="canFeaturePost"
               type="button"
-              class="text-xs text-left text-cyan-400 hover:text-cyan-500 cursor-pointer"
+              class="text-xs text-left w-fit text-cyan-400 hover:text-cyan-500 cursor-pointer"
               @click="featurePost"
             >
               Feature this post on main page
@@ -1055,11 +1055,15 @@ async function confirmDeletePost() {
 
 async function featurePost() {
   if (!post.value?.id) return;
-  const result = await api.featurePost(post.value.id);
-  if (result.success) {
-    toast.showSuccess('Post featured.');
-  } else {
-    editError.value = result.description;
+  try {
+    const result = await api.featurePost(post.value.id);
+    if (result.success) {
+      toast.showSuccess('Post featured.');
+    } else {
+      toast.showError(result.description);
+    }
+  } catch (err) {
+    toast.showError((err as Error).message);
   }
 }
 
