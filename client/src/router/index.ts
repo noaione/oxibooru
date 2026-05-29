@@ -183,6 +183,11 @@ const router = createRouter({
       name: 'help-section',
       component: () => import('@/pages/HelpView.vue'),
     },
+    {
+      path: '/help/:section/:subsection',
+      name: 'help-subsection',
+      component: () => import('@/pages/HelpView.vue'),
+    },
     // ── Catch-all 404 ─────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',

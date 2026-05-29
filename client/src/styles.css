@@ -35,8 +35,11 @@
     @apply text-accent-500 dark:text-accent-400 no-underline decoration-dashed hover:underline;
   }
 
-  code {
+  code, pre {
     @apply bg-gray-100 dark:bg-gray-700 font-medium rounded;
+  }
+
+  code {
     padding-inline: 0.25rem;
     padding-block: 0.125rem;
   }
