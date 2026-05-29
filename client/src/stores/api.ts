@@ -1149,13 +1149,12 @@ export const useTokenStore = defineStore('api', () => {
   // ── Comment actions ────────────────────────────────────────────
 
   const listComments = async (
-    query: string,
     offset: number,
     limit: number,
   ): Promise<
     { success: true; data: PagedResponseCommentInfo } | { success: false; description: string }
   > => {
-    const params = new URLSearchParams({ query, offset: String(offset), limit: String(limit) });
+    const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
     const resp = await doFetch<PagedResponseCommentInfo>(`/api/comments?${params}`, {
       headers: authToken.value ? { Authorization: authToken.value } : {},
     });
@@ -1166,6 +1165,24 @@ export const useTokenStore = defineStore('api', () => {
       };
     }
     return { success: true, data: resp.data };
+  };
+
+  const fetchPostThumbnails = async (ids: number[]): Promise<Map<number, string>> => {
+    if (ids.length === 0) return new Map();
+    const params = new URLSearchParams({
+      query: `id:${ids.join(',')}`,
+      limit: String(ids.length),
+      fields: 'id,thumbnailUrl',
+    });
+    const resp = await doFetch<PagedResponsePostInfo>(`/api/posts?${params}`, {
+      headers: authToken.value ? { Authorization: authToken.value } : {},
+    });
+    if (!resp.success) return new Map();
+    const map = new Map<number, string>();
+    for (const post of resp.data.results ?? []) {
+      if (post.id != null && post.thumbnailUrl) map.set(post.id, post.thumbnailUrl);
+    }
+    return map;
   };
 
   const createComment = async (
@@ -1321,6 +1338,7 @@ export const useTokenStore = defineStore('api', () => {
     deleteTagCategory,
     setDefaultTagCategory,
     listComments,
+    fetchPostThumbnails,
     createComment,
     updateComment,
     deleteComment,

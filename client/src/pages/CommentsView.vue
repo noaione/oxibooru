@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col gap-4 w-full max-w-3xl mx-auto">
-    <div class="flex items-center gap-3">
+  <div class="flex flex-col gap-4 w-full max-w-4xl">
+    <div class="flex items-start gap-3">
       <h1 class="text-xl font-semibold">Comments</h1>
     </div>
 
@@ -9,17 +9,6 @@
     </div>
 
     <template v-else>
-      <!-- Search -->
-      <form class="flex gap-2" @submit.prevent="applySearch">
-        <FlatInput
-          v-model="searchInput"
-          type="search"
-          placeholder="Search comments…"
-          class="flex-1 bg-gray-50! dark:bg-gray-800!"
-        />
-        <FlatButton type="submit">Search</FlatButton>
-      </form>
-
       <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
 
       <template v-else>
@@ -30,21 +19,40 @@
           No comments found.
         </p>
 
-        <div class="flex flex-col gap-4">
-          <div v-for="comment in comments" :key="comment.id" class="card p-4 flex flex-col gap-2">
-            <!-- Post link -->
+        <div class="flex flex-col gap-3">
+          <div
+            v-for="comment in comments"
+            :key="comment.id"
+            class="card overflow-hidden flex flex-col xs:flex-row items-stretch"
+          >
+            <!-- Post thumbnail -->
             <RouterLink
               :to="`/post/${comment.postId}`"
-              class="text-xs text-cyan-500 hover:underline"
+              class="shrink-0 h-1/2 w-full xs:h-auto xs:w-28 sm:w-38 md:w-48 transition-[width,height] bg-gray-100 dark:bg-gray-800"
             >
-              Post #{{ comment.postId }}
+              <img
+                v-if="postThumbnails.get(comment.postId!)"
+                :src="resolveApiUrl(postThumbnails.get(comment.postId!))"
+                alt=""
+                class="w-full h-full object-contain xs:object-cover"
+              />
+              <div v-else class="w-full h-full min-h-16" />
             </RouterLink>
 
-            <CommentItem
-              :comment="comment"
-              @update="(c) => updateComment(c)"
-              @delete="(id) => removeComment(id)"
-            />
+            <!-- Comment content -->
+            <div class="flex-1 min-w-0 p-3 flex flex-col gap-2">
+              <RouterLink
+                :to="`/post/${comment.postId}`"
+                class="text-xs text-cyan-500 hover:underline"
+              >
+                Post #{{ comment.postId }}
+              </RouterLink>
+              <CommentItem
+                :comment="comment"
+                @update="(c) => updateComment(c)"
+                @delete="(id) => removeComment(id)"
+              />
+            </div>
           </div>
         </div>
 
@@ -62,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
@@ -70,8 +78,7 @@ import { useLoaderStore } from '@/stores/loader';
 import type { CommentInfo } from '@/types/oxibooru.gen';
 import CommentItem from '@/components/CommentItem.vue';
 import Pagination from '@/components/Pagination.vue';
-import FlatButton from '@/components/FlatButton.vue';
-import FlatInput from '@/components/FlatInput.vue';
+import { resolveApiUrl } from '@/utils/url';
 
 const route = useRoute();
 const router = useRouter();
@@ -88,9 +95,8 @@ const comments = ref<CommentInfo[]>([]);
 const total = ref(0);
 const loadError = ref('');
 const loading = ref(false);
+const postThumbnails = ref(new Map<number, string>());
 
-const searchInput = ref((route.query.q as string) ?? '');
-const query = computed(() => (route.query.q as string) ?? '');
 const offset = computed(() => Number(route.query.offset ?? 0));
 const currentPage = computed(() => {
   return Math.floor(offset.value / pageSize) + 1;
@@ -101,7 +107,7 @@ async function fetchComments() {
   loading.value = true;
   loadError.value = '';
 
-  const result = await api.listComments(query.value, offset.value, pageSize);
+  const result = await api.listComments(offset.value, pageSize);
 
   loader.done();
   loading.value = false;
@@ -113,10 +119,9 @@ async function fetchComments() {
 
   comments.value = result.data.results;
   total.value = result.data.total;
-}
 
-function applySearch() {
-  router.push({ query: { q: searchInput.value || undefined, offset: undefined } });
+  const ids = [...new Set(result.data.results.map((c) => c.postId).filter((id) => id != null))];
+  postThumbnails.value = await api.fetchPostThumbnails(ids);
 }
 
 function goToPage(newOffset: number) {
@@ -133,10 +138,7 @@ function removeComment(id: number) {
   total.value = Math.max(0, total.value - 1);
 }
 
-watch(() => route.query, fetchComments, { immediate: false });
-
 onMounted(() => {
-  searchInput.value = query.value;
   fetchComments();
 });
 </script>
