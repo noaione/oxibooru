@@ -37,13 +37,6 @@
             Edit
           </RouterLink>
           <RouterLink
-            v-if="canMerge"
-            :to="`/pool/${pool.id}/merge/0`"
-            class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors border-transparent opacity-70 hover:opacity-100"
-          >
-            Merge
-          </RouterLink>
-          <RouterLink
             v-if="canDelete"
             :to="`/pool/${pool.id}/delete`"
             class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
@@ -88,6 +81,25 @@
           class="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-gray-700 dark:text-gray-300"
           v-html="renderedDescription"
         />
+      </div>
+
+      <!-- Merge -->
+      <div v-if="canMerge" class="card p-4">
+        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+          Merge with another pool
+        </p>
+        <form class="flex gap-2" @submit.prevent="goToMerge">
+          <FlatInput
+            v-model="mergeTargetId"
+            type="number"
+            placeholder="Other pool ID…"
+            class="flex-1 px-2 py-1 text-sm bg-gray-50! dark:bg-gray-800!"
+            min="1"
+          />
+          <FlatButton kind="warn" type="submit" :disabled="!mergeTargetId.trim()">
+            Merge
+          </FlatButton>
+        </form>
       </div>
 
       <!-- Post grid -->
@@ -344,6 +356,14 @@ const categories = computed(() => categoriesStore.pools);
 interface EditPost {
   id: number;
   thumbnailUrl: string;
+}
+
+const mergeTargetId = ref('');
+
+function goToMerge() {
+  const id = mergeTargetId.value.trim();
+  if (!id || isNaN(Number(id))) return;
+  router.push(`/pool/${pool.value!.id}/merge/${Number(id)}`);
 }
 
 const editNames = ref('');
