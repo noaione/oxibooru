@@ -148,30 +148,42 @@ body.darktheme ::-webkit-scrollbar-track {
 
 /* ── Markdown custom blocks ─────────────────────────────────────*/
 .spoiler {
-  background-color: #111;
+  background-color: #333;
   color: transparent;
-  cursor: pointer;
-  user-select: none;
   border-radius: 2px;
   padding-inline: 2px;
-  transition: color 0.15s;
+  transition: color 0.1s;
+
+  &:before, &:after {
+    color: #e6e6e6;
+  }
+
+  &:before {
+    content: '[';
+  }
+  &:after {
+    content: ']';
+  }
 }
 .spoiler:hover {
   color: #e6e6e6;
-}
-body:not(.darktheme) .spoiler {
-  background-color: #333;
-}
-body:not(.darktheme) .spoiler:hover {
-  color: #f5f5f5;
 }
 
 .sjis {
   font-family: 'MS PGothic', 'IPAPGothic', monospace;
   font-size: 0.75rem;
   line-height: 1.2;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
   white-space: pre;
   display: inline-block;
+  @apply px-1.5 py-1;
+}
+
+.link-with-icons {
+  img {
+    @apply inline-block my-0;
+  }
 }
 
 /* ── Transparency checkerboard ──────────────────────────────────*/
