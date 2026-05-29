@@ -162,6 +162,25 @@
             />
           </section>
 
+          <!-- Notes -->
+          <section v-if="canEditPostNotes" class="flex flex-col gap-1">
+            <label
+              class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
+            >
+              Note
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ editNotes.length }} note{{ editNotes.length !== 1 ? 's' : '' }}
+            </p>
+            <FlatButton
+              type="button"
+              class="w-fit text-xs px-2 py-0.5"
+              @click="notesEditorRef?.startDrawing()"
+            >
+              Add note
+            </FlatButton>
+          </section>
+
           <!-- Content replacement -->
           <section v-if="canEditPostContent" class="flex flex-col gap-1">
             <label
@@ -559,6 +578,7 @@
         <!-- Image / Animation -->
         <div
           v-if="post.type === 'image' || post.type === 'animation'"
+          ref="imgMediaWrapperRef"
           class="relative"
           :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
           :style="{
@@ -579,12 +599,17 @@
             }"
             draggable="false"
           />
-          <PostNotesOverlay v-if="post.notes?.length" :notes="post.notes" :img-el="imgRef" />
+          <PostNotesOverlay
+            v-if="!isEditMode && post.notes?.length"
+            :notes="post.notes"
+            :img-el="imgRef"
+          />
         </div>
 
         <!-- Video -->
         <div
           v-else-if="post.type === 'video'"
+          ref="videoMediaWrapperRef"
           class="relative"
           :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
           :style="{
@@ -608,7 +633,11 @@
             <source :src="resolveApiUrl(post.contentUrl)" :type="post.mimeType" />
             Your browser does not support this video format.
           </video>
-          <PostNotesOverlay v-if="post.notes?.length" :notes="post.notes" :img-el="videoRef" />
+          <PostNotesOverlay
+            v-if="!isEditMode && post.notes?.length"
+            :notes="post.notes"
+            :img-el="videoRef"
+          />
         </div>
 
         <!-- Flash (unsupported) -->
@@ -620,6 +649,16 @@
           Flash content is not supported in modern browsers.
         </div>
       </div>
+
+      <!-- Notes editor (edit mode only) -->
+      <PostNotesEditor
+        v-if="isEditMode && canEditPostNotes"
+        ref="notesEditorRef"
+        :notes="editNotes"
+        :img-el="imgRef ?? videoRef"
+        :overlay-container="activeMediaWrapper"
+        @update="(n) => (editNotes = n)"
+      />
 
       <!-- Description (view mode only) -->
       <div v-if="renderedDescription && !isEditMode" class="text-sm">
@@ -748,6 +787,7 @@ import { useToast } from '@/composables/useToast';
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
 import type {
   CommentInfo,
+  Note,
   PostInfo,
   PostNeighbors,
   PostSafety,
@@ -757,6 +797,7 @@ import type {
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
+import PostNotesEditor from '@/components/PostNotesEditor.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
 import FlatInput from '@/components/FlatInput.vue';
@@ -801,6 +842,7 @@ const editRelations = ref('');
 const editLoopFlag = ref(false);
 const editSoundFlag = ref(false);
 const editDescription = ref('');
+const editNotes = ref<Note[]>([]);
 const editNewContent = ref<File | null>(null);
 const editNewThumbnail = ref<File | null>(null);
 const editSaving = ref(false);
@@ -808,6 +850,15 @@ const editError = ref('');
 const editMergeTargetId = ref('');
 const contentInputRef = ref<HTMLInputElement | null>(null);
 const thumbnailInputRef = ref<HTMLInputElement | null>(null);
+
+// Media wrapper refs (for teleporting the notes SVG overlay)
+const imgMediaWrapperRef = ref<HTMLDivElement | null>(null);
+const videoMediaWrapperRef = ref<HTMLDivElement | null>(null);
+const activeMediaWrapper = computed(
+  () => imgMediaWrapperRef.value ?? videoMediaWrapperRef.value ?? null,
+);
+// Ref to the notes editor component so the sidebar "Add note" button can call startDrawing()
+const notesEditorRef = ref<InstanceType<typeof PostNotesEditor> | null>(null);
 
 const editTagCategories = computed(() => {
   const map: Record<string, string> = {};
@@ -827,6 +878,7 @@ function syncEditFields() {
   editLoopFlag.value = post.value.flags?.includes('loop') ?? false;
   editSoundFlag.value = post.value.flags?.includes('sound') ?? false;
   editDescription.value = post.value.description ?? '';
+  editNotes.value = structuredClone(post.value.notes ?? []);
   editNewContent.value = null;
   editNewThumbnail.value = null;
   editError.value = '';
@@ -851,6 +903,7 @@ const canEditPostFlags = computed(() => api.hasPrivilege('post_edit_flag'));
 const canEditPostDescription = computed(() => api.hasPrivilege('post_edit_description'));
 const canEditPostContent = computed(() => api.hasPrivilege('post_edit_content'));
 const canEditPostThumbnail = computed(() => api.hasPrivilege('post_edit_thumbnail'));
+const canEditPostNotes = computed(() => api.hasPrivilege('post_edit_note'));
 const canDeletePost = computed(() => api.hasPrivilege('post_delete'));
 const canMergePost = computed(() => api.hasPrivilege('post_merge'));
 const canFeaturePost = computed(() => api.hasPrivilege('post_feature'));
@@ -1044,6 +1097,7 @@ async function savePost() {
       .filter((n) => !isNaN(n)),
     flags,
     description: editDescription.value || null,
+    notes: canEditPostNotes.value ? editNotes.value : undefined,
   };
 
   if (editNewContent.value) {
