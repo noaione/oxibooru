@@ -581,9 +581,6 @@
           ref="imgMediaWrapperRef"
           class="relative"
           :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
-          :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
-          }"
         >
           <img
             ref="imgRef"
