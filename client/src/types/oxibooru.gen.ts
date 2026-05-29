@@ -1677,6 +1677,21 @@ export type PrivilegeConfig = {
   user_view: UserRank;
 };
 
+export type PublicOidcProvider = {
+  /**
+   * The provider identifier
+   */
+  name: string;
+  /**
+   * The display name of the provider
+   */
+  displayName: string;
+  /**
+   * Icon provider
+   */
+  iconProvider?: string | null;
+};
+
 export type PublicConfig = {
   canSendMails?: boolean;
   contactEmail?: null | SmallString;
@@ -1688,6 +1703,12 @@ export type PublicConfig = {
   tagCategoryNameRegex: string;
   tagNameRegex: string;
   userNameRegex: string;
+  oidcProviders?: PublicOidcProvider[];
+};
+
+export type OIDCAuthorizeResponse = {
+  authorizeUrl: string;
+  state: string;
 };
 
 /**

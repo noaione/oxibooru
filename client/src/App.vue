@@ -29,6 +29,9 @@ const cacheUser = useUserCacheStore();
 
 function onUnauthorized() {
   if (!app.userToken) return; // only redirect if was logged in
+  // ignore if in oidc callback page
+  if (router.currentRoute.value.name === 'oidc-callback') return;
+
   app.logout().catch(() => {});
   if (router.currentRoute.value.name !== 'login') {
     router.push('/login');
