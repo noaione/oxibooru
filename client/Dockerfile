@@ -23,6 +23,7 @@ COPY docker-start.sh /docker-start.sh
 RUN chmod +x /docker-start.sh
 
 COPY --from=builder /opt/app/dist /var/www
+COPY --from=builder /opt/app/public /var/www
 
 CMD ["/docker-start.sh"]
 VOLUME ["/data"]
