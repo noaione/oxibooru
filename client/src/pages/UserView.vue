@@ -227,14 +227,25 @@
               />
               Manual avatar
             </label>
-            <input
-              v-if="editAvatarStyle === 'manual'"
-              ref="avatarFileInput"
-              type="file"
-              accept="image/*"
-              class="text-sm"
-              @change="onAvatarFile"
-            />
+            <div v-if="editAvatarStyle === 'manual'" class="flex items-center gap-2">
+              <label
+                for="avatar-file-input"
+                class="px-2 py-1 text-sm cursor-pointer bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-500 transition-colors select-none"
+              >
+                Choose file
+              </label>
+              <span class="text-sm text-gray-500 dark:text-gray-400 truncate max-w-40">
+                {{ editAvatarFile?.name ?? 'No file chosen' }}
+              </span>
+              <input
+                id="avatar-file-input"
+                ref="avatarFileInput"
+                type="file"
+                accept="image/*"
+                class="sr-only"
+                @change="onAvatarFile"
+              />
+            </div>
           </div>
         </div>
 
@@ -573,7 +584,9 @@ async function submitEdit() {
     body.rank = editRank.value;
   }
   if (canEditAvatar.value) {
-    body.avatarStyle = editAvatarStyle.value;
+    if (editAvatarStyle.value !== 'manual' || editAvatarFile.value) {
+      body.avatarStyle = editAvatarStyle.value;
+    }
   }
 
   editLoading.value = true;
