@@ -122,12 +122,7 @@ body.darktheme .overlay-color {
    Add padding via Tailwind (e.g. p-4, p-5) at the use site.
 */
 .card {
-  background-color: #f5f5f5;
-  color: #111111;
-}
-body.darktheme .card {
-  background-color: #333333;
-  color: #e6e6e6;
+  @apply bg-[#f5f5f5] text-[#111111] dark:bg-[#333333] dark:text-[#e6e6e6];
 }
 
 /* ── Links ──────────────────────────────────────────────────────*/

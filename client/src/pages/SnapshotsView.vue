@@ -23,22 +23,22 @@
           <div
             v-for="snap in snapshots"
             :key="snap.id"
-            class="card p-3 flex items-start gap-3 text-sm"
+            class="p-3 flex items-start gap-3 text-sm"
+            :class="operationCardClass(snap.operation)"
           >
-            <!-- Operation badge -->
-            <span
-              class="shrink-0 mt-0.5 inline-block px-2 py-0.5 rounded text-xs font-semibold capitalize"
-              :class="operationClass(snap.operation)"
-            >
-              {{ snap.operation ?? 'unknown' }}
-            </span>
-
             <!-- Resource + user + time -->
             <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+              <!-- Operation badge -->
+              <span
+                class="shrink-0 my-1 inline-block px-2 w-fit py-0.5 rounded text-xs font-semibold capitalize"
+                :class="operationClass(snap.operation)"
+              >
+                {{ snap.operation ?? 'unknown' }}
+              </span>
               <div class="flex items-center flex-wrap">
-                <span class="text-gray-500 dark:text-gray-400 capitalize"
-                  >{{ formatType(snap.type) }}&nbsp;</span
-                >
+                <span class="text-gray-500 dark:text-gray-400 capitalize font-bold">
+                  {{ formatType(snap.type) }}&nbsp;
+                </span>
                 <component
                   :is="resourceLink(snap) ? 'RouterLink' : 'span'"
                   :to="resourceLink(snap)"
@@ -57,6 +57,8 @@
                 <span v-else>by anonymous</span>
                 &nbsp;<RelativeTime v-if="snap.time" :time="snap.time" />
               </div>
+
+              <SnapshotDetail :snap="snap" />
             </div>
           </div>
         </div>
@@ -84,6 +86,7 @@ import type { ResourceOperation, ResourceType, SnapshotInfo } from '@/types/oxib
 import Pagination from '@/components/Pagination.vue';
 import RelativeTime from '@/components/RelativeTime.vue';
 import AvatarLink from '@/components/AvatarLink.vue';
+import SnapshotDetail from '@/components/SnapshotDetail.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -139,18 +142,33 @@ function goToPage(page: number) {
   router.push({ query: { ...route.query, offset: offset > 0 ? String(offset) : undefined } });
 }
 
+function operationCardClass(op?: ResourceOperation): string {
+  switch (op) {
+    case 'created':
+      return 'bg-green-100 dark:bg-green-950/30 border border-green-300 dark:border-green-800';
+    case 'modified':
+      return 'bg-yellow-100 dark:bg-yellow-950/30 border border-yellow-300 dark:border-yellow-800';
+    case 'deleted':
+      return 'bg-red-100 dark:bg-red-950/30 border border-red-300 dark:border-red-800';
+    case 'merged':
+      return 'bg-purple-100 dark:bg-purple-950/30 border border-purple-300 dark:border-purple-800';
+    default:
+      return 'border border-gray-300 dark:border-gray-700';
+  }
+}
+
 function operationClass(op?: ResourceOperation): string {
   switch (op) {
     case 'created':
-      return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+      return 'bg-green-300 text-green-800 dark:bg-green-900/50 dark:text-green-300';
     case 'modified':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
+      return 'bg-yellow-300 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
     case 'deleted':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+      return 'bg-red-300 text-red-800 dark:bg-red-900/50 dark:text-red-300';
     case 'merged':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
+      return 'bg-blue-300 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
     default:
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+      return 'bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
   }
 }
 
