@@ -4,12 +4,14 @@
       <h1 class="text-xl font-semibold">Snapshots</h1>
     </div>
 
-    <div v-if="!canList" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canList" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to view snapshots.
     </div>
 
     <template v-else>
-      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 dark:text-red-400 text-sm">
+        {{ loadError }}
+      </div>
 
       <template v-else>
         <p

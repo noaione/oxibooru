@@ -78,7 +78,7 @@
               />
             </div>
 
-            <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
+            <p v-if="errorMsg" class="text-sm text-red-500 dark:text-red-400">{{ errorMsg }}</p>
 
             <FlatButton type="submit" class="w-full" :disabled="loading">
               Create an account

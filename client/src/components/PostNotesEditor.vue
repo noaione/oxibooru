@@ -154,7 +154,7 @@
         </RouterLink>
         <button
           type="button"
-          class="text-xs text-red-500 hover:text-red-600 cursor-pointer ml-auto"
+          class="text-xs text-red-500 dark:text-red-400 dark:hover:text-red-500 hover:text-red-600 cursor-pointer ml-auto"
           @click="deleteEditing"
         >
           Delete note

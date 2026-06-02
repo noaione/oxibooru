@@ -43,7 +43,7 @@
     </div>
 
     <!-- Error -->
-    <div v-if="error" class="card p-4 text-red-500 text-sm">{{ error }}</div>
+    <div v-if="error" class="card p-4 text-red-500 dark:text-red-400 text-sm">{{ error }}</div>
 
     <template v-else>
       <div class="text-sm text-gray-500 dark:text-gray-400">

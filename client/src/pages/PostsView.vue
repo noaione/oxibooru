@@ -130,7 +130,7 @@
     </div>
 
     <!-- Error -->
-    <p v-if="loadError" class="text-sm text-red-500">{{ loadError }}</p>
+    <p v-if="loadError" class="text-sm text-red-500 dark:text-red-400">{{ loadError }}</p>
 
     <!-- No results -->
     <p v-if="!loader.loading && posts.length === 0 && !loadError" class="text-sm text-gray-500">

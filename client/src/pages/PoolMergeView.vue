@@ -7,12 +7,14 @@
       </RouterLink>
     </div>
 
-    <div v-if="!canMerge" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canMerge" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to merge pools.
     </div>
 
     <template v-else>
-      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 dark:text-red-400 text-sm">
+        {{ loadError }}
+      </div>
 
       <template v-else-if="pool1 && pool2">
         <!-- Side-by-side cards -->
@@ -87,7 +89,7 @@
             </p>
           </div>
 
-          <p v-if="mergeError" class="text-red-500 text-xs">{{ mergeError }}</p>
+          <p v-if="mergeError" class="text-red-500 dark:text-red-400 text-xs">{{ mergeError }}</p>
 
           <FlatButton
             type="button"

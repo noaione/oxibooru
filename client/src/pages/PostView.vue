@@ -1,7 +1,7 @@
 <template>
   <!-- Error -->
   <div v-if="loadError" class="flex flex-col gap-2">
-    <p class="text-red-500">{{ loadError }}</p>
+    <p class="text-red-500 dark:text-red-400">{{ loadError }}</p>
     <RouterLink to="/posts" class="text-sm text-cyan-500 hover:underline">Back to posts</RouterLink>
   </div>
 
@@ -65,7 +65,7 @@
       <template v-if="isEditMode">
         <div class="card p-3 flex flex-col gap-3 text-sm">
           <!-- Error banner -->
-          <p v-if="editError" class="text-red-500 text-xs">{{ editError }}</p>
+          <p v-if="editError" class="text-red-500 dark:text-red-400 text-xs">{{ editError }}</p>
 
           <!-- Tags -->
           <section v-if="canEditPostTags" class="flex flex-col gap-1">
@@ -213,7 +213,7 @@
             <button
               v-if="editNewContent"
               type="button"
-              class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 self-start cursor-pointer"
+              class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 self-start cursor-pointer"
               @click="editNewContent = null"
             >
               Remove
@@ -253,7 +253,7 @@
             <button
               v-if="editNewThumbnail"
               type="button"
-              class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 self-start cursor-pointer"
+              class="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 self-start cursor-pointer"
               @click="editNewThumbnail = null"
             >
               Remove
@@ -309,7 +309,7 @@
             <button
               v-if="canDeletePost"
               type="button"
-              class="text-xs text-left text-red-500 hover:text-red-600 cursor-pointer w-fit"
+              class="text-xs text-left text-red-500 dark:text-red-400 dark:hover:text-red-500 hover:text-red-600 cursor-pointer w-fit"
               @click="confirmDeletePost"
             >
               Delete this post
@@ -449,7 +449,11 @@
               <span class="font-medium text-sm tabular-nums">{{ localScore }}</span>
               <button
                 class="cursor-pointer transition-colors"
-                :class="localOwnScore === -1 ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+                :class="
+                  localOwnScore === -1
+                    ? 'text-red-500 dark:text-red-400'
+                    : 'text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+                "
                 :disabled="!canScore"
                 :title="canScore ? 'Downvote' : ''"
                 @click="vote(-1)"
@@ -461,7 +465,11 @@
             <!-- Favorite -->
             <button
               class="flex items-center gap-1 cursor-pointer transition-colors"
-              :class="localOwnFavorite ? 'text-red-400' : 'text-gray-400 hover:text-red-400'"
+              :class="
+                localOwnFavorite
+                  ? 'text-red-500 dark:text-red-400'
+                  : 'text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+              "
               :disabled="!canFavorite"
               :title="
                 canFavorite ? (localOwnFavorite ? 'Remove from favorites' : 'Add to favorites') : ''
@@ -745,7 +753,9 @@
                 Help
               </RouterLink>
             </div>
-            <span v-if="commentError" class="text-xs text-red-500">{{ commentError }}</span>
+            <span v-if="commentError" class="text-xs text-red-500 dark:text-red-400">
+              {{ commentError }}
+            </span>
           </div>
         </div>
         <p v-else-if="!api.userToken" class="text-sm text-gray-500 dark:text-gray-400">
