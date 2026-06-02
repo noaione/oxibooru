@@ -1,7 +1,6 @@
 <template>
   <nav class="overlay-color w-full max-w-dvw relative">
-    <div v-if="!apiController.ready" class="mx-auto flex items-center justify-between h-9" />
-    <div v-else class="mx-auto flex items-center justify-between">
+    <div class="mx-auto flex items-center justify-between">
       <!-- Left: main navigation (desktop) -->
       <div :class="[navLayout.showDesktop, 'items-center']">
         <RouterLink
@@ -95,7 +94,10 @@
     <!-- Mobile dropdown -->
     <div
       v-if="mobileMenuOpen"
-      :class="[navLayout.hideMobile, 'absolute left-0 right-0 top-full z-50 overlay-color border-t border-black/10 dark:border-white/10 shadow-lg']"
+      :class="[
+        navLayout.hideMobile,
+        'absolute left-0 right-0 top-full z-50 overlay-color border-t border-black/10 dark:border-white/10 shadow-lg',
+      ]"
     >
       <RouterLink
         v-for="nav in navigations"
@@ -185,7 +187,19 @@ const navLayout = computed(() => {
 const navigations = computed<Navigation[]>(() => {
   const baseNavs: Navigation[] = [{ name: 'Home', href: '/' }];
 
-  if (!apiController.ready) return baseNavs;
+  if (!apiController.ready) {
+    baseNavs.push({
+      name: 'Help',
+      href: '/help',
+      matcher: /^\/help(\/.*)?/,
+      pos: 'right',
+    });
+
+    return baseNavs.map((nav) => ({
+      ...nav,
+      highlight: isMatch(nav),
+    }));
+  }
 
   if (apiController.hasPrivilege('post_list')) {
     baseNavs.push({ name: 'Posts', href: '/posts', matcher: /^\/post(s)?(\/.*)?/ });
