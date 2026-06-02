@@ -7,7 +7,7 @@
       </RouterLink>
     </div>
 
-    <div v-if="!canCreate" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canCreate" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to create pools.
     </div>
 
@@ -15,10 +15,10 @@
       <!-- Name -->
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="pc-name">
-          Name <span class="text-red-500">*</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1"
-            >(one per line for aliases)</span
-          >
+          Name <span class="text-red-500 dark:text-red-400">*</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">
+            (one per line for aliases)
+          </span>
         </label>
         <FlatTextarea
           id="pc-name"
@@ -78,7 +78,7 @@
         />
       </div>
 
-      <p v-if="createError" class="text-sm text-red-500">{{ createError }}</p>
+      <p v-if="createError" class="text-sm text-red-500 dark:text-red-400">{{ createError }}</p>
 
       <FlatButton type="submit" class="w-fit" :disabled="creating || !newNames.trim()">
         {{ creating ? 'Creating…' : 'Create pool' }}

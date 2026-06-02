@@ -8,12 +8,14 @@
     </div>
 
     <!-- Privilege guard -->
-    <div v-if="!canList" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canList" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to view tag categories.
     </div>
 
     <template v-else>
-      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 dark:text-red-400 text-sm">
+        {{ loadError }}
+      </div>
 
       <template v-else>
         <!-- Category rows -->
@@ -103,7 +105,7 @@
                 Delete
               </FlatButton>
 
-              <p v-if="cat.error" class="text-xs text-red-500">{{ cat.error }}</p>
+              <p v-if="cat.error" class="text-xs text-red-500 dark:text-red-400">{{ cat.error }}</p>
             </div>
           </div>
         </div>
@@ -144,7 +146,7 @@
             </div>
           </div>
 
-          <p v-if="createError" class="text-xs text-red-500">{{ createError }}</p>
+          <p v-if="createError" class="text-xs text-red-500 dark:text-red-400">{{ createError }}</p>
 
           <FlatButton
             type="button"

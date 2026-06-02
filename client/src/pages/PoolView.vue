@@ -1,7 +1,7 @@
 <template>
   <div v-if="loadError" class="flex items-start justify-center pt-8">
     <div class="w-full max-w-lg">
-      <p class="text-red-500">{{ loadError }}</p>
+      <p class="text-red-500 dark:text-red-400">{{ loadError }}</p>
     </div>
   </div>
 
@@ -135,7 +135,7 @@
 
     <!-- ── Edit ────────────────────────────────────────────────── -->
     <div v-else-if="section === 'edit'" class="flex flex-col gap-4 w-full max-w-2xl">
-      <p v-if="editError" class="text-sm text-red-500">{{ editError }}</p>
+      <p v-if="editError" class="text-sm text-red-500 dark:text-red-400">{{ editError }}</p>
 
       <!-- Names -->
       <div v-if="canEditName" class="flex flex-col gap-1">
@@ -259,7 +259,9 @@
             @keydown.enter.prevent="addPost"
           />
           <FlatButton type="button" class="px-3 py-1 text-sm" @click="addPost">Add post</FlatButton>
-          <span v-if="addPostError" class="text-xs text-red-500">{{ addPostError }}</span>
+          <span v-if="addPostError" class="text-xs text-red-500 dark:text-red-400">
+            {{ addPostError }}
+          </span>
         </div>
       </div>
 
@@ -288,7 +290,7 @@
           I confirm that I want to delete this pool.
         </label>
 
-        <p v-if="deleteError" class="text-sm text-red-500">{{ deleteError }}</p>
+        <p v-if="deleteError" class="text-sm text-red-500 dark:text-red-400">{{ deleteError }}</p>
 
         <FlatButton
           type="submit"

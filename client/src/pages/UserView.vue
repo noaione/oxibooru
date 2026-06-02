@@ -1,7 +1,7 @@
 <template>
   <div v-if="loadError" class="flex items-start justify-center pt-8">
     <div class="w-full max-w-lg">
-      <p class="text-red-500">{{ loadError }}</p>
+      <p class="text-red-500 dark:text-red-400">{{ loadError }}</p>
     </div>
   </div>
 
@@ -249,7 +249,7 @@
           </div>
         </div>
 
-        <p v-if="editError" class="text-sm text-red-500">{{ editError }}</p>
+        <p v-if="editError" class="text-sm text-red-500 dark:text-red-400">{{ editError }}</p>
         <p v-if="editSuccess" class="text-sm text-green-600 dark:text-green-400">
           {{ editSuccess }}
         </p>
@@ -325,7 +325,7 @@
       </div>
       <p v-else class="text-sm text-gray-500">No registered tokens.</p>
 
-      <p v-if="tokenError" class="text-sm text-red-500">{{ tokenError }}</p>
+      <p v-if="tokenError" class="text-sm text-red-500 dark:text-red-400">{{ tokenError }}</p>
       <p v-if="tokenSuccess" class="text-sm text-green-600 dark:text-green-400">
         {{ tokenSuccess }}
       </p>
@@ -374,7 +374,7 @@
           I confirm that I want to delete this account.
         </label>
 
-        <p v-if="deleteError" class="text-sm text-red-500">{{ deleteError }}</p>
+        <p v-if="deleteError" class="text-sm text-red-500 dark:text-red-400">{{ deleteError }}</p>
 
         <FlatButton
           type="submit"

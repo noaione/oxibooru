@@ -18,13 +18,15 @@
     </div>
 
     <!-- Privilege guard -->
-    <div v-if="!canView" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canView" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to view tags.
     </div>
 
     <template v-else>
       <!-- Load error -->
-      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 dark:text-red-400 text-sm">
+        {{ loadError }}
+      </div>
 
       <template v-else-if="tag">
         <!-- Section tabs -->
@@ -200,7 +202,7 @@
 
         <!-- ── Edit ── -->
         <div v-else-if="section === 'edit'" class="card p-4 flex flex-col gap-4">
-          <div v-if="!canEdit" class="text-red-500 text-sm">
+          <div v-if="!canEdit" class="text-red-500 dark:text-red-400 text-sm">
             You don't have permission to edit tags.
           </div>
           <template v-else>
@@ -272,7 +274,7 @@
             </div>
 
             <!-- Error -->
-            <p v-if="saveError" class="text-red-500 text-sm">{{ saveError }}</p>
+            <p v-if="saveError" class="text-red-500 dark:text-red-400 text-sm">{{ saveError }}</p>
 
             <FlatButton type="button" class="w-fit" :disabled="saving" @click="saveTag">
               {{ saving ? 'Saving…' : 'Save changes' }}
@@ -282,7 +284,7 @@
 
         <!-- ── Delete ── -->
         <div v-else-if="section === 'delete'" class="card p-4 flex flex-col gap-4">
-          <div v-if="!canDelete" class="text-red-500 text-sm">
+          <div v-if="!canDelete" class="text-red-500 dark:text-red-400 text-sm">
             You don't have permission to delete tags.
           </div>
           <template v-else>
@@ -302,7 +304,9 @@
               This cannot be undone.
             </p>
 
-            <p v-if="deleteError" class="text-red-500 text-sm">{{ deleteError }}</p>
+            <p v-if="deleteError" class="text-red-500 dark:text-red-400 text-sm">
+              {{ deleteError }}
+            </p>
 
             <FlatButton
               type="button"

@@ -3,7 +3,7 @@
     <h1 class="text-xl font-semibold">Upload</h1>
 
     <!-- Privilege guard -->
-    <div v-if="!canUpload" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canUpload" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to upload posts.
     </div>
 
@@ -132,7 +132,7 @@
                   <button
                     v-if="item.state === 'idle' || item.state === 'error'"
                     type="button"
-                    class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer leading-none"
+                    class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer leading-none"
                     title="Remove"
                     @click="removeItem(item.key)"
                   >
@@ -185,7 +185,10 @@
               />
 
               <!-- Error message -->
-              <p v-if="item.state === 'error' && item.error" class="text-xs text-red-500">
+              <p
+                v-if="item.state === 'error' && item.error"
+                class="text-xs text-red-500 dark:text-red-400"
+              >
                 {{ item.error }}
               </p>
 

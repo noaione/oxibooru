@@ -108,7 +108,9 @@
               Help
             </RouterLink>
           </div>
-          <span v-if="editError" class="text-xs text-red-500">{{ editError }}</span>
+          <span v-if="editError" class="text-xs text-red-500 dark:text-red-400">
+            {{ editError }}
+          </span>
         </div>
       </template>
 
@@ -135,14 +137,22 @@
           <span
             class="tabular-nums font-medium"
             :class="
-              localScore > 0 ? 'text-green-500' : localScore < 0 ? 'text-red-500' : 'text-gray-400'
+              localScore > 0
+                ? 'text-green-500'
+                : localScore < 0
+                  ? 'text-red-500 dark:text-red-400'
+                  : 'text-gray-400'
             "
           >
             {{ localScore }}
           </span>
           <button
             class="cursor-pointer transition-colors"
-            :class="localOwnScore === -1 ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+            :class="
+              localOwnScore === -1
+                ? 'text-red-500 dark:text-red-400'
+                : 'text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+            "
             :disabled="!canScore"
             @click="vote(-1)"
           >

@@ -8,13 +8,15 @@
     </div>
 
     <!-- Privilege guard -->
-    <div v-if="!canMerge" class="card p-4 text-red-500 text-sm">
+    <div v-if="!canMerge" class="card p-4 text-red-500 dark:text-red-400 text-sm">
       You don't have permission to merge posts.
     </div>
 
     <template v-else>
       <!-- Load error -->
-      <div v-if="loadError" class="card p-4 text-red-500 text-sm">{{ loadError }}</div>
+      <div v-if="loadError" class="card p-4 text-red-500 dark:text-red-400 text-sm">
+        {{ loadError }}
+      </div>
 
       <template v-else-if="post1 && post2">
         <!-- Side-by-side -->
@@ -132,7 +134,7 @@
           </div>
 
           <!-- Error -->
-          <p v-if="mergeError" class="text-red-500 text-xs">{{ mergeError }}</p>
+          <p v-if="mergeError" class="text-red-500 dark:text-red-400 text-xs">{{ mergeError }}</p>
 
           <FlatButton
             type="button"
