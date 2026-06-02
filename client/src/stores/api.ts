@@ -93,7 +93,20 @@ export async function doFetch<T>(urlPath: string, options?: RequestInit): Promis
   const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
   const newUrl = new URL(urlPath, baseUrl);
 
-  const response = await fetch(newUrl, { ...options });
+  let response: Response;
+  try {
+    response = await fetch(newUrl, { ...options });
+  } catch (error) {
+    // mainly to catch CORS issue but with response data
+    console.error(error);
+    return {
+      success: false,
+      code: 500,
+      statusCode: 0,
+      title: 'Network error',
+      description: 'Could not connect to the server',
+    };
+  }
 
   if (!response.ok) {
     const errorJson = await response.json().catch(() => null);
@@ -341,7 +354,8 @@ export const useTokenStore = defineStore('api', () => {
     if (avatarFile) {
       const form = new FormData();
       form.append('avatar', avatarFile);
-      form.append('metadata', JSON.stringify(body));
+      const metadataPayload = new Blob([JSON.stringify(body)], { type: 'application/json' });
+      form.append('metadata', metadataPayload);
       resp = await doFetch<UserInfo>(`/api/user/${encodeURIComponent(name)}`, {
         method: 'PUT',
         headers: { Authorization: authToken.value! },
