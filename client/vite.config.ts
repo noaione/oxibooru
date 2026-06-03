@@ -1,10 +1,13 @@
 import { fileURLToPath, URL } from 'node:url';
 import { execSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import tailwindcss from '@tailwindcss/vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 function getBuildVersion(): string {
   const buildInfo = process.env.BUILD_INFO;
@@ -31,10 +34,42 @@ function getBuildGitHub(): string {
   }
 }
 
+const RUFFLE_DIR = fileURLToPath(new URL('node_modules/@ruffle-rs/ruffle', import.meta.url));
+
+// Serves Ruffle files from node_modules at /ruffle/* in dev mode.
+// vite-plugin-static-copy only copies during build, so dev needs its own handler.
+function ruffleDevPlugin(): Plugin {
+  return {
+    name: 'ruffle-dev',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/ruffle', async (req, res, next) => {
+        const fileName = (req.url ?? '/').replace(/^\//, '');
+        if (!fileName || fileName.includes('..')) return next();
+        try {
+          const data = await readFile(path.join(RUFFLE_DIR, fileName));
+          res.setHeader('Content-Type', fileName.endsWith('.wasm') ? 'application/wasm' : 'application/javascript');
+          res.end(data);
+        } catch {
+          next();
+        }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   base: process.env.BASE_URL || '/',
-  plugins: [vue(), vueDevTools(), tailwindcss()],
+  plugins: [
+    vue(),
+    vueDevTools(),
+    tailwindcss(),
+    ruffleDevPlugin(),
+    viteStaticCopy({
+      targets: [{ src: 'node_modules/@ruffle-rs/ruffle/*.{js,wasm}', dest: 'ruffle' }],
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

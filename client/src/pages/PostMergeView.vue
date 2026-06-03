@@ -40,7 +40,9 @@
             </div>
             <RouterLink :to="`/post/${post1.id}`" target="_blank" class="block">
               <img
-                v-if="post1.type === 'image' || post1.type === 'animation'"
+                v-if="
+                  post1.type === 'image' || post1.type === 'animation' || post1.type === 'flash'
+                "
                 :src="resolveApiUrl(post1.thumbnailUrl)"
                 :alt="`Post #${post1.id}`"
                 class="w-full max-h-48 object-contain bg-gray-100 dark:bg-gray-800"
@@ -87,7 +89,9 @@
             </div>
             <RouterLink :to="`/post/${post2.id}`" target="_blank" class="block">
               <img
-                v-if="post2.type === 'image' || post2.type === 'animation'"
+                v-if="
+                  post2.type === 'image' || post2.type === 'animation' || post2.type === 'flash'
+                "
                 :src="resolveApiUrl(post2.thumbnailUrl)"
                 :alt="`Post #${post2.id}`"
                 class="w-full max-h-48 object-contain bg-gray-100 dark:bg-gray-800"
@@ -290,6 +294,7 @@ const MIME_LABELS: Record<string, string> = {
   'video/webm': 'WEBM',
   'video/mp4': 'MPEG-4',
   'video/quicktime': 'MOV',
+  'application/x-shockwave-flash': 'SWF',
 };
 
 function mimeLabel(mime?: string): string {

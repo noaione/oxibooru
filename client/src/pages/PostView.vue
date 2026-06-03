@@ -645,13 +645,24 @@
           />
         </div>
 
-        <!-- Flash (unsupported) -->
+        <!-- Flash (Ruffle) -->
         <div
           v-else-if="post.type === 'flash'"
+          ref="flashMediaWrapperRef"
           :key="`flash-${post.id}`"
-          class="flex items-center justify-center w-full h-64 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+          class="relative"
+          :class="[mediaWrapperClass]"
+          :style="{
+            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
+          }"
         >
-          Flash content is not supported in modern browsers.
+          <FlashPlayer
+            :src="resolveApiUrl(post.contentUrl)!"
+            :class="fitClass"
+            :style="{
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
+            }"
+          />
         </div>
       </div>
 
@@ -805,6 +816,7 @@ import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import PostNotesEditor from '@/components/PostNotesEditor.vue';
+import FlashPlayer from '@/components/FlashPlayer.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
 import FlatInput from '@/components/FlatInput.vue';
@@ -861,8 +873,10 @@ const thumbnailInputRef = ref<HTMLInputElement | null>(null);
 // Media wrapper refs (for teleporting the notes SVG overlay)
 const imgMediaWrapperRef = ref<HTMLDivElement | null>(null);
 const videoMediaWrapperRef = ref<HTMLDivElement | null>(null);
+const flashMediaWrapperRef = ref<HTMLDivElement | null>(null);
 const activeMediaWrapper = computed(
-  () => imgMediaWrapperRef.value ?? videoMediaWrapperRef.value ?? null,
+  () =>
+    imgMediaWrapperRef.value ?? videoMediaWrapperRef.value ?? flashMediaWrapperRef.value ?? null,
 );
 // Ref to the notes editor component so the sidebar "Add note" button can call startDrawing()
 const notesEditorRef = ref<InstanceType<typeof PostNotesEditor> | null>(null);
@@ -1039,6 +1053,7 @@ const MIME_LABELS: Record<string, string> = {
   'video/webm': 'WEBM',
   'video/mp4': 'MPEG-4',
   'video/quicktime': 'MOV',
+  'application/x-shockwave-flash': 'SWF',
 };
 
 function mimeLabel(mime?: string): string {
