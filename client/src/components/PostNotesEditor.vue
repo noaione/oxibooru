@@ -174,7 +174,7 @@ import FlatTextarea from '@/components/FlatTextarea.vue';
 
 const props = defineProps<{
   notes: Note[];
-  imgEl: HTMLImageElement | HTMLVideoElement | null;
+  imgEl: HTMLElement | null;
   /** The positioned element (media wrapper) to teleport the SVG overlay into. */
   overlayContainer: HTMLElement | null;
 }>();

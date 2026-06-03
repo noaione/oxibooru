@@ -297,6 +297,7 @@ const MIME_LABELS: Record<string, string> = {
   'video/quicktime': 'MOV',
   'application/pdf': 'PDF',
   'application/x-shockwave-flash': 'SWF',
+  'application/vnd.adobe.flash.movie': 'SWF',
 };
 
 function mimeLabel(mime?: string): string {

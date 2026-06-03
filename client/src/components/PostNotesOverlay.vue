@@ -47,7 +47,7 @@ const toast = useToast();
 
 const props = defineProps<{
   notes: Note[];
-  imgEl: HTMLImageElement | HTMLVideoElement | null;
+  imgEl: HTMLElement | null;
 }>();
 
 const overlayRef = ref<HTMLDivElement | null>(null);
