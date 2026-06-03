@@ -298,6 +298,7 @@ const MIME_LABELS: Record<string, string> = {
   'application/pdf': 'PDF',
   'application/x-shockwave-flash': 'SWF',
   'application/vnd.adobe.flash.movie': 'SWF',
+  'application/zip': 'ZIP',
 };
 
 function mimeLabel(mime?: string): string {
