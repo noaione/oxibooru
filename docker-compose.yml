@@ -50,5 +50,3 @@ services:
       POSTGRES_DB:
     volumes:
       - "${MOUNT_SQL}:/var/lib/postgresql/data"
-    ports:
-    - "127.0.0.1:${POSTGRES_PORT}:5432"
