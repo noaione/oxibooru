@@ -327,7 +327,7 @@
             <a
               :href="resolveApiUrl(post.contentUrl)"
               download
-              class="flex items-center gap-1.5 text-cyan-500 hover:underline font-medium"
+              class="flex items-center gap-1.5 text-cyan-500 hover:underline font-medium w-fit"
             >
               <DownloadIcon :size="14" />
               {{ formatFileSize(post.fileSize) }}
@@ -617,9 +617,6 @@
           ref="videoMediaWrapperRef"
           class="relative"
           :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
-          :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
-          }"
         >
           <video
             ref="videoRef"
@@ -652,9 +649,6 @@
           :key="`flash-${post.id}`"
           class="relative"
           :class="[mediaWrapperClass]"
-          :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
-          }"
         >
           <FlashPlayer
             :src="resolveApiUrl(post.contentUrl)!"
