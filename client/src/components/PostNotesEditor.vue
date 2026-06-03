@@ -1,11 +1,11 @@
 <template>
   <!-- SVG overlay: teleported into the media wrapper so it sits over the image -->
   <Teleport v-if="overlayContainer" :to="overlayContainer">
-    <div ref="overlayRef" class="absolute inset-0 z-10">
+    <div ref="overlayRef" class="absolute inset-0 z-10" style="touch-action: none">
       <svg
         v-if="svgReady"
         ref="svgEl"
-        :style="[svgStyle, { cursor: mode === 'drawing' ? 'crosshair' : 'default' }]"
+        :style="[svgStyle, { cursor: svgCursor, touchAction: 'none' }]"
         class="absolute"
         viewBox="0 0 1 1"
         preserveAspectRatio="none"
@@ -23,20 +23,20 @@
             stroke-width="1.5"
             vector-effect="non-scaling-stroke"
             :style="{
-              cursor: mode === 'drawing' ? 'crosshair' : 'pointer',
+              cursor: notePolygonCursor(idx),
               transition: 'fill 0.12s',
             }"
-            @click.stop="onNoteClick(idx, $event)"
+            @pointerdown.stop="startPolygonDrag(idx, $event)"
           />
 
           <!-- Vertex handles (active editing note only) -->
           <template v-if="mode === 'editing' && editingIdx === idx">
-            <circle
+            <ellipse
               v-for="(pt, ptIdx) in note.polygon"
               :key="ptIdx"
               :cx="pt[0]"
               :cy="pt[1]"
-              r="0.008"
+              v-bind="cr(6)"
               fill="oklch(0.78 0.1438 51.89)"
               stroke="white"
               stroke-width="0.004"
@@ -71,12 +71,12 @@
             vector-effect="non-scaling-stroke"
           />
           <!-- Vertex dots; first dot is larger and acts as close target -->
-          <circle
+          <ellipse
             v-for="(pt, i) in draftPoints"
             :key="i"
             :cx="pt[0]"
             :cy="pt[1]"
-            :r="i === 0 ? 0.012 : 0.009"
+            v-bind="i === 0 ? cr(8) : cr(6)"
             :fill="i === 0 ? 'oklch(0.78 0.1438 51.89)' : 'oklch(0.78 0.1438 51.89 / 0.8)'"
             stroke="white"
             stroke-width="0.004"
@@ -200,6 +200,18 @@ const svgEl = ref<SVGSVGElement | null>(null);
 const imgElRef = computed(() => props.imgEl);
 const { svgStyle, svgReady } = useNotesBounds(imgElRef, overlayRef);
 
+// SVG pixel dimensions parsed from svgStyle (for aspect-correct circle radii).
+const svgPx = computed(() => ({
+  w: parseFloat(svgStyle.value.width ?? '0') || 1,
+  h: parseFloat(svgStyle.value.height ?? '0') || 1,
+}));
+
+// Convert a pixel radius into SVG-unit rx/ry so the ellipse appears circular.
+function cr(px: number) {
+  const { w, h } = svgPx.value;
+  return { rx: px / w, ry: px / h };
+}
+
 // ── Working copy ────────────────────────────────────────────────
 const localNotes = ref<Note[]>(structuredClone(deepToRaw(props.notes)));
 
@@ -223,10 +235,26 @@ const editingText = ref('');
 const editPreview = ref(false);
 
 const dragging = ref<{ noteIdx: number; ptIdx: number } | null>(null);
+const polygonDrag = ref<{ noteIdx: number; lastPt: [number, number]; moved: boolean } | null>(null);
 
 const editPreviewHtml = computed(() =>
   editingText.value ? renderMarkdown(editingText.value) : '',
 );
+
+// ── Cursor ──────────────────────────────────────────────────────
+const svgCursor = computed(() => {
+  if (mode.value === 'drawing') return 'crosshair';
+  if (dragging.value || polygonDrag.value?.moved) return 'grabbing';
+  return 'default';
+});
+
+function notePolygonCursor(idx: number): string {
+  if (mode.value === 'drawing') return 'crosshair';
+  if (polygonDrag.value?.noteIdx === idx) {
+    return polygonDrag.value.moved ? 'grabbing' : 'grab';
+  }
+  return 'grab';
+}
 
 // ── Polygon styling helpers ─────────────────────────────────────
 function notePolygonFill(idx: number): string {
@@ -278,7 +306,7 @@ function onSvgClick(e: MouseEvent) {
   addPoint(e);
 }
 
-function addPoint(e: MouseEvent) {
+function addPoint(e: MouseEvent | PointerEvent) {
   if (!svgEl.value) return;
   const pt = svgPoint(e);
   if (draftPoints.value.length >= 3 && dist(pt, draftPoints.value[0]!) < 0.03) {
@@ -298,13 +326,11 @@ function closePolygon() {
   emit('update', structuredClone(deepToRaw(localNotes.value)));
 }
 
-// ── Note click ──────────────────────────────────────────────────
-function onNoteClick(idx: number, e: MouseEvent) {
-  if (mode.value === 'drawing') {
-    addPoint(e);
-    return;
-  }
-  openEdit(idx);
+// ── Polygon drag ─────────────────────────────────────────────────
+function startPolygonDrag(noteIdx: number, e: PointerEvent) {
+  polygonDrag.value = { noteIdx, lastPt: svgPoint(e), moved: false };
+  // Capture to SVG so pointermove/pointerup fire even outside the polygon.
+  svgEl.value?.setPointerCapture(e.pointerId);
 }
 
 // ── Editing ─────────────────────────────────────────────────────
@@ -367,6 +393,7 @@ function onPointerMove(e: PointerEvent) {
     cursorNorm.value = pt;
   }
 
+  // Vertex drag (takes priority)
   if (dragging.value) {
     const { noteIdx, ptIdx } = dragging.value;
     const note = localNotes.value[noteIdx];
@@ -376,13 +403,60 @@ function onPointerMove(e: PointerEvent) {
         ? { ...n, polygon: n.polygon.map((p, j) => (j === ptIdx ? [pt[0], pt[1]] : p)) }
         : n,
     );
+    return;
+  }
+
+  // Polygon drag
+  if (polygonDrag.value) {
+    const [lx, ly] = polygonDrag.value.lastPt;
+    const dx = pt[0] - lx;
+    const dy = pt[1] - ly;
+
+    // Mark as moved once the pointer travels more than ~3 screen pixels.
+    if (!polygonDrag.value.moved) {
+      const { w, h } = svgPx.value;
+      if (Math.abs(dx) * w > 3 || Math.abs(dy) * h > 3) {
+        polygonDrag.value.moved = true;
+      }
+    }
+
+    if (polygonDrag.value.moved) {
+      const noteIdx = polygonDrag.value.noteIdx;
+      localNotes.value = localNotes.value.map((n, i) =>
+        i === noteIdx
+          ? {
+              ...n,
+              polygon: n.polygon.map(([x, y]) => [
+                Math.max(0, Math.min(1, (x ?? 0) + dx)),
+                Math.max(0, Math.min(1, (y ?? 0) + dy)),
+              ]),
+            }
+          : n,
+      );
+      polygonDrag.value.lastPt = pt;
+    }
   }
 }
 
-function onPointerUp() {
+function onPointerUp(e: PointerEvent) {
+  // Vertex drag commit
   if (dragging.value) {
     emit('update', structuredClone(deepToRaw(localNotes.value)));
     dragging.value = null;
+    return;
+  }
+
+  // Polygon drag commit or click
+  if (polygonDrag.value) {
+    const { noteIdx, moved } = polygonDrag.value;
+    polygonDrag.value = null;
+    if (moved) {
+      emit('update', structuredClone(deepToRaw(localNotes.value)));
+    } else if (mode.value === 'drawing') {
+      addPoint(e);
+    } else {
+      openEdit(noteIdx);
+    }
   }
 }
 
