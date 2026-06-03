@@ -657,6 +657,11 @@
               aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
             }"
           />
+          <PostNotesOverlay
+            v-if="!isEditMode && post.notes?.length"
+            :notes="post.notes"
+            :img-el="flashMediaWrapperRef"
+          />
         </div>
       </div>
 
@@ -665,7 +670,7 @@
         v-if="isEditMode && canEditPostNotes"
         ref="notesEditorRef"
         :notes="editNotes"
-        :img-el="imgRef ?? videoRef"
+        :img-el="imgRef ?? videoRef ?? flashMediaWrapperRef ?? null"
         :overlay-container="activeMediaWrapper"
         @update="(n) => (editNotes = n)"
       />
@@ -1048,6 +1053,7 @@ const MIME_LABELS: Record<string, string> = {
   'video/mp4': 'MPEG-4',
   'video/quicktime': 'MOV',
   'application/x-shockwave-flash': 'SWF',
+  'application/vnd.adobe.flash.movie': 'SWF',
 };
 
 function mimeLabel(mime?: string): string {

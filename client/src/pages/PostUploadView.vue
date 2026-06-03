@@ -26,7 +26,7 @@
           ref="fileInputRef"
           type="file"
           multiple
-          accept="image/*,video/*,application/x-shockwave-flash"
+          accept="image/*,video/*,application/x-shockwave-flash,application/vnd.adobe.flash.movie"
           class="hidden"
           @change="onFileInput"
         />

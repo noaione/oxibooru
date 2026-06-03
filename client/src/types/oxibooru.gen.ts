@@ -488,6 +488,7 @@ export type MimeType =
   | 'video/quicktime'
   | 'video/webm'
   | 'application/x-shockwave-flash'
+  | 'application/vnd.adobe.flash.movie'
   | 'image/avif';
 
 /**
