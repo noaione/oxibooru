@@ -109,6 +109,7 @@ pub enum ErrorName {
     MissingMetadata,
     MissingPathParams,
     MissingSmtpInfo,
+    MissingUgoiraManifest,
     MultipartError,
     NegativeOverflow,
     NetworkDown,
@@ -215,6 +216,7 @@ pub enum ErrorName {
     ValueTooShort,
     WouldBlock,
     WriteZero,
+    ZipError,
     WrongNumberOfPathParameters,
     ZeroNotAllowed,
 }
@@ -646,6 +648,7 @@ impl ErrorKind for crate::api::error::ApiError {
             Self::MissingFormData => ErrorName::MissingFormData,
             Self::MissingMetadata => ErrorName::MissingMetadata,
             Self::MissingSmtpInfo => ErrorName::MissingSmtpInfo,
+            Self::MissingUgoiraManifest => ErrorName::MissingUgoiraManifest,
             Self::Multipart(_) => ErrorName::MultipartError,
             Self::MultipartRejection(err) => err.kind(),
             Self::NoNamesGiven(_) => ErrorName::NoNamesGiven,
@@ -665,6 +668,7 @@ impl ErrorKind for crate::api::error::ApiError {
             Self::UnsupportedContentType(_) => ErrorName::UnsupportedContentType,
             Self::UnsupportedExtension(_) => ErrorName::UnsupportedExtension,
             Self::UrlValidation(_) => ErrorName::UrlValidationError,
+            Self::ZipError(_) => ErrorName::ZipError,
         }
     }
 }

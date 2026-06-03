@@ -65,6 +65,7 @@ pub enum PostType {
     Animation,
     Video,
     Flash,
+    Ugoira,
 }
 
 impl ToSql<SmallInt, Pg> for PostType {
@@ -105,6 +106,8 @@ pub enum MimeType {
     Swf,
     #[serde(rename = "image/avif")]
     Avif,
+    #[serde(rename = "application/zip")]
+    Zip,
 }
 
 impl MimeType {
@@ -122,6 +125,7 @@ impl MimeType {
             "webm" => Ok(Self::Webm),
             "webp" => Ok(Self::Webp),
             "swf" => Ok(Self::Swf),
+            "zip" => Ok(Self::Zip),
             _ => Err(ParseExtensionError(extension.into())),
         }
     }
@@ -146,6 +150,7 @@ impl MimeType {
             Self::Mov => "mov",
             Self::Webm => "webm",
             Self::Swf => "swf",
+            Self::Zip => "zip",
         }
     }
 
@@ -169,6 +174,7 @@ impl FromStr for MimeType {
             "video/mp4" | "video/x-m4v" => Ok(MimeType::Mp4),
             "video/quicktime" => Ok(MimeType::Mov),
             "video/webm" => Ok(MimeType::Webm),
+            "application/zip" => Ok(MimeType::Zip),
             _ => Err(format!("MIME type {content_type} is not supported")),
         }
     }
