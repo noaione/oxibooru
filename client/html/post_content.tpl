@@ -36,6 +36,14 @@
             width='<%- ctx.post.canvasWidth %>' height='<%- ctx.post.canvasHeight %>'>
         </object>
 
+    <% } else if (ctx.post.type === 'ugoira') { %>
+
+        <canvas class='resize-listener'
+                width='<%- ctx.post.canvasWidth %>'
+                height='<%- ctx.post.canvasHeight %>'
+                data-content-url='<%- ctx.post.contentUrl %>'>
+        </canvas>
+
     <% } else { console.log(new Error('Unknown post type')); } %>
 
     <div class='post-overlay resize-listener'>
