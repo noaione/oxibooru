@@ -48,7 +48,10 @@ function ruffleDevPlugin(): Plugin {
         if (!fileName || fileName.includes('..')) return next();
         try {
           const data = await readFile(path.join(RUFFLE_DIR, fileName));
-          res.setHeader('Content-Type', fileName.endsWith('.wasm') ? 'application/wasm' : 'application/javascript');
+          res.setHeader(
+            'Content-Type',
+            fileName.endsWith('.wasm') ? 'application/wasm' : 'application/javascript',
+          );
           res.end(data);
         } catch {
           next();
@@ -67,7 +70,15 @@ export default defineConfig({
     tailwindcss(),
     ruffleDevPlugin(),
     viteStaticCopy({
-      targets: [{ src: 'node_modules/@ruffle-rs/ruffle/*.{js,wasm}', dest: 'ruffle' }],
+      targets: [
+        {
+          src: 'node_modules/@ruffle-rs/ruffle/*.{js,wasm}',
+          dest: 'ruffle/',
+          rename: {
+            stripBase: true,
+          },
+        },
+      ],
     }),
   ],
   resolve: {
