@@ -489,7 +489,8 @@ export type MimeType =
   | 'video/webm'
   | 'application/x-shockwave-flash'
   | 'application/vnd.adobe.flash.movie'
-  | 'image/avif';
+  | 'image/avif'
+  | 'application/zip';
 
 /**
  * Multipart form for file uploads.
@@ -1534,7 +1535,7 @@ export type PostNeighbors = {
 
 export type PostSafety = 'safe' | 'sketchy' | 'unsafe';
 
-export type PostType = 'image' | 'animation' | 'video' | 'flash';
+export type PostType = 'image' | 'animation' | 'video' | 'flash' | 'ugoira';
 
 /**
  * Request body for updating a post.

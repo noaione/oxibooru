@@ -16,7 +16,12 @@
         stroke="oklch(0.78 0.20 85 / 0.9)"
         stroke-width="1.5"
         vector-effect="non-scaling-stroke"
-        style="cursor: pointer; touch-action: manipulation; transition: fill 0.12s; pointer-events: all"
+        style="
+          cursor: pointer;
+          touch-action: manipulation;
+          transition: fill 0.12s;
+          pointer-events: all;
+        "
         @mouseenter="(e) => onEnter(e, note)"
         @mousemove="onMove"
         @mouseleave="hoverNote = null"
