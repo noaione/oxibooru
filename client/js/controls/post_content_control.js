@@ -3,6 +3,7 @@
 const settings = require("../models/settings.js");
 const views = require("../util/views.js");
 const optimizedResize = require("../util/optimized_resize.js");
+const UgoiraPlayer = require("../util/ugoira_player.js");
 
 class PostContentControl {
     constructor(hostNode, post, viewportSizeCalculator, fitFunctionOverride) {
@@ -139,6 +140,7 @@ class PostContentControl {
     }
 
     _reinstall() {
+        this._cancelUgoira();
         const newNode = this._template({
             post: this._post,
             autoplay: settings.get().autoplayVideos,
@@ -153,9 +155,28 @@ class PostContentControl {
         }
         this._postContentNode = newNode;
         this._refreshSize();
+        if (this._post.type === "ugoira") {
+            this._initUgoiraPlayer();
+        }
+    }
+
+    _cancelUgoira() {
+        if (this._ugoiraPlayer) {
+            this._ugoiraPlayer.destroy();
+            this._ugoiraPlayer = null;
+        }
+    }
+
+    _initUgoiraPlayer() {
+        const canvas = this._postContentNode.querySelector("canvas[data-content-url]");
+        if (!canvas) return;
+
+        this._ugoiraPlayer = new UgoiraPlayer(canvas, canvas.dataset.contentUrl);
+        this._ugoiraPlayer.play();
     }
 
     _uninstall() {
+        this._cancelUgoira();
         optimizedResize.remove(() => this._refreshSize());
     }
 }
