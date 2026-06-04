@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onDeactivated } from 'vue';
+import { ref, computed, onMounted, onActivated, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
@@ -328,6 +328,8 @@ function formatDate(iso?: string | null): string {
 }
 
 onMounted(loadPosts);
+
+onActivated(loadPosts);
 
 onDeactivated(() => {
   post1.value = null;

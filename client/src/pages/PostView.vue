@@ -778,7 +778,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, toRaw, onMounted, onDeactivated } from 'vue';
+import { ref, computed, watch, toRaw, onMounted, onActivated, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import {
@@ -1374,6 +1374,8 @@ watch(
 useHeadSafe(() => ({
   title: post.value ? `${serverName.value} - Post #${post.value.id}` : serverName.value + ' - Post',
 }));
+
+onActivated(() => loadPost(postId.value));
 
 onDeactivated(() => {
   // we keep the local cache, but remove the post value
