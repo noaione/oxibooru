@@ -331,7 +331,7 @@ const poolCache = usePoolCacheStore();
 const toast = useToast();
 const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
-const poolId = computed(() => Number(route.params.id));
+const poolId = computed(() => Number(route.params.poolId));
 const section = computed(() => {
   const name = route.name as string;
   if (name === 'pool-edit') return 'edit';

@@ -371,7 +371,7 @@ const editDescription = ref('');
 const editImplications = ref<string[]>([]);
 const editSuggestions = ref<string[]>([]);
 
-const tagName = computed(() => route.params.name as string);
+const tagName = computed(() => route.params.tagName as string);
 
 const section = computed(() => {
   if (route.name === 'tag-edit') return 'edit';
