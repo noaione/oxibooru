@@ -390,7 +390,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
+import { ref, computed, watch, onMounted, onActivated, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore, allRanks, rankNames } from '@/stores/api';
@@ -719,6 +719,8 @@ async function submitDelete() {
     router.push('/');
   }
 }
+
+onActivated(loadUser);
 
 onDeactivated(() => {
   userData.value = null;

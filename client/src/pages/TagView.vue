@@ -325,7 +325,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
+import { ref, computed, watch, onMounted, onActivated, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { renderMarkdown } from '@/utils/markdown';
@@ -573,6 +573,8 @@ function formatDate(iso?: string | null): string {
 
 watch(tagName, loadTag);
 onMounted(loadTag);
+
+onActivated(loadTag);
 
 onDeactivated(() => {
   tag.value = null;

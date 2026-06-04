@@ -306,7 +306,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onDeactivated } from 'vue';
+import { ref, computed, watch, onMounted, onActivated, onDeactivated } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHeadSafe } from '@unhead/vue';
 import { useTokenStore } from '@/stores/api';
@@ -562,6 +562,8 @@ useHeadSafe(() => ({
 onMounted(() => loadPool(poolId.value));
 
 watch(poolId, (id) => loadPool(id));
+
+onActivated(() => loadPool(poolId.value));
 
 onDeactivated(() => {
   pool.value = null;
