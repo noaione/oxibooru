@@ -135,8 +135,8 @@ const mergeError = ref('');
 
 const baseTagName = ref('');
 
-const sourceName = computed(() => route.params.name as string);
-const otherName = computed(() => route.params.other as string);
+const sourceName = computed(() => route.params.tagName as string);
+const otherName = computed(() => route.params.tagOther as string);
 
 const canMerge = computed(() => api.hasPrivilege('tag_merge'));
 

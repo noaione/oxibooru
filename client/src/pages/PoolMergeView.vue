@@ -130,8 +130,8 @@ const serverName = computed(() => api.config?.config.name || 'Oxibooru');
 
 useHeadSafe(() => ({ title: serverName.value + ' - Merge Pools' }));
 
-const sourceId = computed(() => Number(route.params.id));
-const otherId = computed(() => Number(route.params.other));
+const sourceId = computed(() => Number(route.params.poolId));
+const otherId = computed(() => Number(route.params.poolOther));
 
 const canMerge = computed(() => api.hasPrivilege('pool_merge'));
 

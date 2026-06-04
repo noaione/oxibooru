@@ -107,22 +107,22 @@ const router = createRouter({
       component: () => import('@/pages/TagCategoriesView.vue'),
     },
     {
-      path: '/tag/:name/merge/:other',
+      path: '/tag/:tagName/merge/:tagOther',
       name: 'tag-merge',
       component: () => import('@/pages/TagMergeView.vue'),
     },
     {
-      path: '/tag/:name/edit',
+      path: '/tag/:tagName/edit',
       name: 'tag-edit',
       component: () => import('@/pages/TagView.vue'),
     },
     {
-      path: '/tag/:name/delete',
+      path: '/tag/:tagName/delete',
       name: 'tag-delete',
       component: () => import('@/pages/TagView.vue'),
     },
     {
-      path: '/tag/:name',
+      path: '/tag/:tagName',
       name: 'tag',
       component: () => import('@/pages/TagView.vue'),
     },
@@ -143,22 +143,22 @@ const router = createRouter({
       component: () => import('@/pages/PoolCategoriesView.vue'),
     },
     {
-      path: '/pool/:id/merge/:other',
+      path: '/pool/:poolId/merge/:poolOther',
       name: 'pool-merge',
       component: () => import('@/pages/PoolMergeView.vue'),
     },
     {
-      path: '/pool/:id/edit',
+      path: '/pool/:poolId/edit',
       name: 'pool-edit',
       component: () => import('@/pages/PoolView.vue'),
     },
     {
-      path: '/pool/:id/delete',
+      path: '/pool/:poolId/delete',
       name: 'pool-delete',
       component: () => import('@/pages/PoolView.vue'),
     },
     {
-      path: '/pool/:id',
+      path: '/pool/:poolId',
       name: 'pool',
       component: () => import('@/pages/PoolView.vue'),
     },
