@@ -89,13 +89,17 @@ interface ErrorResponse {
 
 type ApiResponse<T> = OkResponse<T> | ErrorResponse;
 
-export async function doFetch<T>(urlPath: string, options?: RequestInit): Promise<ApiResponse<T>> {
+type FetchOptions = RequestInit & { allowUnauthorized?: boolean };
+
+export async function doFetch<T>(urlPath: string, options?: FetchOptions): Promise<ApiResponse<T>> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
   const newUrl = new URL(urlPath, baseUrl);
 
+  const { allowUnauthorized, ...fetchOptions } = options ?? {};
+
   let response: Response;
   try {
-    response = await fetch(newUrl, { ...options });
+    response = await fetch(newUrl, fetchOptions);
   } catch (error) {
     // mainly to catch CORS issue but with response data
     console.error(error);
@@ -110,7 +114,7 @@ export async function doFetch<T>(urlPath: string, options?: RequestInit): Promis
 
   if (!response.ok) {
     const errorJson = await response.json().catch(() => null);
-    if (response.status === 401) {
+    if (response.status === 401 && !allowUnauthorized) {
       window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     }
     return {
@@ -650,6 +654,7 @@ export const useTokenStore = defineStore('api', () => {
   > => {
     const resp = await doFetch<UnpagedResponseTagCategoryInfo>('/api/tag-categories', {
       headers: authToken.value ? { Authorization: authToken.value } : {},
+      allowUnauthorized: true,
     });
     if (!resp.success) {
       return {
@@ -665,6 +670,7 @@ export const useTokenStore = defineStore('api', () => {
   > => {
     const resp = await doFetch<UnpagedResponsePoolCategoryInfo>('/api/pool-categories', {
       headers: authToken.value ? { Authorization: authToken.value } : {},
+      allowUnauthorized: true,
     });
     if (!resp.success) {
       return {
