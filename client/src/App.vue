@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 import ToastNotification from './components/ToastNotification.vue';
@@ -39,11 +39,17 @@ onMounted(() => {
   darkMode.init();
   settings.init();
 
-  app.init().then(() => {
-    categories.init().then((results) => {
-      categories.applyColors(results.tags, results.pools);
-    });
+  app.init().then(async () => {
+    const results = await categories.init();
+    categories.applyColors(results.tags, results.pools);
   });
+
+  watch(
+    () => app.userToken,
+    (token, prev) => {
+      if (token && !prev) categories.refreshColors();
+    },
+  );
 
   window.addEventListener('auth:unauthorized', onUnauthorized);
 });
