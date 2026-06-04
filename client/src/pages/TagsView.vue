@@ -53,68 +53,121 @@
         No tags found.
       </div>
 
-      <table v-else class="w-full text-sm border-collapse">
-        <thead>
-          <tr
-            class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide"
-          >
-            <th class="pb-2 font-medium">Name</th>
-            <th class="pb-2 font-medium">Category</th>
-            <th class="pb-2 font-medium text-right">Posts</th>
-            <th class="pb-2 font-medium text-right">Implications</th>
-            <th v-if="canEditTags" class="pb-2 font-medium"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
+      <template v-else>
+        <!-- Mobile card list -->
+        <div class="flex flex-col divide-y divide-gray-100 dark:divide-gray-800 md:hidden">
+          <div
             v-for="tag in tags"
             :key="tag.names?.[0]"
-            class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+            class="py-3 flex flex-col gap-1"
           >
-            <td class="py-2 pr-4">
+            <div class="flex items-center justify-between gap-2">
               <RouterLink
                 :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}`"
-                class="font-medium hover:underline"
+                class="font-medium hover:underline text-sm truncate"
                 :style="tagColor(tag.category)"
               >
                 {{ displayTag(tag.names?.[0] ?? '') }}
               </RouterLink>
-              <span v-if="tag.names && tag.names.length > 1" class="ml-2 text-xs text-gray-400">
-                +{{ tag.names.length - 1 }} alias{{ tag.names.length - 1 !== 1 ? 'es' : '' }}
-              </span>
-            </td>
-            <td class="py-2 pr-4">
+              <RouterLink
+                v-if="canEditTags"
+                :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}/edit`"
+                class="text-xs text-cyan-500 hover:underline shrink-0"
+              >
+                Edit
+              </RouterLink>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-gray-400">
               <span
                 v-if="tag.category && tag.category !== 'default'"
-                class="px-1.5 py-0.5 text-xs rounded border"
+                class="px-1.5 py-0.5 rounded border"
                 :style="tagColor(tag.category)"
               >
                 {{ tag.category }}
               </span>
-              <span v-else class="text-xs text-gray-400">default</span>
-            </td>
-            <td class="py-2 pr-4 text-right tabular-nums">
-              <RouterLink
-                :to="`/posts?query=${encodeURIComponent(tag.names?.[0] ?? '')}`"
-                class="hover:underline text-cyan-500"
-              >
-                {{ (tag.usages ?? 0).toLocaleString() }}
-              </RouterLink>
-            </td>
-            <td class="py-2 pr-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
-              {{ tag.implications?.length ?? 0 }}
-            </td>
-            <td v-if="canEditTags" class="py-2 text-right">
-              <RouterLink
-                :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}/edit`"
-                class="text-xs text-cyan-500 hover:underline"
-              >
-                Edit
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <span v-else>default</span>
+              <span v-if="tag.names && tag.names.length > 1">
+                +{{ tag.names.length - 1 }} alias{{ tag.names.length - 1 !== 1 ? 'es' : '' }}
+              </span>
+              <span class="ml-auto flex items-center gap-3 tabular-nums">
+                <RouterLink
+                  :to="`/posts?query=${encodeURIComponent(tag.names?.[0] ?? '')}`"
+                  class="hover:underline text-cyan-500"
+                >
+                  {{ (tag.usages ?? 0).toLocaleString() }} posts
+                </RouterLink>
+                <span v-if="tag.implications?.length">
+                  {{ tag.implications.length }} impl.
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop table -->
+        <table class="hidden md:table w-full text-sm border-collapse">
+          <thead>
+            <tr
+              class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+            >
+              <th class="pb-2 font-medium">Name</th>
+              <th class="pb-2 font-medium">Category</th>
+              <th class="pb-2 font-medium text-right">Posts</th>
+              <th class="pb-2 font-medium text-right">Implications</th>
+              <th v-if="canEditTags" class="pb-2 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="tag in tags"
+              :key="tag.names?.[0]"
+              class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+            >
+              <td class="py-2 pr-4">
+                <RouterLink
+                  :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}`"
+                  class="font-medium hover:underline"
+                  :style="tagColor(tag.category)"
+                >
+                  {{ displayTag(tag.names?.[0] ?? '') }}
+                </RouterLink>
+                <span v-if="tag.names && tag.names.length > 1" class="ml-2 text-xs text-gray-400">
+                  +{{ tag.names.length - 1 }} alias{{ tag.names.length - 1 !== 1 ? 'es' : '' }}
+                </span>
+              </td>
+              <td class="py-2 pr-4">
+                <span
+                  v-if="tag.category && tag.category !== 'default'"
+                  class="px-1.5 py-0.5 text-xs rounded border"
+                  :style="tagColor(tag.category)"
+                >
+                  {{ tag.category }}
+                </span>
+                <span v-else class="text-xs text-gray-400">default</span>
+              </td>
+              <td class="py-2 pr-4 text-right tabular-nums">
+                <RouterLink
+                  :to="`/posts?query=${encodeURIComponent(tag.names?.[0] ?? '')}`"
+                  class="hover:underline text-cyan-500"
+                >
+                  {{ (tag.usages ?? 0).toLocaleString() }}
+                </RouterLink>
+              </td>
+              <td class="py-2 pr-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
+                {{ tag.implications?.length ?? 0 }}
+              </td>
+              <td v-if="canEditTags" class="py-2 text-right">
+                <RouterLink
+                  :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}/edit`"
+                  class="text-xs text-cyan-500 hover:underline"
+                >
+                  Edit
+                </RouterLink>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
 
       <Pagination
         :current-page="currentPage"
