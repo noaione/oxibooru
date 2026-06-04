@@ -21,9 +21,9 @@
       </div>
 
       <!-- Mobile: site name placeholder to keep layout balanced -->
-      <span :class="[navLayout.showMobile, 'px-3 py-2 text-sm font-semibold']">
+      <RouterLink to="/" :class="[navLayout.showMobile, 'px-3 py-2 text-sm font-semibold']">
         {{ apiController.config?.config.name || 'Oxibooru' }}
-      </span>
+      </RouterLink>
 
       <!-- Right: account + utility icons (desktop) -->
       <div :class="[navLayout.showDesktop, 'items-center']">

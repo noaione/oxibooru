@@ -10,7 +10,7 @@
       />
 
       <!-- Safety toggles -->
-      <div v-if="settingsReady" class="safety-rows ml-0 mt-0 md:ml-2">
+      <div v-if="settingsReady" class="safety-rows w-fit ml-0 mt-2 md:mt-0 md:ml-2">
         <button
           class="border-2 border-green-600 dark:border-green-300 h-auto w-8 aspect-square cursor-pointer"
           :class="{
