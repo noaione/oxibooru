@@ -6,7 +6,13 @@
   </div>
 
   <!-- Post view -->
-  <div v-else-if="post" class="flex flex-col lg:flex-row gap-4 w-full">
+  <div
+    v-else-if="post"
+    ref="postViewRef"
+    class="flex flex-col lg:flex-row gap-4 w-full"
+    @touchstart.passive="onTouchStart"
+    @touchend.passive="onTouchEnd"
+  >
     <!-- ── Sidebar ────────────────────────────────────────────────── -->
     <aside class="w-full lg:w-74 shrink-0 flex flex-col gap-4 order-2 lg:order-1">
       <!-- Navigation: prev / next / edit -->
@@ -1381,6 +1387,43 @@ onDeactivated(() => {
   // we keep the local cache, but remove the post value
   post.value = null;
 });
+
+// ── Touch swipe navigation ───────────────────────────────────
+const postViewRef = ref<HTMLElement | null>(null);
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const EDGE_WIDTH = 60;
+const SWIPE_THRESHOLD = 80;
+
+function onTouchStart(e: TouchEvent) {
+  const t = e.touches[0];
+  if (!t) return;
+  touchStartX.value = t.clientX;
+  touchStartY.value = t.clientY;
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const t = e.changedTouches[0];
+  if (!t) return;
+  const dx = t.clientX - touchStartX.value;
+  const dy = t.clientY - touchStartY.value;
+
+  // Only trigger if primarily horizontal and exceeds threshold
+  if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < 2 * Math.abs(dy)) return;
+
+  // Only from edges
+  const fromLeftEdge = touchStartX.value <= EDGE_WIDTH;
+  const fromRightEdge = touchStartX.value >= window.innerWidth - EDGE_WIDTH;
+  if (!fromLeftEdge && !fromRightEdge) return;
+
+  if (dx < 0 && fromRightEdge && nextPost.value?.id != null) {
+    // Swipe left from right edge → next
+    router.push(neighborUrl(nextPost.value.id));
+  } else if (dx > 0 && fromLeftEdge && prevPost.value?.id != null) {
+    // Swipe right from left edge → previous
+    router.push(neighborUrl(prevPost.value.id));
+  }
+}
 
 useKeyboardShortcuts({
   ArrowLeft: () => {
