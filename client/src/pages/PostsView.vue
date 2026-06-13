@@ -287,6 +287,7 @@ import { Check as CheckIcon } from '@lucide/vue';
 import { useTokenStore } from '@/stores/api';
 import { useLoaderStore } from '@/stores/loader';
 import { useSettingsStore } from '@/stores/settings';
+import { usePostCacheStore } from '@/stores/cache';
 import type { PagedResponsePostInfo } from '@/types/oxibooru.gen';
 import AutoCompleteTag from '@/components/AutoCompleteTag.vue';
 import FlatButton from '@/components/FlatButton.vue';
@@ -301,6 +302,7 @@ const router = useRouter();
 const app = useTokenStore();
 const loader = useLoaderStore();
 const { settings, ready: settingsReady } = useSettingsStore();
+const postCache = usePostCacheStore();
 const serverName = computed(() => app.config?.config.name || 'Oxibooru');
 
 useHeadSafe(() => ({
@@ -455,6 +457,7 @@ async function onPostClick(post: PostItem) {
     if (result.success) {
       post.tags = result.data.tags;
       post.version = result.data.version;
+      postCache.setPost(post.id, result.data);
     }
   }
 }
@@ -497,6 +500,7 @@ async function setSafety(post: PostItem, safety: 'safe' | 'sketchy' | 'unsafe') 
   if (result.success) {
     post.safety = result.data.safety;
     post.version = result.data.version;
+    postCache.setPost(post.id, result.data);
   }
 }
 
@@ -506,6 +510,7 @@ async function doDeletion() {
     const post = posts.value.find((p) => p.id === id);
     if (!post?.version) continue;
     await app.deletePost(id, post.version);
+    postCache.invalidatePost(id);
   }
   cancelMassDelete();
   fetchPosts((currentPage.value - 1) * pageSize.value);
