@@ -437,7 +437,8 @@ This server exposes a REST API compatible with [szurubooru](https://github.com/r
 
 Full API documentation is available at:
 
-- [/api](/api) — API root (JSON)
+- [/apidoc/openapi.json](/apidoc/openapi.json) — OpenAPI specification
+- [/docs](/docs) - Swagger UI
 
 The API supports token-based authentication. Pass \`Authorization: Token base64(user:token)\` in requests.
 
