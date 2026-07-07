@@ -1,9 +1,9 @@
-use crate::api::error::ApiResult;
+use crate::api::error::{ApiError, ApiResult};
 use crate::content::hash::{Checksum, Md5Checksum};
 use crate::content::signature::COMPRESSED_SIGNATURE_LEN;
 use crate::content::thumbnail::ThumbnailType;
 use crate::content::upload::UploadToken;
-use crate::content::{decode, hash, signature, thumbnail};
+use crate::content::{decode, hash, signature, thumbnail, ugoira};
 use crate::extract::Ctx;
 use crate::model::enums::{MimeType, PostFlag, PostFlags, PostType};
 use crate::{content, filesystem};
@@ -83,6 +83,15 @@ fn compute_properties_no_cache(ctx: &Ctx, token: UploadToken) -> ApiResult<Cache
 
     let mime_type = token.mime_type();
     let post_type = decode::detect_post_type(&ctx.config, &temp_path, mime_type)?;
+
+    if post_type == PostType::Ugoira {
+        let limit = ctx.config.ugoira.max_file_size_bytes();
+        if file_size.cast_unsigned() > limit {
+            return Err(ApiError::UgoiraFileTooLarge(file_size.cast_unsigned(), limit));
+        }
+        ugoira::validate(&temp_path)?;
+    }
+
     let has_sound = match post_type {
         PostType::Image | PostType::Animation | PostType::Ugoira => false,
         PostType::Video => decode::video_has_audio(&ctx.config, &temp_path)?,

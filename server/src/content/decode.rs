@@ -1,6 +1,6 @@
 use crate::api::error::{ApiError, ApiResult};
 use crate::config::Config;
-use crate::content::{self, flash};
+use crate::content::{self, flash, ugoira};
 use crate::model::enums::{MimeType, PostType};
 use ffmpeg_sidecar::child::FfmpegChild;
 use ffmpeg_sidecar::command::FfmpegCommand;
@@ -426,22 +426,15 @@ fn ugoira_image(path: &Path) -> ApiResult<DynamicImage> {
     let file = content::map_read_result(File::open(path))?;
     let mut archive = zip::ZipArchive::new(BufReader::new(file)).map_err(|e| ApiError::ZipError(e.into()))?;
 
-    // Parse animation.json to get the ordered frame list
-    let first_frame_file = {
-        let mut json_entry = archive
-            .by_name("animation.json")
-            .map_err(|_| ApiError::MissingUgoiraManifest)?;
-        let mut buf = String::new();
-        json_entry.read_to_string(&mut buf)?;
-        let manifest: serde_json::Value = serde_json::from_str(&buf).map_err(ApiError::from)?;
-        manifest["frames"][0]["file"]
-            .as_str()
-            .ok_or(ApiError::MissingUgoiraManifest)?
-            .to_owned()
-    };
+    let manifest = ugoira::read_manifest(&mut archive)?;
+    let first_frame = manifest
+        .frames
+        .into_iter()
+        .next()
+        .ok_or(ApiError::MissingUgoiraManifest)?;
 
     let mut frame_entry = archive
-        .by_name(&first_frame_file)
+        .by_name(&first_frame.file)
         .map_err(|_| ApiError::MissingUgoiraManifest)?;
     let mut frame_bytes = Vec::new();
     frame_entry.read_to_end(&mut frame_bytes)?;

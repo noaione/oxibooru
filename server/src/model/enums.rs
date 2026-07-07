@@ -107,7 +107,7 @@ pub enum MimeType {
     #[serde(rename = "image/avif")]
     Avif,
     #[serde(rename = "application/zip")]
-    Zip,
+    Zip = 101,
 }
 
 impl MimeType {
