@@ -5,14 +5,29 @@ use image::error::LimitErrorKind;
 use image::{DynamicImage, GrayAlphaImage, GrayImage, RgbImage, RgbaImage};
 use jxl::api::states::WithImageInfo;
 use jxl::api::{
-    JxlBitstreamInput, JxlColorType, JxlDataFormat, JxlDecoder, JxlDecoderOptions, JxlOutputBuffer, JxlPixelFormat,
-    ProcessingResult,
+    JxlBitstreamInput, JxlColorType, JxlDataFormat, JxlDecoder, JxlDecoderOptions, JxlOutputBuffer, JxlParallelRunner,
+    JxlParallelRunnerFun, JxlPixelFormat, ProcessingResult,
 };
 use jxl::error::Error;
 use jxl::headers::extra_channels::ExtraChannel;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+
+/// Original implementation from jxl-rs repo
+/// <https://github.com/libjxl/jxl-rs/blob/main/jxl_cli/src/dec/mod.rs>
+struct RayonParallelRunner;
+
+impl JxlParallelRunner for RayonParallelRunner {
+    fn run(&mut self, num: usize, fun: &JxlParallelRunnerFun) -> jxl::error::Result<()> {
+        (0..num).into_par_iter().try_for_each(fun)
+    }
+
+    fn num_threads(&self) -> usize {
+        rayon::current_num_threads()
+    }
+}
 
 /// Decodes the first visible frame of the JPEG XL file at the given `file_path`.
 pub fn image(config: &Config, file_path: &Path) -> ApiResult<DynamicImage> {
@@ -55,7 +70,7 @@ pub fn image(config: &Config, file_path: &Path) -> ApiResult<DynamicImage> {
     })?;
 
     // Advance to the first frame
-    let decoder = match decoder.process(&mut input, None)? {
+    let decoder = match decoder.process(&mut input, Some(&mut RayonParallelRunner))? {
         ProcessingResult::Complete { result } => result,
         ProcessingResult::NeedsMoreInput { size_hint, .. } => {
             return Err(ApiError::JxlDecoding(Error::OutOfBounds(size_hint)));
@@ -74,7 +89,7 @@ pub fn image(config: &Config, file_path: &Path) -> ApiResult<DynamicImage> {
     // One buffer for the interleaved color channels; ignored extra channels need none
     let mut buffers = [JxlOutputBuffer::new(&mut pixel_data, height, bytes_per_row)];
     // Decode the frame's pixels; for animations this stops after the first frame
-    match decoder.process(&mut input, &mut buffers, None)? {
+    match decoder.process(&mut input, &mut buffers, Some(&mut RayonParallelRunner))? {
         ProcessingResult::Complete { .. } => {}
         ProcessingResult::NeedsMoreInput { size_hint, .. } => {
             return Err(ApiError::JxlDecoding(Error::OutOfBounds(size_hint)));
@@ -111,7 +126,7 @@ fn jxl_read_info<In: JxlBitstreamInput>(config: &Config, input: &mut In) -> ApiR
     options.sample_limit = usize::try_from(config.limits.max_image_allocation).ok();
 
     let decoder = JxlDecoder::new(JxlDecoderOptions::default());
-    match decoder.process(input, None)? {
+    match decoder.process(input, Some(&mut RayonParallelRunner))? {
         ProcessingResult::Complete { result } => Ok(result),
         // The full file is available, so needing more input means it's truncated
         ProcessingResult::NeedsMoreInput { size_hint, .. } => Err(ApiError::JxlDecoding(Error::OutOfBounds(size_hint))),
