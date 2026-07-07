@@ -112,7 +112,7 @@ pub enum MimeType {
     #[serde(rename = "image/jxl")]
     Jxl,
     #[serde(rename = "application/zip")]
-    Zip,
+    Zip = 101,
 }
 
 impl MimeType {
