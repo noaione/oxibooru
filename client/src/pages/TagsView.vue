@@ -32,8 +32,8 @@
       />
       <FlatSelect v-model="sortBy" @change="applySearchWithCurrentQuery">
         <option value="sort:name">Name</option>
-        <option value="sort:usages">Post count</option>
         <option value="sort:creation-time">Creation date</option>
+        <option value="sort:usages">Post count</option>
       </FlatSelect>
     </div>
 
@@ -56,11 +56,7 @@
       <template v-else>
         <!-- Mobile card list -->
         <div class="flex flex-col divide-y divide-gray-100 dark:divide-gray-800 md:hidden">
-          <div
-            v-for="tag in tags"
-            :key="tag.names?.[0]"
-            class="py-3 flex flex-col gap-1"
-          >
+          <div v-for="tag in tags" :key="tag.names?.[0]" class="py-3 flex flex-col gap-1">
             <div class="flex items-center justify-between gap-2">
               <RouterLink
                 :to="`/tag/${encodeURIComponent(tag.names?.[0] ?? '')}`"
@@ -96,9 +92,7 @@
                 >
                   {{ (tag.usages ?? 0).toLocaleString() }} posts
                 </RouterLink>
-                <span v-if="tag.implications?.length">
-                  {{ tag.implications.length }} impl.
-                </span>
+                <span v-if="tag.implications?.length"> {{ tag.implications.length }} impl. </span>
               </span>
             </div>
           </div>
@@ -209,7 +203,7 @@ const totalCount = ref(0);
 const error = ref('');
 
 const searchInput = ref((route.query.query as string) || '');
-const sortBy = ref((route.query.sort as string) || 'sort:usages');
+const sortBy = ref((route.query.sort as string) || 'sort:creation-time');
 
 const currentPage = computed(() => {
   const p = Number(route.query.page);
@@ -296,7 +290,7 @@ watch(
   () => route.query,
   (q) => {
     searchInput.value = (q.query as string) || '';
-    sortBy.value = (q.sort as string) || 'sort:usages';
+    sortBy.value = (q.sort as string) || 'sort:creation-time';
     fetchTags();
   },
 );
