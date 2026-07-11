@@ -27,8 +27,8 @@
           >@{{ app.config.featuredPost.id }}</RouterLink
         >
         <span v-else>@{{ app.config.featuredPost.id }}</span>
-        <template v-if="app.config.featuringTime">
-          <span>, posted <RelativeTime :time="app.config.featuringTime" /></span>
+        <template v-if="app.config.featuredPost.creationTime">
+          <span>, posted <RelativeTime :time="app.config.featuredPost.creationTime" /></span>
         </template>
         <template v-if="app.config.featuredPost.user?.name">
           <span> by </span>
