@@ -218,17 +218,19 @@ const navigations = computed<Navigation[]>(() => {
   }
   if (apiController.hasPrivilege('user_list')) {
     const excludeMatcher = apiController.user?.name
-      ? `/user/${apiController.user.name}`
+      ? new RegExp(`^\\/user\\/${apiController.user.name}(\\/.*)?`)
       : undefined;
     baseNavs.push({ name: 'Users', href: '/users', matcher: /^\/users?(\/.*)?/, excludeMatcher });
   }
 
   if (apiController.user?.name) {
+    const matcherRegex = new RegExp(`^\\/user\\/${apiController.user.name}(\\/.*)?`);
     baseNavs.push({
       name: 'Account',
       href: `/user/${apiController.user.name}`,
       pos: 'right',
       iconImage: resolveApiUrl(apiController.user.avatarUrl),
+      matcher: matcherRegex,
     });
     if (apiController.hasPrivilege('user_create_any')) {
       baseNavs.push({ name: 'Register', href: '/register', pos: 'right' });
