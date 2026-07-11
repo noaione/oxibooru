@@ -77,8 +77,9 @@
           <section v-if="canEditPostTags" class="flex flex-col gap-1">
             <label
               class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
-              >Tags</label
             >
+              Tags
+            </label>
             <AutoCompleteTag
               mode="input"
               v-model="editTags"
@@ -94,8 +95,9 @@
           <section v-if="enableSafety && canEditPostSafety" class="flex flex-col gap-1">
             <label
               class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
-              >Safety</label
             >
+              Safety
+            </label>
             <div class="flex gap-3">
               <label
                 v-for="s in safetyOptions"
@@ -114,8 +116,9 @@
           <section v-if="canEditPostSource" class="flex flex-col gap-1">
             <label
               class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
-              >Source</label
             >
+              Source
+            </label>
             <FlatTextarea
               v-model="editSource"
               rows="3"
@@ -142,8 +145,9 @@
           <section v-if="post.type === 'video' && canEditPostFlags" class="flex flex-col gap-1">
             <label
               class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide"
-              >Flags</label
             >
+              Flags
+            </label>
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input v-model="editLoopFlag" type="checkbox" />
               Loop video
@@ -344,12 +348,20 @@
               class="text-gray-500 dark:text-gray-400 text-xs"
             >
               {{ post.canvasWidth }}×{{ post.canvasHeight }}
-              <span v-if="post.flags?.includes('loop')" title="Loops"
-                ><RepeatIcon :size="11" class="inline"
-              /></span>
-              <span v-if="post.flags?.includes('sound')" title="Has audio"
-                ><Volume2Icon :size="11" class="inline"
-              /></span>
+              <span
+                v-if="post.flags?.includes('loop')"
+                class="text-gray-700 dark:text-gray-300"
+                title="Loops"
+              >
+                <RepeatIcon :size="11" class="inline" />
+              </span>
+              <span
+                v-if="post.flags?.includes('sound')"
+                class="text-gray-700 dark:text-gray-300"
+                title="Has audio"
+              >
+                <Volume2Icon :size="11" class="inline" />
+              </span>
             </span>
           </section>
 
@@ -637,6 +649,7 @@
             playsinline
             :loop="post.flags?.includes('loop')"
             :autoplay="settings.autoplayVideos"
+            :muted="settings.muteVideos"
           >
             <source :src="resolveApiUrl(post.contentUrl)" :type="post.mimeType" />
             Your browser does not support this video format.

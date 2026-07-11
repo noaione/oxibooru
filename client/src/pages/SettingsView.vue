@@ -7,15 +7,15 @@
         Content Filters
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.listPosts.safe" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Show safe posts</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.listPosts.sketchy" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Show sketchy posts</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.listPosts.unsafe" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Show unsafe posts</span>
         </label>
@@ -27,19 +27,19 @@
         Appearance
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="isDark" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Dark theme</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.transparencyGrid" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Show transparency grid behind images</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.upscaleSmallPosts" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Upscale small images to fit window</span>
         </label>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 w-fit">
           <span class="text-sm">Image fit mode</span>
           <FlatSelect v-model="s.fitMode" class="text-sm px-2 py-1">
             <option value="fit-both">Fit to window</option>
@@ -55,15 +55,15 @@
         Browsing
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.endlessScroll" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Endless scroll (instead of pagination)</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.postFlow" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Flow layout for posts</span>
         </label>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 w-fit">
           <span class="text-sm">Posts per page</span>
           <FlatInput
             v-model.number="s.postsPerPage"
@@ -81,11 +81,11 @@
         Tags
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.tagSuggestions" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Show tag autocomplete suggestions</span>
         </label>
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input
             v-model="s.tagUnderscoresAsSpaces"
             type="checkbox"
@@ -101,9 +101,13 @@
         Video
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.autoplayVideos" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Autoplay videos</span>
+        </label>
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
+          <input v-model="s.muteVideos" type="checkbox" class="w-4 h-4 accent-cyan-500" />
+          <span class="text-sm">Mute videos</span>
         </label>
       </div>
     </section>
@@ -113,7 +117,7 @@
         Keyboard
       </h2>
       <div class="flex flex-col gap-2">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 w-fit cursor-pointer">
           <input v-model="s.keyboardShortcuts" type="checkbox" class="w-4 h-4 accent-cyan-500" />
           <span class="text-sm">Enable keyboard shortcuts</span>
         </label>

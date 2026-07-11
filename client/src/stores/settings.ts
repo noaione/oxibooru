@@ -10,6 +10,7 @@ interface Settings {
   transparencyGrid: boolean;
   tagSuggestions: boolean;
   autoplayVideos: boolean;
+  muteVideos: boolean;
   tagUnderscoresAsSpaces: boolean;
   fitMode: 'fit-both' | 'fit-original' | 'fit-height' | 'fit-width';
   listPosts: {
@@ -33,6 +34,7 @@ export const useSettingsStore = defineStore('settings', () => {
     fitMode: 'fit-height',
     tagSuggestions: true,
     autoplayVideos: false,
+    muteVideos: false,
     postsPerPage: 42,
     tagUnderscoresAsSpaces: false,
     postFlow: false,
