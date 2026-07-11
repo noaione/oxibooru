@@ -1180,12 +1180,17 @@ async function confirmDeletePost() {
   }
 }
 
+function dispatchRefreshInfo() {
+  api.refreshInfo().catch((err) => console.error('Failed to refresh info', err));
+}
+
 async function featurePost() {
   if (!post.value?.id) return;
   try {
     const result = await api.featurePost(post.value.id);
     if (result.success) {
       toast.showSuccess('Post featured.');
+      dispatchRefreshInfo();
     } else {
       toast.showError(result.description);
     }

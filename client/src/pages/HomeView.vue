@@ -14,7 +14,7 @@
     <!-- Featured post -->
     <div v-if="app.config?.featuredPost" class="flex flex-col items-center mt-8 gap-2">
       <img
-        :src="resolveApiUrl(app.config.featuredPost.thumbnailUrl)"
+        :src="resolveApiUrl(app.config.featuredPost.contentUrl)"
         :alt="`Featured post #${app.config.featuredPost.id}`"
         class="max-w-[80dvw] w-full object-cover"
       />
