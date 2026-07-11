@@ -268,7 +268,12 @@
     <div v-else-if="section === 'tokens'" class="flex flex-col gap-6 w-full max-w-2xl">
       <!-- Token list -->
       <div v-if="tokens.length > 0" class="flex flex-col gap-4">
-        <div v-for="(tok, idx) in tokens" :key="tok.token" class="flex flex-col gap-2 card p-3">
+        <div
+          v-for="(tok, idx) in tokens"
+          :key="tok.token"
+          class="flex flex-col gap-2 card p-3 transition-shadow"
+          :class="tok.token === newTokenId ? 'ring-2 ring-green-500 dark:ring-green-400' : ''"
+        >
           <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <span class="text-gray-500 dark:text-gray-400">Token:</span>
             <span class="font-mono break-all">{{ tok.token }}</span>
@@ -478,6 +483,7 @@ const newTokenNote = ref('');
 const newTokenExpiry = ref('');
 const editingNoteIdx = ref(-1);
 const editingNoteValue = ref('');
+const newTokenId = ref<string | null>(null);
 
 // ── Delete section state ─────────────────────────────────────────
 const deleteConfirm = ref(false);
@@ -693,8 +699,10 @@ async function submitCreateToken() {
   }
   newTokenNote.value = '';
   newTokenExpiry.value = '';
-  tokenSuccess.value = `Token ${result.data.token} created.`;
-  await loadTokens();
+  newTokenId.value = result.data.token ?? null;
+  tokens.value = [result.data as UserTokenInfo, ...tokens.value];
+  userCache.setTokens(userName.value, [...tokens.value]);
+  tokenSuccess.value = 'Token created.';
 }
 
 // ── Delete submit ────────────────────────────────────────────────
