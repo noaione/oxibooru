@@ -57,6 +57,7 @@
           <AutoCompleteTag
             target="posts"
             override-submit
+            :model-value="lockedMassTags"
             class="items-center w-full max-w-full md:max-w-[60%]"
             input-class="w-full"
             @submit="startMassTagging"
