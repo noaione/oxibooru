@@ -442,23 +442,40 @@ async function onPostClick(post: PostItem) {
       deletionCandidates.value = next;
     }
     lastClickedIdx.value = idx;
-  } else if (
-    massActiveState.value === 'tag' &&
-    lockedMassTags.value.length > 0 &&
-    post.id &&
-    post.version
-  ) {
-    const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
-    const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
-    const newTags = allPresent
-      ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
-      : [...new Set([...currentTags, ...lockedMassTags.value])];
-    const result = await app.updatePost(post.id, { version: post.version, tags: newTags });
-    if (result.success) {
-      post.tags = result.data.tags;
-      post.version = result.data.version;
-      postCache.setPost(post.id, result.data);
+  } else if (massActiveState.value === 'tag' && lockedMassTags.value.length > 0) {
+    if (isShiftDown.value && lastClickedIdx.value >= 0 && idx >= 0) {
+      const start = Math.min(lastClickedIdx.value, idx);
+      const end = Math.max(lastClickedIdx.value, idx);
+      const targets = posts.value.slice(start, end + 1).filter((p) => p.id && p.version);
+      await Promise.all(
+        targets.map(async (p) => {
+          const currentTags = (p.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
+          const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
+          const newTags = allPresent
+            ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
+            : [...new Set([...currentTags, ...lockedMassTags.value])];
+          const result = await app.updatePost(p.id!, { version: p.version!, tags: newTags });
+          if (result.success) {
+            p.tags = result.data.tags;
+            p.version = result.data.version;
+            postCache.setPost(p.id!, result.data);
+          }
+        }),
+      );
+    } else if (post.id && post.version) {
+      const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
+      const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
+      const newTags = allPresent
+        ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
+        : [...new Set([...currentTags, ...lockedMassTags.value])];
+      const result = await app.updatePost(post.id, { version: post.version, tags: newTags });
+      if (result.success) {
+        post.tags = result.data.tags;
+        post.version = result.data.version;
+        postCache.setPost(post.id, result.data);
+      }
     }
+    lastClickedIdx.value = idx;
   }
 }
 
@@ -491,6 +508,7 @@ async function startMassTagging(query: string) {
 function stopMassTagging() {
   massActiveState.value = 'none';
   lockedMassTags.value = [];
+  lastClickedIdx.value = -1;
   router.replace({ query: { ...route.query, massTag: undefined } });
 }
 
