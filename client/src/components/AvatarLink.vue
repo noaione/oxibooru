@@ -11,7 +11,7 @@
       v-if="avatarUrl"
       :src="resolveApiUrl(avatarUrl)"
       :alt="name"
-      class="size-4 object-contain inline-block mr-1"
+      class="size-4 object-cover object-center inline-block mr-1"
     />
     <span class="inline-block decoration-dashed" :class="{ 'hover:underline': !simple }">
       {{ name }}
