@@ -489,7 +489,8 @@ export type MimeType =
   | 'video/webm'
   | 'application/x-shockwave-flash'
   | 'application/vnd.adobe.flash.movie'
-  | 'image/avif';
+  | 'image/avif'
+  | 'image/jxl';
 
 /**
  * Multipart form for file uploads.
