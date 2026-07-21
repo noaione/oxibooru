@@ -321,6 +321,7 @@ const lockedMassTags = ref<string[]>([]);
 const deletionCandidates = ref<Set<number>>(new Set());
 const lastClickedIdx = ref(-1);
 const lastClickedAction = ref<'add' | 'remove'>('add');
+const lastMassTagAction = ref<'add' | 'remove'>('add');
 
 const isShiftDown = useKeyModifier('Shift');
 
@@ -448,13 +449,14 @@ async function onPostClick(post: PostItem) {
       const start = Math.min(lastClickedIdx.value, idx);
       const end = Math.max(lastClickedIdx.value, idx);
       const targets = posts.value.slice(start, end + 1).filter((p) => p.id && p.version);
+      const action = lastMassTagAction.value;
       await Promise.all(
         targets.map(async (p) => {
           const currentTags = (p.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
-          const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
-          const newTags = allPresent
-            ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
-            : [...new Set([...currentTags, ...lockedMassTags.value])];
+          const newTags =
+            action === 'remove'
+              ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
+              : [...new Set([...currentTags, ...lockedMassTags.value])];
           const result = await app.updatePost(p.id!, { version: p.version!, tags: newTags });
           if (result.success) {
             p.tags = result.data.tags;
@@ -466,6 +468,7 @@ async function onPostClick(post: PostItem) {
     } else if (post.id && post.version) {
       const currentTags = (post.tags ?? []).map((t) => t.names[0] ?? '').filter(Boolean);
       const allPresent = lockedMassTags.value.every((t) => currentTags.includes(t));
+      lastMassTagAction.value = allPresent ? 'remove' : 'add';
       const newTags = allPresent
         ? currentTags.filter((t) => !lockedMassTags.value.includes(t))
         : [...new Set([...currentTags, ...lockedMassTags.value])];
