@@ -5,7 +5,7 @@ function siteWrapperPlugin(hook, vm) {
     '<footer style="text-align: center; padding-top: 40px;">',
     'Oxibooru &copy; 2025',
     "<br/>",
-    'Made with <span style="color: lightcoral">❤</span> by <a href="https://github.com/liamw1/oxibooru" target="_blank">@Oxibooru</a> and <a href="https://github.com/liamw1/oxibooru/graphs/contributors" target="_blank">Helpers</a>',
+    'Made with <span style="color: lightcoral">❤</span> by <a href="https://github.com/noaione/oxibooru" target="_blank">@Oxibooru</a> and <a href="https://github.com/noaione/oxibooru/graphs/contributors" target="_blank">Helpers</a>',
     "</footer>",
   ].join("");
 
@@ -28,7 +28,7 @@ function siteWrapperPlugin(hook, vm) {
     } else {
       // inline code specific to these docs. (readme file os not part of the docs-folder)
       url =
-        `https://github.com/liamw1/oxibooru/blob/main${vm.route.file.includes('README.md') ? vm.route.file : `/docs/${vm.route.file}`}`
+        `https://github.com/noaione/oxibooru/blob/naoX${vm.route.file.includes('README.md') ? vm.route.file : `/docs/${vm.route.file}`}`
     }
 
     const title = html.querySelector('h1');

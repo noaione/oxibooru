@@ -11,10 +11,8 @@ This guide assumes that you have Docker (version 19.03 or greater) and the Docke
     To get started either clone the repository with
 
     ```sh
-    git clone https://github.com/liamw1/oxibooru
+    git clone https://github.com/noaione/oxibooru
     ```
-
-    or download the latest release from the [releases page](https://github.com/liamw1/oxibooru/releases). By default, a freshly cloned repo will use the `latest` images, whereas a release package will be fixed to a particular version. **Be warned that by using `latest` images, you are opting out of stability**. See [Versioning](#versioning) for details.
 
     Enter the `oxibooru` directory:
 
@@ -44,15 +42,13 @@ This guide assumes that you have Docker (version 19.03 or greater) and the Docke
 
     Change the values of the variables in `.env` as needed. Read the comments to guide you. Note that `.env` should be in the root directory of this repository.
 
-4. **Pull the containers**
+4. **Build the containers**
     
-    This pulls the latest containers from docker.io:
+    To build the containers with the default configuration:
 
     ```sh
-    docker compose pull
+    docker compose build --build-arg GIT_LINK="https://github.com/noaione/oxibooru/commits/naoX"
     ```
-
-    If you have modified the application's source and would like to manually build it, follow the instructions in [Building](#building) instead, then read here once you're done.
 
 5. **Give mount directories permissions**
 
@@ -83,17 +79,6 @@ This guide assumes that you have Docker (version 19.03 or greater) and the Docke
 Oxibooru uses a semantic versioning system to distinguish between backwards compatible and backwards incompatbile versions. An increase in the leading non-zero version number means that the change is breaking, meaning that once you upgrade it may be difficult or impossible to revert to a previous version (typically due to changes in the database schema or data store). For example, it's fine to swap back and forth between versions `0.6.0` and `0.6.2`, but an upgrade from `0.6.2` and `0.7.0` is irreversible. A breaking change may also necesitate downtime due to expensive database migrations.
 
 To change the version of an image, edit the image field in `docker-compose.yml`. The field follows the format `oxibooru/[server|client]:<version>`. There are a few different options for image versioning depending on your appetite for volatility. For maximum stability, you can use the fixed version images, e.g. `0.6.1`. These are never modified after creation, so you can pretty much guarantee that their behavior will stay the same forever. If you like being on the cutting edge, use the `latest` images. They are frequently (but not recklessly) updated with the latest fixes and features, but may introduce breaking changes or time-consuming migrations at any time. For a middle ground, there's also the major and minor version images, e.g. `0` and `0.7`, which are updated with the latest changes up to that major or minor version number.
-
-## Building
-
-To build the client and server containers, run
-
-```sh
-docker compose build
-```
-
-*Note: If your changes are not taking effect in your builds, consider building
-with `--no-cache`.*
 
 #### Performance tip
 

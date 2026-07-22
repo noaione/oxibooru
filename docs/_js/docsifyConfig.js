@@ -1,7 +1,7 @@
 window.$docsify = {
     catchPluginErrors: true,
     name: 'Oxibooru Documentation',
-    repo: 'https://github.com/liamw1/oxibooru/',
+    repo: 'https://github.com/noaione/oxibooru/',
     // causes routing issues
     // routerMode: 'history',
     auto2top: true,
@@ -10,7 +10,7 @@ window.$docsify = {
     formatUpdated: '{YYYY}-{MM}-{DD} {HH}:{mm}',
     alias: {
         '/.*/_sidebar.md': '/_sidebar.md',
-        '.*?/LICENSE': 'https://raw.githubusercontent.com/liamw1/oxibooru/master/LICENSE.md',
+        '.*?/LICENSE': 'https://raw.githubusercontent.com/noaione/oxibooru/naoX/LICENSE.md',
     },
     nameLink: '#/',
     toc: {

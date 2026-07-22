@@ -1,1 +1,1 @@
-[Content](https://raw.githubusercontent.com/liamw1/oxibooru/master/README.md ':include')
+[Content](https://raw.githubusercontent.com/noaione/oxibooru/naoX/README.md ':include')
