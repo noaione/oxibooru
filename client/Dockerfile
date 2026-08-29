@@ -1,31 +1,29 @@
 FROM --platform=$BUILDPLATFORM node:lts AS builder
 WORKDIR /opt/app
 
-COPY package.json package-lock.json ./
-RUN npm install
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . ./
 
 ARG BUILD_INFO="docker-latest"
-ARG CLIENT_BUILD_ARGS=""
-RUN BASE_URL="__BASEURL__" node build.js --gzip ${CLIENT_BUILD_ARGS}
-
-
-FROM --platform=$BUILDPLATFORM scratch AS approot
-
-COPY docker-start.sh /
-
-WORKDIR /etc/nginx
-COPY nginx.conf.docker ./nginx.conf
-
-WORKDIR /var/www
-COPY --from=builder /opt/app/public/ .
+ARG BASE_URL="/"
+ARG GIT_LINK=""
+RUN BUILD_INFO="${BUILD_INFO}" BASE_URL="${BASE_URL}" GIT_LINK="${GIT_LINK}" pnpm run build
 
 
 FROM nginx:alpine AS release
 
 RUN apk --no-cache add dumb-init
-COPY --from=approot / /
+
+COPY nginx.conf.docker /etc/nginx/nginx.conf
+COPY docker-start.sh /docker-start.sh
+RUN chmod +x /docker-start.sh
+
+COPY --from=builder /opt/app/dist /var/www
+COPY --from=builder /opt/app/public /var/www
 
 CMD ["/docker-start.sh"]
 VOLUME ["/data"]
