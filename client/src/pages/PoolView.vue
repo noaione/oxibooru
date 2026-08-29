@@ -113,7 +113,7 @@
           <RouterLink
             v-for="(post, idx) in pool.posts"
             :key="post.id"
-            :to="`/post/${post.id}`"
+            :to="`/post/${post.id}?query=pool:${poolId}`"
             class="relative group block"
           >
             <img
