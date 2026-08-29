@@ -70,6 +70,12 @@ pub enum ApiError {
     MissingFormData,
     #[error("Missing metadata form")]
     MissingMetadata,
+    #[error("Ugoira ZIP is missing animation.json or has no frames")]
+    MissingUgoiraManifest,
+    #[error("Ugoira file size {0} bytes exceeds the limit of {1} bytes")]
+    UgoiraFileTooLarge(u64, u64),
+    #[error("Ugoira animation.json is invalid: {0}")]
+    InvalidUgoiraManifest(String),
     #[error("Missing smtp info")]
     MissingSmtpInfo,
     Multipart(#[from] axum::extract::multipart::MultipartError),
@@ -94,6 +100,7 @@ pub enum ApiError {
     StdIo(#[from] std::io::Error),
     SwfDecoding(#[from] swf::error::Error),
     TaskJoin(#[from] tokio::task::JoinError),
+    ZipError(Box<dyn std::error::Error + Send + Sync + 'static>),
     #[error("Password reset token is invalid")]
     UnauthorizedPasswordReset,
     #[error("Content type `{0}` not supported")]
@@ -144,9 +151,13 @@ impl ApiError {
             | Self::NoEmail
             | Self::NoNamesGiven(_)
             | Self::NotAnInteger(_)
+            | Self::MissingUgoiraManifest
+            | Self::InvalidUgoiraManifest(_)
+            | Self::UgoiraFileTooLarge(..)
             | Self::SelfMerge(_)
             | Self::SwfDecoding(_)
-            | Self::UrlValidation(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            | Self::UrlValidation(_)
+            | Self::ZipError(_) => StatusCode::UNPROCESSABLE_ENTITY,
             Self::FailedEmailTransport(_)
             | Self::FailedQuery(_)
             | Self::InvalidHeader(_)
@@ -201,6 +212,9 @@ impl ApiError {
             Self::MissingContentType => "Missing Content Type",
             Self::MissingFormData => "Missing Form Data",
             Self::MissingMetadata => "Missing Metadata",
+            Self::MissingUgoiraManifest => "Missing Ugoira Manifest",
+            Self::InvalidUgoiraManifest(_) => "Invalid Ugoira Manifest",
+            Self::UgoiraFileTooLarge(..) => "Ugoira File Too Large",
             Self::MissingSmtpInfo => "Missing SMTP Info",
             Self::Multipart(_) => "Multipart/Form-Data Error",
             Self::MultipartRejection(_) => "Multipart Rejection",
@@ -222,6 +236,7 @@ impl ApiError {
             Self::UnsupportedContentType(_) => "Unsupported Content Type",
             Self::UnsupportedExtension(_) => "Unsupported extension",
             Self::UrlValidation(_) => "URL Validation Error",
+            Self::ZipError(_) => "ZIP Error",
         }
     }
 

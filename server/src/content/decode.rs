@@ -1,6 +1,6 @@
 use crate::api::error::{ApiError, ApiResult};
 use crate::config::Config;
-use crate::content::{self, flash};
+use crate::content::{self, flash, ugoira};
 use crate::model::enums::{MimeType, PostType};
 use ffmpeg_sidecar::child::FfmpegChild;
 use ffmpeg_sidecar::command::FfmpegCommand;
@@ -10,7 +10,7 @@ use image::codecs::{gif::GifDecoder, webp::WebPDecoder};
 use image::{AnimationDecoder, DynamicImage, ImageDecoder, ImageFormat, ImageReader, Limits, RgbImage, RgbaImage};
 use std::borrow::Cow;
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, Read};
 use std::path::Path;
 use std::str::FromStr;
 use std::sync::mpsc::{RecvTimeoutError, SyncSender};
@@ -36,6 +36,7 @@ pub fn representative_image(config: &Config, file_path: &Path, mime_type: MimeTy
         MimeType::Mov | MimeType::Mp4 | MimeType::Webm => {
             ffmpeg_frame(config, file_path, PostType::Video).and_then(|frame| frame.ok_or(ApiError::EmptyVideo))
         }
+        MimeType::Zip => ugoira_image(file_path),
     }
 }
 
@@ -94,6 +95,7 @@ pub fn detect_post_type(config: &Config, file_path: &Path, mime_type: MimeType) 
         MimeType::Bmp | MimeType::Jpeg | MimeType::Png => Ok(PostType::Image),
         MimeType::Mp4 | MimeType::Mov | MimeType::Webm => Ok(PostType::Video),
         MimeType::Swf => Ok(PostType::Flash),
+        MimeType::Zip => Ok(PostType::Ugoira),
     }
 }
 
@@ -416,6 +418,28 @@ fn webp_is_animated(config: &Config, path: &Path) -> ApiResult<bool> {
     let mut decoder = WebPDecoder::new(BufReader::new(file))?;
     decoder.set_limits(image_reader_limits(config))?;
     Ok(decoder.has_animation())
+}
+
+/// Extracts the first frame of a ugoira ZIP as a representative image.
+/// Reads `animation.json` from the archive to determine the first frame filename.
+fn ugoira_image(path: &Path) -> ApiResult<DynamicImage> {
+    let file = content::map_read_result(File::open(path))?;
+    let mut archive = zip::ZipArchive::new(BufReader::new(file)).map_err(|e| ApiError::ZipError(e.into()))?;
+
+    let manifest = ugoira::read_manifest(&mut archive)?;
+    let first_frame = manifest
+        .frames
+        .into_iter()
+        .next()
+        .ok_or(ApiError::MissingUgoiraManifest)?;
+
+    let mut frame_entry = archive
+        .by_name(&first_frame.file)
+        .map_err(|_| ApiError::MissingUgoiraManifest)?;
+    let mut frame_bytes = Vec::new();
+    frame_entry.read_to_end(&mut frame_bytes)?;
+
+    image::load_from_memory(&frame_bytes).map_err(ApiError::from)
 }
 
 /// Returns maximum decoded image size.
