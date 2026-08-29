@@ -4,7 +4,7 @@
     <h1 class="text-5xl">{{ app.config?.config.name || 'Oxibooru' }}</h1>
 
     <div v-if="canListPosts" class="flex flex-row items-center mt-8">
-      <AutoCompleteTag target="posts" placeholder="enter some tags" />
+      <AutoCompleteTag target="posts" placeholder="enter some tags" :include-implications="false" />
       <span class="text-gray-500 mx-5">or</span>
       <RouterLink to="/posts" class="text-cyan-500 hover:brightness-120">
         browse all posts
