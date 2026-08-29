@@ -55,6 +55,17 @@ pub enum RegexType {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UgoiraConfig {
+    pub max_file_size_mb: u64,
+}
+
+impl UgoiraConfig {
+    pub fn max_file_size_bytes(&self) -> u64 {
+        self.max_file_size_mb * 1024 * 1024
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct ThumbnailConfig {
     pub avatar_width: u32,
     pub avatar_height: u32,
@@ -330,6 +341,7 @@ pub struct Config {
     pub log_filter: String,
     pub auto_explain: bool,
     pub thumbnails: ThumbnailConfig,
+    pub ugoira: UgoiraConfig,
     pub smtp: Option<SmtpConfig>,
     pub limits: LimitsConfig,
     #[serde(default)]

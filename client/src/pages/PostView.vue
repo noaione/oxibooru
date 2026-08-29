@@ -684,6 +684,30 @@
             :img-el="flashMediaWrapperRef"
           />
         </div>
+
+        <!-- Ugoira (animated ZIP) -->
+        <div
+          v-else-if="post.type === 'ugoira'"
+          ref="ugoiraMediaWrapperRef"
+          :key="`ugoira-${post.id}`"
+          class="relative"
+          :class="[mediaWrapperClass]"
+        >
+          <UgoiraPlayer
+            ref="ugoiraPlayerRef"
+            :src="resolveApiUrl(post.contentUrl)!"
+            :class="fitClass"
+            :click-to-play="!isEditMode"
+            :style="{
+              aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
+            }"
+          />
+          <PostNotesOverlay
+            v-if="!isEditMode && post.notes?.length"
+            :notes="post.notes"
+            :img-el="ugoiraPlayerRef?.canvas ?? null"
+          />
+        </div>
       </div>
 
       <!-- Notes editor (edit mode only) -->
@@ -691,7 +715,7 @@
         v-if="isEditMode && canEditPostNotes"
         ref="notesEditorRef"
         :notes="editNotes"
-        :img-el="imgRef ?? videoRef ?? flashMediaWrapperRef ?? null"
+        :img-el="imgRef ?? videoRef ?? flashMediaWrapperRef ?? ugoiraPlayerRef?.canvas ?? null"
         :overlay-container="activeMediaWrapper"
         @update="(n) => (editNotes = n)"
       />
@@ -837,6 +861,7 @@ import CommentItem from '@/components/CommentItem.vue';
 import PostNotesOverlay from '@/components/PostNotesOverlay.vue';
 import PostNotesEditor from '@/components/PostNotesEditor.vue';
 import FlashPlayer from '@/components/FlashPlayer.vue';
+import UgoiraPlayer from '@/components/UgoiraPlayer.vue';
 import { renderMarkdown } from '@/utils/markdown';
 import { resolveApiUrl } from '@/utils/url';
 import FlatInput from '@/components/FlatInput.vue';
@@ -860,6 +885,7 @@ const isEditMode = computed(() => route.name === 'post-edit');
 
 const imgRef = ref<HTMLImageElement | null>(null);
 const videoRef = ref<HTMLVideoElement | null>(null);
+const ugoiraPlayerRef = ref<InstanceType<typeof UgoiraPlayer> | null>(null);
 
 const post = ref<PostInfo | null>(null);
 const neighbors = ref<PostNeighbors>({});
@@ -894,9 +920,14 @@ const thumbnailInputRef = ref<HTMLInputElement | null>(null);
 const imgMediaWrapperRef = ref<HTMLDivElement | null>(null);
 const videoMediaWrapperRef = ref<HTMLDivElement | null>(null);
 const flashMediaWrapperRef = ref<HTMLDivElement | null>(null);
+const ugoiraMediaWrapperRef = ref<HTMLDivElement | null>(null);
 const activeMediaWrapper = computed(
   () =>
-    imgMediaWrapperRef.value ?? videoMediaWrapperRef.value ?? flashMediaWrapperRef.value ?? null,
+    imgMediaWrapperRef.value ??
+    videoMediaWrapperRef.value ??
+    flashMediaWrapperRef.value ??
+    ugoiraMediaWrapperRef.value ??
+    null,
 );
 // Ref to the notes editor component so the sidebar "Add note" button can call startDrawing()
 const notesEditorRef = ref<InstanceType<typeof PostNotesEditor> | null>(null);
@@ -1078,6 +1109,7 @@ const MIME_LABELS: Record<string, string> = {
   'video/quicktime': 'MOV',
   'application/x-shockwave-flash': 'SWF',
   'application/vnd.adobe.flash.movie': 'SWF',
+  'application/zip': 'ZIP',
 };
 
 function mimeLabel(mime?: string): string {
@@ -1478,6 +1510,9 @@ useKeyboardShortcuts({
     if (videoRef.value) {
       if (videoRef.value.paused) videoRef.value.play();
       else videoRef.value.pause();
+    } else if (ugoiraPlayerRef.value) {
+      if (ugoiraPlayerRef.value.paused) ugoiraPlayerRef.value.play();
+      else ugoiraPlayerRef.value.pause();
     }
   },
 });
