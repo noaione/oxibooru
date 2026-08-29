@@ -293,10 +293,11 @@
             <button
               v-if="canFeaturePost"
               type="button"
-              class="text-xs text-left w-fit text-cyan-400 hover:text-cyan-500 cursor-pointer"
+              class="text-xs text-left w-fit text-cyan-400 hover:text-cyan-500 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:text-cyan-400"
+              :disabled="isCurrentlyFeatured"
               @click="featurePost"
             >
-              Feature this post on main page
+              {{ isCurrentlyFeatured ? 'Currently featured' : 'Feature this post on main page' }}
             </button>
 
             <div v-if="canMergePost" class="flex flex-col gap-1">
@@ -947,6 +948,9 @@ const canEditPostNotes = computed(() => api.hasPrivilege('post_edit_note'));
 const canDeletePost = computed(() => api.hasPrivilege('post_delete'));
 const canMergePost = computed(() => api.hasPrivilege('post_merge'));
 const canFeaturePost = computed(() => api.hasPrivilege('post_feature'));
+const isCurrentlyFeatured = computed(
+  () => api.config?.featuredPost?.id != null && api.config.featuredPost.id === post.value?.id,
+);
 
 const enableSafety = computed(() => api.config?.config.enableSafety ?? false);
 
