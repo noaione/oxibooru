@@ -1,0 +1,202 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  /* Neutral grays matching legacy values */
+  --color-gray-50: oklch(98% 0 0); /* near-white panels */
+  --color-gray-100: oklch(96% 0 0); /* #F5F5F5 – legacy nav/panel */
+  --color-gray-200: oklch(90% 0 0); /* borders, dividers */
+  --color-gray-300: oklch(82% 0 0);
+  --color-gray-400: oklch(70% 0 0);
+  --color-gray-500: oklch(56% 0 0); /* #888 – inactive links */
+  --color-gray-600: oklch(45% 0 0);
+  --color-gray-700: oklch(35% 0 0);
+  --color-gray-800: oklch(24% 0 0); /* #333333 – dark nav/panel */
+  --color-gray-900: oklch(14% 0 0); /* #1a1a1a – dark body */
+  --color-gray-950: oklch(8% 0 0); /* #111 – near-black text */
+
+  /* Legacy accent colour: #24AADD */
+  --color-accent-400: oklch(72% 0.12 218);
+  --color-accent-500: oklch(65% 0.14 218);
+  --color-accent-600: oklch(57% 0.13 218);
+
+  /* Safety colours */
+  --color-safe: #88d488;
+  --color-sketchy: #f3d75f;
+  --color-unsafe: #f3985f;
+
+  --breakpoint-xs: 30rem;
+}
+
+/* Dark mode variant: triggered by .darktheme class on <body> */
+@custom-variant dark (&:where(.darktheme, .darktheme *));
+
+/* Some prose styling */
+@utility prose {
+  a {
+    @apply text-accent-500 dark:text-accent-400 no-underline decoration-dashed hover:underline;
+  }
+
+  code, pre {
+    @apply bg-gray-100 dark:bg-gray-700 font-medium rounded;
+  }
+
+  code {
+    padding-inline: 0.25rem;
+    padding-block: 0.125rem;
+  }
+
+  code::before,
+  code::after {
+    content: none;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* on p last child, we ddon't add any margin bottom */
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  p:has(+ ul),
+  p:has(+ ol) {
+    margin-bottom: 0;
+  }
+
+  ul,
+  ol {
+    @apply my-4;
+  }
+
+  li {
+    margin-top: 0.125em;
+    margin-bottom: 0.125em;
+  }
+
+  ul > li::marker, ol > li::marker {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+body {
+  @apply bg-white text-gray-950 font-sans;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+body.darktheme {
+  @apply bg-gray-900 text-gray-200;
+}
+
+@media (max-width: 800px) {
+  body {
+    font-size: 0.875rem;
+  }
+}
+@media (max-width: 1200px) {
+  body {
+    font-size: 0.95rem;
+  }
+}
+
+/* ── Panel / overlay colour (navbar, inputs) ────────────────────
+   Light:  #F5F5F5 bg, #111 text
+   Dark:   #333333 bg, #e6e6e6 text
+*/
+.overlay-color {
+  background-color: #f5f5f5;
+  color: #111111;
+}
+body.darktheme .overlay-color {
+  background-color: #333333;
+  color: #e6e6e6;
+}
+
+/* ── Card surface (content-wrapper equivalent) ──────────────────
+   Elevated above the page body (white → #F5F5F5 / #1a1a1a → #333).
+   Add padding via Tailwind (e.g. p-4, p-5) at the use site.
+*/
+.card {
+  @apply bg-[#f5f5f5] text-[#111111] dark:bg-[#333333] dark:text-[#e6e6e6];
+}
+
+/* ── Links ──────────────────────────────────────────────────────*/
+a {
+  @apply transition duration-150 decoration-dashed;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background-color: #fafafa;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #24aadd;
+  border-radius: 4px;
+}
+body.darktheme ::-webkit-scrollbar-track {
+  background-color: #222;
+}
+
+/* ── Markdown custom blocks ─────────────────────────────────────*/
+.spoiler {
+  background-color: #333;
+  color: transparent;
+  border-radius: 2px;
+  padding-inline: 2px;
+  transition: color 0.1s;
+
+  &:before, &:after {
+    color: #e6e6e6;
+  }
+
+  &:before {
+    content: '[';
+  }
+  &:after {
+    content: ']';
+  }
+}
+.spoiler:hover {
+  color: #e6e6e6;
+}
+
+.sjis {
+  font-family: 'MS PGothic', 'IPAPGothic', monospace;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  white-space: pre;
+  display: inline-block;
+}
+
+.link-with-icons {
+  img {
+    @apply inline-block my-0;
+  }
+}
+
+/* ── Transparency checkerboard ──────────────────────────────────*/
+.transparency-grid {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+body.darktheme .transparency-grid {
+  background-image:
+    linear-gradient(45deg, #444 25%, transparent 25%),
+    linear-gradient(-45deg, #444 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #444 75%),
+    linear-gradient(-45deg, transparent 75%, #444 75%);
+}

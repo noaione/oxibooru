@@ -4,7 +4,8 @@
 
 # Client Development Artifacts
 */*_modules/
-client/public
+# client/public
+client_legacy/public/
 
 # Server Development Artifacts
 debug/
