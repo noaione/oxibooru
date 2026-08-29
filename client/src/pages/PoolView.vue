@@ -70,8 +70,10 @@
           <span :style="poolColor(pool.category)">{{ pool.category ?? 'default' }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400">Posts:</span>
-          {{ (pool.postCount ?? 0).toLocaleString() }}
+          <span class="text-gray-500 dark:text-gray-400">Posts: </span>
+          <RouterLink :to="`/posts?query=pool:${poolId}`" class="text-sm text-cyan-500 hover:underline ml-auto">
+            {{ (pool.postCount ?? 0).toLocaleString() }}
+          </RouterLink>
         </div>
       </div>
 
