@@ -1104,6 +1104,7 @@ const MIME_LABELS: Record<string, string> = {
   'image/avif': 'AVIF',
   'image/heif': 'HEIF',
   'image/heic': 'HEIC',
+  'image/jxl': 'JXL',
   'video/webm': 'WEBM',
   'video/mp4': 'MPEG-4',
   'video/quicktime': 'MOV',

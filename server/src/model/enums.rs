@@ -106,6 +106,8 @@ pub enum MimeType {
     Swf,
     #[serde(rename = "image/avif")]
     Avif,
+    #[serde(rename = "image/jxl")]
+    Jxl = 100,
     #[serde(rename = "application/zip")]
     Zip = 101,
 }
@@ -119,6 +121,7 @@ impl MimeType {
             "bmp" | "dib" => Ok(Self::Bmp),
             "gif" => Ok(Self::Gif),
             "jpg" | "jpeg" | "jpe" | "jif" | "jfif" | "jfi" => Ok(Self::Jpeg),
+            "jxl" => Ok(Self::Jxl),
             "png" => Ok(Self::Png),
             "mp4" | "m4v" => Ok(Self::Mp4),
             "mov" | "movie" | "qt" => Ok(Self::Mov),
@@ -144,6 +147,7 @@ impl MimeType {
             Self::Bmp => "bmp",
             Self::Gif => "gif",
             Self::Jpeg => "jpg",
+            Self::Jxl => "jxl",
             Self::Png => "png",
             Self::Webp => "webp",
             Self::Mp4 => "mp4",
@@ -169,6 +173,7 @@ impl FromStr for MimeType {
             "image/bmp" => Ok(MimeType::Bmp),
             "image/gif" => Ok(MimeType::Gif),
             "image/jpeg" => Ok(MimeType::Jpeg),
+            "image/jxl" => Ok(MimeType::Jxl),
             "image/png" => Ok(MimeType::Png),
             "image/webp" => Ok(MimeType::Webp),
             "video/mp4" | "video/x-m4v" => Ok(MimeType::Mp4),

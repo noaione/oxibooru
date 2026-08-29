@@ -490,6 +490,7 @@ export type MimeType =
   | 'application/x-shockwave-flash'
   | 'application/vnd.adobe.flash.movie'
   | 'image/avif'
+  | 'image/jxl'
   | 'application/zip';
 
 /**

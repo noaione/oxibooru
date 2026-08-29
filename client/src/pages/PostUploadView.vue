@@ -34,7 +34,7 @@
           Drag &amp; drop files here or <span class="text-cyan-500">click to select</span>
         </p>
         <p class="text-gray-400 dark:opacity-90 text-xs mt-1">
-          Supported: JPG, PNG, GIF, WEBP, AVIF, HEIF, MP4, WEBM, MOV, SWF, ZIP
+          Supported: JPG, PNG, GIF, JXL, WEBP, AVIF, HEIF, MP4, WEBM, MOV, SWF, ZIP
         </p>
       </div>
 

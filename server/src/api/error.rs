@@ -62,6 +62,7 @@ pub enum ApiError {
     Image(#[from] image::ImageError),
     JsonRejection(#[from] axum::extract::rejection::JsonRejection),
     JsonSerialization(#[from] serde_json::Error),
+    JxlDecoding(#[from] jxl::error::Error),
     #[error("Missing {0} content")]
     MissingContent(ResourceType),
     #[error("Failed to infer content type")]
@@ -175,6 +176,7 @@ impl ApiError {
             | Self::InvalidTime(_)
             | Self::InvalidUploadToken
             | Self::InvalidUserRank
+            | Self::JxlDecoding(_)
             | Self::MissingUgoiraManifest
             | Self::NoEmail
             | Self::NoNamesGiven(_)
@@ -236,6 +238,7 @@ impl ApiError {
             Self::Image(_) => "Image Error",
             Self::JsonRejection(_) => "JSON Rejection",
             Self::JsonSerialization(_) => "JSON Serialization Error",
+            Self::JxlDecoding(_) => "JPEG XL Decoding Error",
             Self::MissingContent(_) => "Missing Content",
             Self::MissingContentType => "Missing Content Type",
             Self::MissingFormData => "Missing Form Data",
