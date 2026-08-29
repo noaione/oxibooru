@@ -5,6 +5,7 @@
       <AutoCompleteTag
         target="posts"
         :model-value="searchQuery ? [searchQuery] : []"
+        :include-implications="false"
         class="items-center w-full max-w-full md:max-w-[30%]"
         input-class="w-full"
       />
@@ -60,6 +61,7 @@
             :model-value="lockedMassTags"
             class="items-center w-full max-w-full md:max-w-[60%]"
             input-class="w-full"
+            include-implications
             @submit="startMassTagging"
           >
             <template #submit> Start tagging </template>

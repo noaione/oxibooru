@@ -123,6 +123,8 @@ const props = withDefaults(
     dropdownClass?: string;
     /** when true, emit 'submit' but skip router navigation */
     overrideSubmit?: boolean;
+    /** when true, selecting a tag also adds its implied tags */
+    includeImplications?: boolean;
     /** input mode: initial tag name → category name map for coloring chips */
     tagCategories?: Record<string, string>;
   }>(),
@@ -132,6 +134,7 @@ const props = withDefaults(
     modelValue: () => [],
     placeholder: 'Search tags…',
     overrideSubmit: false,
+    includeImplications: true,
   },
 );
 
@@ -266,9 +269,11 @@ function selectSuggestion(suggestion: Suggestion) {
       // Strip the partial word fragment from the tail (chars before the next space)
       const cleanSuffix = textAfter.replace(/^[^\s,]*/, '').trimStart();
 
-      const implPart =
-        !negation && suggestion.implications.length ? ' ' + suggestion.implications.join(' ') : '';
-      const replacement = prefix + negation + suggestion.name + implPart + ' ';
+      const implicationSuffix =
+        props.includeImplications && !negation && suggestion.implications.length
+          ? ' ' + suggestion.implications.join(' ')
+          : '';
+      const replacement = prefix + negation + suggestion.name + implicationSuffix + ' ';
       inputText.value = cleanSuffix ? replacement + cleanSuffix : replacement;
 
       const newCursor = replacement.length;
@@ -283,7 +288,10 @@ function selectSuggestion(suggestion: Suggestion) {
   } else {
     localCategoryMap.value.set(suggestion.name, suggestion.category);
     const existing = new Set(props.modelValue);
-    const toAdd = [suggestion.name, ...suggestion.implications].filter(
+    const toAdd = [
+      suggestion.name,
+      ...(props.includeImplications ? suggestion.implications : []),
+    ].filter(
       (t) => t && !existing.has(t),
     );
     if (toAdd.length) {

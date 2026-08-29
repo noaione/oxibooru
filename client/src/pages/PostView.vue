@@ -84,6 +84,7 @@
               mode="input"
               v-model="editTags"
               :tag-categories="editTagCategories"
+              include-implications
               placeholder="Add tags…"
               class="bg-gray-50! dark:bg-gray-800! py-2!"
               dropdown-class="bg-gray-50! dark:bg-gray-800!"
