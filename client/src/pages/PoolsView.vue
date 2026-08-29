@@ -84,7 +84,9 @@
             >
               {{ pool.names?.[0] ?? `Pool #${pool.id}` }}
             </RouterLink>
-            <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400 w-fit">
+            <div
+              class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400 w-fit"
+            >
               <span
                 v-if="pool.category"
                 class="px-1.5 py-0.5 rounded border"
