@@ -88,6 +88,18 @@ pub enum ApiError {
     NotFound(ResourceType),
     #[error("This action requires you to be logged in")]
     NotLoggedIn,
+    #[error("OIDC provider '{0}' is not configured")]
+    OidcProviderNotFound(String),
+    #[error("OIDC state is invalid or has expired")]
+    OidcInvalidState,
+    #[error("OIDC account creation is disabled and no matching account was found")]
+    OidcAutoCreateDisabled,
+    #[error("OIDC provider discovery failed: {0}")]
+    OidcDiscoveryFailed(crate::oidc::OidcError),
+    #[error("OIDC provider returned an unverified email address")]
+    OidcEmailNotVerified,
+    #[error("OIDC response is missing required field: {0}")]
+    OidcMissingField(&'static str),
     Password(#[from] argon2::password_hash::Error),
     PathRejection(#[from] axum::extract::rejection::PathRejection),
     PdfLoadError(#[from] PdfLoadError),
@@ -108,6 +120,15 @@ pub enum ApiError {
     UrlValidation(#[from] crate::content::download::UrlValidationError),
 }
 
+impl From<crate::oidc::OidcError> for ApiError {
+    fn from(err: crate::oidc::OidcError) -> Self {
+        match err {
+            crate::oidc::OidcError::EmailNotVerified => Self::OidcEmailNotVerified,
+            other => Self::OidcDiscoveryFailed(other),
+        }
+    }
+}
+
 impl ApiError {
     pub fn status_code(&self) -> StatusCode {
         use serde_json::error::Category;
@@ -126,9 +147,14 @@ impl ApiError {
             | Self::MissingContentType
             | Self::MissingFormData
             | Self::MissingMetadata => StatusCode::BAD_REQUEST,
-            Self::NotLoggedIn | Self::Password(_) | Self::UnauthorizedPasswordReset => StatusCode::UNAUTHORIZED,
-            Self::Hidden(_) | Self::InsufficientPrivileges => StatusCode::FORBIDDEN,
-            Self::NotFound(_) => StatusCode::NOT_FOUND,
+            Self::NotLoggedIn | Self::Password(_) | Self::UnauthorizedPasswordReset | Self::OidcInvalidState => {
+                StatusCode::UNAUTHORIZED
+            }
+            Self::Hidden(_)
+            | Self::InsufficientPrivileges
+            | Self::OidcAutoCreateDisabled
+            | Self::OidcEmailNotVerified => StatusCode::FORBIDDEN,
+            Self::NotFound(_) | Self::OidcProviderNotFound(_) => StatusCode::NOT_FOUND,
             Self::AlreadyExists(_) | Self::ResourceModified => StatusCode::CONFLICT,
             Self::ContentTooLarge => StatusCode::PAYLOAD_TOO_LARGE,
             Self::UnsupportedContentType(_) | Self::UnsupportedExtension(_) => StatusCode::UNSUPPORTED_MEDIA_TYPE,
@@ -152,10 +178,12 @@ impl ApiError {
             | Self::NoEmail
             | Self::NoNamesGiven(_)
             | Self::NotAnInteger(_)
+            | Self::OidcMissingField(_)
             | Self::PdfLoadError(_)
             | Self::SelfMerge(_)
             | Self::SwfDecoding(_)
             | Self::UrlValidation(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::OidcDiscoveryFailed(_) => StatusCode::BAD_GATEWAY,
             Self::FailedEmailTransport(_)
             | Self::FailedQuery(_)
             | Self::InvalidHeader(_)
@@ -220,6 +248,12 @@ impl ApiError {
             Self::NotAnInteger(_) => "Parse Int Error",
             Self::NotFound(_) => "Resource Not Found",
             Self::NotLoggedIn => "Not Logged In",
+            Self::OidcProviderNotFound(_) => "OIDC Provider Not Found",
+            Self::OidcInvalidState => "OIDC Invalid State",
+            Self::OidcAutoCreateDisabled => "OIDC Auto Create Disabled",
+            Self::OidcDiscoveryFailed(_) => "OIDC Discovery Failed",
+            Self::OidcEmailNotVerified => "OIDC Email Not Verified",
+            Self::OidcMissingField(_) => "OIDC Missing Field",
             Self::Password(_) => "Password Error",
             Self::PathRejection(_) => "Path Rejection",
             Self::PdfLoadError(_) => "PDF Load Error",
