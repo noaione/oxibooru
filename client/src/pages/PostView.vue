@@ -669,7 +669,7 @@
           ref="flashMediaWrapperRef"
           :key="`flash-${post.id}`"
           class="relative"
-          :class="[mediaWrapperClass]"
+          :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
         >
           <FlashPlayer
             :src="resolveApiUrl(post.contentUrl)!"
@@ -690,10 +690,7 @@
           v-else-if="post.type === 'document' && post.mimeType === 'application/pdf'"
           :key="`pdf-${post.id}`"
           class="relative"
-          :class="mediaWrapperClass"
-          :style="{
-            aspectRatio: `${post.canvasWidth ?? 1} / ${post.canvasHeight ?? 1}`,
-          }"
+          :class="[mediaWrapperClass, { 'transparency-grid': settings.transparencyGrid }]"
         >
           <object
             :data="resolveApiUrl(post.contentUrl)"
