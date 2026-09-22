@@ -47,6 +47,11 @@ const router = createRouter({
       name: 'password-reset',
       component: () => import('@/pages/PasswordResetView.vue'),
     },
+    {
+      path: '/oidc/:provider/callback',
+      name: 'oidc-callback',
+      component: () => import('@/pages/OidcCallbackView.vue'),
+    },
     // ── Posts core routes (Stage 4) ──────────────────────────
     {
       path: '/post/merge/:id1/:id2',

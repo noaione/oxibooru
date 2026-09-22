@@ -45,6 +45,32 @@
           Create an account
         </RouterLink>
       </div>
+
+      <div
+        v-if="
+          Array.isArray(api.config?.config.oidcProviders) &&
+          api.config.config.oidcProviders.length > 0
+        "
+        class="mt-3 text-sm flex flex-col gap-1 w-fit"
+      >
+        <p>or log in with</p>
+        <div class="flex flex-row gap-1 mt-3">
+          <FlatButton
+            v-for="provider in api.config.config.oidcProviders"
+            :key="provider.name"
+            class="w-fit font-medium flex items-center gap-2 px-3!"
+            :disabled="loading"
+            @click="oidc(provider.name)"
+          >
+            <img
+              v-if="provider.iconProvider"
+              :src="provider.iconProvider"
+              class="size-4.5 inline-block"
+            />
+            {{ provider.displayName }}
+          </FlatButton>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -89,5 +115,21 @@ async function submit() {
 
   const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/';
   router.push(redirect);
+}
+
+async function oidc(provider: string) {
+  errorMsg.value = '';
+  loading.value = true;
+  const result = await api.oidcAuthorize(provider);
+
+  if (!result.success) {
+    errorMsg.value = result.description;
+    loading.value = false;
+    return;
+  }
+
+  sessionStorage.setItem('oidc_state', result.data.state);
+  sessionStorage.setItem('oidc_provider', provider);
+  window.location.href = result.data.authorizeUrl; // never stop the loading
 }
 </script>

@@ -10,6 +10,7 @@ mod extract;
 mod filesystem;
 mod math;
 mod model;
+mod oidc;
 mod resource;
 mod schema;
 mod search;

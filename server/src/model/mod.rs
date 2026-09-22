@@ -1,5 +1,6 @@
 pub mod comment;
 pub mod enums;
+pub mod oidc;
 pub mod pool;
 pub mod pool_category;
 pub mod post;
