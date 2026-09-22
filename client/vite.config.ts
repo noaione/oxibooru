@@ -30,7 +30,7 @@ function getBuildGitHub(): string {
     const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
     return `${remote}/commits/${branch}`;
   } catch {
-    return 'https://github.com/liamw1/oxibooru/commits/master';
+    return 'https://github.com/noaione/oxibooru/commits/naoX';
   }
 }
 

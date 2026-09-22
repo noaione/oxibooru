@@ -133,7 +133,7 @@ const CONTENT = {
   about: computed(
     () => `# About
 
-This is **${serverName.value}**, an image board powered by [Oxibooru](https://github.com/liamw1/oxibooru).
+This is **${serverName.value}**, an image board powered by [Oxibooru](https://github.com/noaione/oxibooru).
 
 You can browse, upload, tag, and comment on posts. Use the search bar on the posts page to find images by tag.
 

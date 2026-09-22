@@ -5,4 +5,4 @@
 - [Development Guide](DEV.md)
 - [API](API.md)
 - [License](LICENSE.md)
-- [Source Code](https://github.com/liamw1/oxibooru/)
+- [Source Code](https://github.com/noaione/oxibooru/)

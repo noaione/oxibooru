@@ -6,7 +6,7 @@ This guide assumes you have cloned the Oxibooru repository but have not yet run 
 
 The guide doesn't cover migrating the `config.yaml`, but the structure of the Oxibooru equivalent, `config.toml`, is almost identical. Just copy over the settings from the config.yaml manually if you want them.
 
-If you encounter any issues during the conversion process, please open up an issue on [Github](https://github.com/liamw1/oxibooru/issues).
+If you encounter any issues during the conversion process, please open up an issue on [Github](https://github.com/noaione/oxibooru/issues).
 
 ## Known Limitations
 

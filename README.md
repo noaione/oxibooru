@@ -3,11 +3,10 @@
 Forked version by me, this includes the following changes:
 - OIDC authentication support: https://github.com/noaione/oxibooru/tree/feature/oidc
 - Ugoira support: https://github.com/noaione/oxibooru/tree/feature/ugoira
-- JXL upload support: https://github.com/noaione/oxibooru/tree/feature/jxl
 - Vue 3 frontend rework: https://github.com/noaione/oxibooru/tree/feat/vue3-frontend
    - OIDC specific changes: https://github.com/noaione/oxibooru/tree/feature/vue3-oidc
    - Ugoira specific changes: https://github.com/noaione/oxibooru/tree/feature/vue3-ugoira
-   - JXL specific changes: https://github.com/noaione/oxibooru/tree/feature/vue3-jxl
+- Add parallel runner for JXL
 - Disabled PostgreSQL from opening ports in docker
 
 ### OIDC
