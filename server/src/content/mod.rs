@@ -17,6 +17,7 @@ mod jxl;
 mod pdf;
 pub mod signature;
 pub mod thumbnail;
+pub mod ugoira;
 pub mod upload;
 
 /// Contains either the name of a file uploaded to the temporary uploads
