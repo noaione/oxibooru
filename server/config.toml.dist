@@ -46,6 +46,10 @@ avatar_height = 300
 post_width    = 300
 post_height   = 300
 
+[ugoira]
+# Maximum allowed file size for ugoira ZIP uploads, in megabytes.
+max_file_size_mb = 20
+
 # Used to send password reset e-mails.
 # Port, username, and password are optional.
 #[smtp]

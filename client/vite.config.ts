@@ -65,7 +65,13 @@ function ruffleDevPlugin(): Plugin {
 export default defineConfig({
   base: process.env.BASE_URL || '/',
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'ugoira-player',
+        },
+      },
+    }),
     vueDevTools(),
     tailwindcss(),
     ruffleDevPlugin(),
